@@ -1,0 +1,3 @@
+float32 ft_dutyuphase
+float32 ft_dutyvphase
+float32 ft_dutywphase
