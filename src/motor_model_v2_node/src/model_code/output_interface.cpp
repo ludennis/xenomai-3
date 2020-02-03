@@ -1,14 +1,13 @@
 /* INCLUDE */
-#include "rclcpp/rclcpp.hpp"
-#include "output_interface.h"
+#include <memory>
+#include <iostream>
 
-/* USING */
-using stMsgMotorOutput = data_interfaces::msg::MsgMotorOutput;
-using stMsgDynoSensing = data_interfaces::msg::MsgDynoSensing;
+#include "output_interface.h"
+#include "SharedMsg.h"
 
 /* VARIABLE */
-stMsgMotorOutput::SharedPtr outputData1;
-stMsgDynoSensing::SharedPtr outputData2;
+std::shared_ptr<MsgMotorOutput> MotorOutputPtr;
+std::shared_ptr<MsgDynoSensing> DynoSensingPtr;
 
 /* FUNCTION */
 void setMsgDynoCmd(MsgDynoCmd data)
@@ -18,13 +17,19 @@ void setMsgDynoCmd(MsgDynoCmd data)
 
 void setMsgDynoSensing(MsgDynoSensing data)
 {
+    std::cout << "output_interface line 19" << std::endl;
     /* MsgDynoSensing */
-outputData2->ft_outputtorques = data.ft_OutputTorqueS;
-outputData2->ft_voltageq = data.ft_VoltageQ;
-outputData2->ft_voltaged = data.ft_VoltageD;
-outputData2->ft_currentus = data.ft_CurrentUS;
-outputData2->ft_currentvs = data.ft_CurrentVS;
-outputData2->ft_currentws = data.ft_CurrentWS;
+    DynoSensingPtr->ft_OutputTorqueS = data.ft_OutputTorqueS;
+    std::cout << "output_interface line 23" << std::endl;
+    DynoSensingPtr->ft_VoltageQ = data.ft_VoltageQ;
+    std::cout << "output_interface line 25" << std::endl;
+    DynoSensingPtr->ft_VoltageD = data.ft_VoltageD;
+    std::cout << "output_interface line 27" << std::endl;
+    DynoSensingPtr->ft_CurrentUS = data.ft_CurrentUS;
+    std::cout << "output_interface line 29" << std::endl;
+    DynoSensingPtr->ft_CurrentVS = data.ft_CurrentVS;
+    std::cout << "output_interface line 31" << std::endl;
+    DynoSensingPtr->ft_CurrentWS = data.ft_CurrentWS;
 }
 
 void setMsgMcuOutput(MsgMcuOutput data)
@@ -35,17 +40,17 @@ void setMsgMcuOutput(MsgMcuOutput data)
 void setMsgMotorOutput(MsgMotorOutput data)
 {
     /* MsgMotorOutput */
-outputData1->ft_currentu = data.ft_CurrentU;
-outputData1->ft_currentv = data.ft_CurrentV;
-outputData1->ft_currentw = data.ft_CurrentW;
-outputData1->ft_rotorrpm = data.ft_RotorRPM;
-outputData1->ft_rotordegreerad = data.ft_RotorDegreeRad;
-outputData1->ft_outputtorque = data.ft_OutputTorque;
+MotorOutputPtr->ft_CurrentU = data.ft_CurrentU;
+MotorOutputPtr->ft_CurrentV = data.ft_CurrentV;
+MotorOutputPtr->ft_CurrentW = data.ft_CurrentW;
+MotorOutputPtr->ft_RotorRPM = data.ft_RotorRPM;
+MotorOutputPtr->ft_RotorDegreeRad = data.ft_RotorDegreeRad;
+MotorOutputPtr->ft_OutputTorque = data.ft_OutputTorque;
 }
 
 void outputInterfaceInit(void)
 {
     /* INIT */
-    outputData1 = std::make_shared<stMsgMotorOutput>();
-    outputData2 = std::make_shared<stMsgDynoSensing>();
+    MotorOutputPtr = std::make_shared<MsgMotorOutput>();
+    DynoSensingPtr = std::make_shared<MsgDynoSensing>();
 }
