@@ -1,2 +1,4 @@
 *.swp
 *.vs
+build
+CMakeSettings.json
