@@ -1,23 +1,17 @@
 /* INCLUDE */
 #include <chrono>
-#include "rclcpp/rclcpp.hpp"
-#include "data_interfaces/msg/msg_mcu_output.hpp"
-#include "data_interfaces/msg/msg_dyno_cmd.hpp"
 #include "input_interface.h"
 
-/* USING */
-using stMsgMcuOutput = data_interfaces::msg::MsgMcuOutput;
-using stMsgDynoCmd = data_interfaces::msg::MsgDynoCmd;
-
-/* EXTERN */
-extern stMsgMcuOutput::SharedPtr inputData1;
-extern stMsgDynoCmd::SharedPtr inputData2;
+auto constexpr kDummyDynoRPM = 5.5;
+auto constexpr kDummyDutyUPhase = 1.5;
+auto constexpr kDummyDutyVPhase = 0.3;
+auto constexpr kDummyDutyWPhase = 1.1;
 
 /* FUNCTION */
 MsgDynoCmd getMsgDynoCmd()
 {
     MsgDynoCmd MsgDynoCmdRetData;
-MsgDynoCmdRetData.ft_DynoRPM = inputData2->ft_dynorpm;
+    MsgDynoCmdRetData.ft_DynoRPM = kDummyDynoRPM;
     return MsgDynoCmdRetData;
 }
 
@@ -30,9 +24,9 @@ MsgDynoSensing getMsgDynoSensing()
 MsgMcuOutput getMsgMcuOutput()
 {
     MsgMcuOutput MsgMcuOutputRetData;
-MsgMcuOutputRetData.ft_DutyUPhase = inputData1->ft_dutyuphase;
-MsgMcuOutputRetData.ft_DutyVPhase = inputData1->ft_dutyvphase;
-MsgMcuOutputRetData.ft_DutyWPhase = inputData1->ft_dutywphase;
+    MsgMcuOutputRetData.ft_DutyUPhase = kDummyDutyUPhase;
+    MsgMcuOutputRetData.ft_DutyVPhase = kDummyDutyVPhase;
+    MsgMcuOutputRetData.ft_DutyWPhase = kDummyDutyWPhase;
     return MsgMcuOutputRetData;
 }
 
