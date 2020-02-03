@@ -1,6 +1,0 @@
-float32 ft_currentu
-float32 ft_currentv
-float32 ft_currentw
-float32 ft_rotorrpm
-float32 ft_rotordegreerad
-float32 ft_outputtorque

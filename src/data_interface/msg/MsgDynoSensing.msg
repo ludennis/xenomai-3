@@ -1,6 +1,0 @@
-float32 ft_outputtorques
-float32 ft_voltageq
-float32 ft_voltaged
-float32 ft_currentus
-float32 ft_currentvs
-float32 ft_currentws
