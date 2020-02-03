@@ -16,26 +16,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 add_compile_options(-O3)
 
-# find dependencies
-find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
-find_package(std_msgs REQUIRED)
-find_package(data_interfaces REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
-
-if(BUILD_TESTING)
-  find_package(ament_lint_auto REQUIRED)
-  # the following line skips the linter which checks for copyrights
-  # uncomment the line when a copyright and license is not present in all source files
-  #set(ament_cmake_copyright_FOUND TRUE)
-  # the following line skips cpplint (only works in a git repo)
-  # uncomment the line when this package is not in a git repo
-  #set(ament_cmake_cpplint_FOUND TRUE)
-  ament_lint_auto_find_test_dependencies()
-endif()
-
 # Set path
 set(MATLAB_ROOT "src/matlab_code")
 set(START_DIR "src/model_code")
@@ -66,18 +46,17 @@ add_definitions(-DMODEL_HAS_DYNAMICALLY_LOADED_SFCNS=0)
 
 # Set executable
 add_executable(motor_model_v2
-${START_DIR}/generated_model.cpp
-${START_DIR}/rtGetInf.cpp
-${START_DIR}/rtGetNaN.cpp
-${START_DIR}/rt_nonfinite.cpp
-${START_DIR}/ert_main.cpp
-${START_DIR}/input_interface.cpp
-${START_DIR}/output_interface.cpp)
-ament_target_dependencies(motor_model_v2 rclcpp std_msgs data_interfaces)
+  ${START_DIR}/generated_model.cpp
+  ${START_DIR}/rtGetInf.cpp
+  ${START_DIR}/rtGetNaN.cpp
+  ${START_DIR}/rt_nonfinite.cpp
+  ${START_DIR}/ert_main.cpp
+  ${START_DIR}/input_interface.cpp
+  ${START_DIR}/output_interface.cpp
+)
 
 install(TARGETS
-# Set install
-motor_model_v2
-  DESTINATION lib/${PROJECT_NAME})
-
-ament_package()
+ # Set install
+  motor_model_v2
+  DESTINATION lib/${PROJECT_NAME}
+)
