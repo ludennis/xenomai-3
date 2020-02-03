@@ -269,7 +269,6 @@ void generated_model_step(void)
   //   Product: '<S6>/Product1'
   //   Product: '<S6>/Product3'
   //   Sum: '<S6>/Sum3'
-
   rtb_Product2_m = 1.5 * generated_model_DW.Product5 * 4.0 *
     (generated_model_DW.Product1_n * generated_model_DW.Sum1 + 0.16762);
 
@@ -301,7 +300,6 @@ void generated_model_step(void)
   //   DataTypeConversion: '<S8>/Data Type Conversion1'
   //   Fcn: '<S20>/Ic'
   //   Fcn: '<S21>/I_beta'
-
   rtb_Ib_tmp = 0.866F * static_cast<real32_T>((generated_model_DW.Product1_n *
     rtb_Ic_tmp + generated_model_DW.Product5 * rtb_MathFunction));
   rtb_Ib = -0.5F * rtb_Ic + rtb_Ib_tmp;
@@ -324,17 +322,14 @@ void generated_model_step(void)
     = rtb_Ib;
   generated_model_DW.BusConversion_InsertedFor_MsgDynoSensing_at_inport_0_BusCreator1.ft_CurrentWS
     = rtb_Ic;
+
   if (rtmIsMajorTimeStep(generated_model_M)) {
     // S-Function (setMsgDynoSensing): '<Root>/MsgDynoSensing'
-    setMsgDynoSensing
-      (generated_model_DW.BusConversion_InsertedFor_MsgDynoSensing_at_inport_0_BusCreator1);
-
     // Gain: '<S7>/Gain3' incorporates:
     //   Constant: '<S2>/Constant1'
 
     generated_model_DW.Gain3 = 62.831853071795862;
   }
-
   // Switch: '<S7>/Switch'
   generated_model_DW.Switch = generated_model_DW.Gain3;
 
@@ -346,7 +341,6 @@ void generated_model_step(void)
   //   Gain: '<S1>/Gain1'
   //   Integrator: '<S7>/Integrator2'
   //   Math: '<S7>/Math Function1'
-
   generated_model_DW.BusConversion_InsertedFor_MsgMotorOutput_at_inport_0_BusCreator1.ft_CurrentU
     = rtb_Ia;
   generated_model_DW.BusConversion_InsertedFor_MsgMotorOutput_at_inport_0_BusCreator1.ft_CurrentV
@@ -362,9 +356,6 @@ void generated_model_step(void)
     = static_cast<real32_T>(rtb_Product2_m);
   if (rtmIsMajorTimeStep(generated_model_M)) {
     // S-Function (setMsgMotorOutput): '<Root>/MsgMotorOutput'
-    setMsgMotorOutput
-      (generated_model_DW.BusConversion_InsertedFor_MsgMotorOutput_at_inport_0_BusCreator1);
-
     // S-Function (getMsgMcuOutput): '<Root>/MsgMcuOutput'
     generated_model_DW.MsgMcuOutput_m = getMsgMcuOutput();
 
