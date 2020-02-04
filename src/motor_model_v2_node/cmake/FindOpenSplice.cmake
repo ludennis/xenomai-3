@@ -36,7 +36,12 @@ SET(OpenSplice_LIBRARIES
 )
 
 # Binary for the IDL compiler
-SET(OpenSplice_IDLGEN_BINARY $ENV{OSPL_HOME}/bin/idlpp)
+IF(WIN32)
+  SET(OpenSplice_IDLGEN_BINARY $ENV{OSPL_HOME}/bin/idlpp.exe)
+ELSE(WIN32)
+  SET(OpenSplice_IDLGEN_BINARY $ENV{OSPL_HOME}/bin/idlpp)
+ENDIF(WIN32)
+
 IF(OpenSplice_INCLUDE_DIRS AND OpenSplice_LIBRARIES)
   SET(OpenSplice_FOUND TRUE)
 ENDIF(OpenSplice_INCLUDE_DIRS AND OpenSplice_LIBRARIES)
