@@ -19,7 +19,7 @@ MACRO(OpenSplice_IDLGEN idlfilename)
     PRE_BUILD
     OUTPUT ${outsources}
     COMMAND ${OpenSplice_IDLGEN_BINARY}
-    ARGS -S -l cpp -d ${PROJECT_SOURCE_DIR}/src/idl/gen ${idlfilename}
+    ARGS -S -l isocpp2 -d ${PROJECT_SOURCE_DIR}/src/idl/gen ${idlfilename}
     DEPENDS ${it}
     COMMENT "${outsources} have been produced in directory gen"
   )
