@@ -27,10 +27,55 @@ set(CMAKE_VERBOSE_MAKEFILE = 1)
 find_package(OpenSplice REQUIRED)
 
 # openspclie dds
-include_directories(${OpenSplice_INCLUDE_DIRS})
+include_directories(
+  ${PROJECT_SOURCE_DIR}
+  ${OpenSplice_INCLUDE_DIRS}
+)
+
 add_definitions(
   ${OpenSplice_DEFINITIONS}
   ${DEFINITIONS}
+)
+
+# idl
+set(idls
+  ${PROJECT_SOURCE_DIR}/src/idl/ControlMessage.idl
+  ${PROJECT_SOURCE_DIR}/src/idl/MotorMessage.idl
+)
+
+set(idl_targets)
+foreach(idl ${idls})
+  OpenSplice_IDLGEN(${idl})
+
+  GET_FILENAME_COMPONENT(idl_filename ${idl} NAME_WE)
+  message("idl_filename: ${idl_filename}")
+
+  # OpenSplice_DATAMODEL should only contain .cpp .h and _DCPS.h files
+  set(OpenSplice_DATAMODEL)
+  foreach(outsource ${outsources})
+    GET_FILENAME_COMPONENT(outsource_filename ${outsource} NAME)
+    if("${outsource_filename}" STREQUAL "${idl_filename}.cpp")
+      set(OpenSplice_DATAMODEL ${OpenSplice_DATAMODEL} ${outsource})
+    elseif("${outsource_filename}" STREQUAL "${idl_filename}.h")
+      set(OpenSplice_DATAMODEL ${OpenSplice_DATAMODEL} ${outsource})
+    elseif("${outsource_filename}" STREQUAL "${idl_filename}_Dcps.h")
+      set(OpenSplice_DATAMODEL ${OpenSplice_DATAMODEL} ${outsource})
+    endif()
+  endforeach(outsource)
+
+  add_custom_target("${idl_filename}_generated_sources"
+    PRE_BUILD
+    ALL
+    DEPENDS ${outsources}
+    COMMENT "custom_target has been built"
+  )
+endforeach(idl)
+
+set(DATAMODEL datamodel)
+add_library(${DATAMODEL} STATIC ${OpenSplice_DATAMODEL})
+
+target_link_libraries(${DATAMODEL}
+  ${OpenSplice_LIBRARIES}
 )
 
 # Default to C99
@@ -94,6 +139,12 @@ add_executable(controller
 
 target_link_libraries(controller
   ${OpenSplice_LIBRARIES}
+  ${DATAMODEL}
+)
+
+target_include_directories(controller
+  PUBLIC
+  ${OpenSplice_INCLUDE_DIRS}
 )
 
 install(TARGETS

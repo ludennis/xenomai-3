@@ -1,0 +1,7 @@
+struct MotorMessage
+{
+  long id;
+  string content;
+};
+
+#pragma keylist MotorMessage id
