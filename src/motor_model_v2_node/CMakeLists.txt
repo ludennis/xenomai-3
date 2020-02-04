@@ -44,6 +44,7 @@ set(idls
 )
 
 set(idl_targets)
+set(OpenSplice_DATAMODEL)
 foreach(idl ${idls})
   OpenSplice_IDLGEN(${idl})
 
@@ -51,7 +52,7 @@ foreach(idl ${idls})
   message("idl_filename: ${idl_filename}")
 
   # OpenSplice_DATAMODEL should only contain .cpp .h and _DCPS.h files
-  set(OpenSplice_DATAMODEL)
+
   foreach(outsource ${outsources})
     GET_FILENAME_COMPONENT(outsource_filename ${outsource} NAME)
     if("${outsource_filename}" STREQUAL "${idl_filename}.cpp")
