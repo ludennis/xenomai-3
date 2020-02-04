@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.5)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 project(motor_model_v2_node)
 
-message("cmake_module_path: ${CMAKE_MODULE_PATH}")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(osmacros)
+include(MacroOpenSplice)
 
 # OS environment to find OpenSplice package
 if(WIN32)
