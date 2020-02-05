@@ -7,6 +7,11 @@
 
 #include "generated_model.h"
 
+#include <dds/dds.hpp>
+#include <MotorControllerUnitModule_DCPS.hpp>
+
+static dds::core::cond::GuardCondition terminated;
+
 class ElapsedTimes
 {
 public:
@@ -55,7 +60,7 @@ public:
   {
     std::cout << title << "\t\t\t" << Back().count() <<
       "\t\t" << GetMax() << "\t\t" << GetMin() << "\t" <<
-      GetAverage() << std::endl;
+      GetAverage() << std::endl << std::endl;
   }
 
 private:
@@ -103,13 +108,50 @@ int main(int argc, char * argv[])
   ElapsedTimes publishElapsedTimes;
   ElapsedTimes totalElapsedTimes;
 
+  // subscriber for control message
+  dds::domain::DomainParticipant participant(org::opensplice::domain::default_id());
+  dds::topic::Topic<MotorControllerUnitModule::ControlMessage>
+    controlTopic(participant, "control_topic");
+  dds::sub::Subscriber subscriber(participant);
+  dds::sub::DataReader<MotorControllerUnitModule::ControlMessage>
+    reader(subscriber, controlTopic);
+
+  // waitset for subscriber
+  dds::core::cond::WaitSet waitSet;
+  waitSet = dds::core::cond::WaitSet();
+
+  // status conditions for waitset
+  dds::core::cond::StatusCondition dataAvailable(reader);
+  dds::core::status::StatusMask statusMask;
+  statusMask << dds::core::status::StatusMask::data_available();
+  dataAvailable.enabled_statuses(statusMask);
+  waitSet += dataAvailable;
+  waitSet += terminated;
+
+  dds::core::cond::WaitSet::ConditionSeq conditions;
+  dds::core::Duration waitTimeout(1, 0);
+
   /* INSTANTIATION */
   generated_model_initialize();
   for (;;)
   {
-    motorStep(motorStepElapsedTimes,
-              publishElapsedTimes,
-              totalElapsedTimes);
+    std::cout << "Waiting for control message ..." << std::endl;
+    waitSet.wait(conditions, waitTimeout);
+    dds::sub::LoanedSamples<MotorControllerUnitModule::ControlMessage> samples =
+      reader.take();
+
+    for(auto sample = samples.begin(); sample < samples.end(); ++sample)
+    {
+      if(sample->info().valid())
+      {
+        std::cout << "Received control message: " << sample->data().content() <<
+          std::endl;
+        if(sample->data().content() == "motor_step")
+        {
+          motorStep(motorStepElapsedTimes, publishElapsedTimes, totalElapsedTimes);
+        }
+      }
+    }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
   }

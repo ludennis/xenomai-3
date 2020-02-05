@@ -135,6 +135,18 @@ add_executable(motor_model_v2
   ${MODEL_DIR}/output_interface.cpp
 )
 
+target_include_directories(motor_model_v2
+  PUBLIC
+  ${OpenSplice_INCLUDE_DIRS}
+  ${PROJECT_SOURCE_DIR}/src/idl/gen
+)
+
+target_link_libraries(motor_model_v2
+  ${OpenSplice_LIBRARIES}
+  ${DATAMODEL}
+)
+
+# controller
 add_executable(controller
   ${CONTROLLER_DIR}/controller_main.cpp
 )
