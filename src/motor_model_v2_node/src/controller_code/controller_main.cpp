@@ -8,7 +8,7 @@
 int main()
 {
   // domain participant
-  dds::domain::DomainParticipant participant(1);
+  dds::domain::DomainParticipant participant(org::opensplice::domain::default_id());
 
   // topic
   dds::topic::Topic<MotorControllerUnitModule::ControlMessage> contorlTopic(participant, "control_topic");
@@ -22,8 +22,9 @@ int main()
   for(auto count{1ll};;++count)
   {
     // send control signals to motor
-    writer << MotorControllerUnitModule::ControlMessage(1, "ping");
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    writer << MotorControllerUnitModule::ControlMessage(1, "motor_step");
+    std::cout << "requesting motor to step ... " << std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   }
 
   // data reader
