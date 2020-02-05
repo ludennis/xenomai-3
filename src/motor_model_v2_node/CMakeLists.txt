@@ -11,6 +11,8 @@ include(MacroOpenSplice)
 
 # OS environment to find OpenSplice package
 if(WIN32)
+  # suppress C4251 warnings
+  add_compile_options(/wd4251)
   if(DEBUG)
     set(DEFINITIONS "-DNDEBUG")
   endif(DEBUG)
