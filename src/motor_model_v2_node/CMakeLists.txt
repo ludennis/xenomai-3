@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.5)
 project(motor_model_v2_node)
 
+if(WIN32)
+  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS on)
+endif(WIN32)
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(osmacros)
 include(MacroOpenSplice)
@@ -46,20 +50,18 @@ set(idls
 set(idl_targets)
 set(OpenSplice_DATAMODEL)
 foreach(idl ${idls})
+  # generate idl source files with idlpp.exe
   OpenSplice_IDLGEN(${idl})
-
   GET_FILENAME_COMPONENT(idl_filename ${idl} NAME_WE)
-  message("idl_filename: ${idl_filename}")
 
   # OpenSplice_DATAMODEL should only contain .cpp .h and _DCPS.h files
-
   foreach(outsource ${outsources})
     GET_FILENAME_COMPONENT(outsource_filename ${outsource} NAME)
-    if("${outsource_filename}" STREQUAL "${idl_filename}.cpp")
-      set(OpenSplice_DATAMODEL ${OpenSplice_DATAMODEL} ${outsource})
-    elseif("${outsource_filename}" STREQUAL "${idl_filename}.h")
-      set(OpenSplice_DATAMODEL ${OpenSplice_DATAMODEL} ${outsource})
-    elseif("${outsource_filename}" STREQUAL "${idl_filename}_Dcps.h")
+    if("${outsource_filename}" STREQUAL "${idl_filename}.cpp" OR
+       "${outsource_filename}" STREQUAL "${idl_filename}.h" OR
+       "${outsource_filename}" STREQUAL "${idl_filename}_DCPS.hpp" OR
+       "${outsource_filename}" STREQUAL "${idl_filename}SplDcps.cpp" OR
+       "${outsource_filename}" STREQUAL "${idl_filename}SplDcps.h")
       set(OpenSplice_DATAMODEL ${OpenSplice_DATAMODEL} ${outsource})
     endif()
   endforeach(outsource)
@@ -73,7 +75,7 @@ foreach(idl ${idls})
 endforeach(idl)
 
 set(DATAMODEL datamodel)
-add_library(${DATAMODEL} STATIC ${OpenSplice_DATAMODEL})
+add_library(${DATAMODEL} SHARED ${OpenSplice_DATAMODEL})
 
 target_link_libraries(${DATAMODEL}
   ${OpenSplice_LIBRARIES}
@@ -146,6 +148,7 @@ target_link_libraries(controller
 target_include_directories(controller
   PUBLIC
   ${OpenSplice_INCLUDE_DIRS}
+  ${PROJECT_SOURCE_DIR}/src/idl/gen
 )
 
 install(TARGETS
