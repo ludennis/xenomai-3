@@ -45,8 +45,7 @@ add_definitions(
 
 # idl
 set(idls
-  ${PROJECT_SOURCE_DIR}/src/idl/ControlMessage.idl
-  ${PROJECT_SOURCE_DIR}/src/idl/MotorMessage.idl
+  ${PROJECT_SOURCE_DIR}/src/idl/MotorControllerUnitModule.idl
 )
 
 set(idl_targets)

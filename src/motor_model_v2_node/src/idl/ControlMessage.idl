@@ -1,7 +1,0 @@
-struct ControlMessage
-{
-  long id;
-  string content;
-};
-
-#pragma keylist ControlMessage id
