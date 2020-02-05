@@ -128,15 +128,34 @@ int main(int argc, char * argv[])
   waitSet += dataAvailable;
   waitSet += terminated;
 
-  dds::core::cond::WaitSet::ConditionSeq conditions;
-  dds::core::Duration waitTimeout(1, 0);
+  dds::core::cond::WaitSet::ConditionSeq conditionSeq;
+  dds::core::Duration waitSetTransmissionTimeout(1, 0);
+  dds::core::Duration waitSetConnectionTimeout(25, 0);
+
+  // publisher
+  dds::pub::Publisher publisher(participant);
+  dds::topic::Topic<MotorControllerUnitModule::MotorMessage>
+    motorTopic(participant, "motor_topic");
+  dds::pub::DataWriter<MotorControllerUnitModule::MotorMessage>
+    motorMessageWriter(publisher, motorTopic);
+
+  // waiting for controller to establish connection
 
   /* INSTANTIATION */
   generated_model_initialize();
-  for (;;)
+  for(auto count{1ll};;++count)
   {
     std::cout << "Waiting for control message ..." << std::endl;
-    waitSet.wait(conditions, waitTimeout);
+    try
+    {
+      waitSet.wait(conditionSeq,waitSetTransmissionTimeout);
+    }
+    catch(dds::core::TimeoutError &e)
+    {
+      (void)e;
+      continue;
+    }
+
     dds::sub::LoanedSamples<MotorControllerUnitModule::ControlMessage> samples =
       reader.take();
 
@@ -152,6 +171,10 @@ int main(int argc, char * argv[])
         }
       }
     }
+
+    // publish stepped message to confirm (can send in parallel to motor step)
+    motorMessageWriter << MotorControllerUnitModule::MotorMessage(count, "Stepped!");
+    std::cout << "Sending step completion message to controller ..." << std::endl;
 
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
   }
