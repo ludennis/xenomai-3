@@ -1,18 +1,12 @@
 cmake_minimum_required(VERSION 3.5)
 project(motor_model_v2_node)
 
-if(WIN32)
-  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS on)
-endif(WIN32)
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-include(osmacros)
-include(MacroOpenSplice)
-
 # OS environment to find OpenSplice package
 if(WIN32)
   # suppress C4251 warnings
   add_compile_options(/wd4251)
+  # settings for dll
+  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS on)
   if(DEBUG)
     set(DEFINITIONS "-DNDEBUG")
   endif(DEBUG)
@@ -29,10 +23,14 @@ else(WIN32)
   endif(DEBUG)
 endif(WIN32)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(osmacros)
+include(MacroOpenSplice)
+
 set(CMAKE_VERBOSE_MAKEFILE = 1)
 find_package(OpenSplice REQUIRED)
 
-# openspclie dds
+#  settings for opensplice dds
 include_directories(
   ${PROJECT_SOURCE_DIR}
   ${OpenSplice_INCLUDE_DIRS}
@@ -43,7 +41,7 @@ add_definitions(
   ${DEFINITIONS}
 )
 
-# idl
+# idl settings
 set(idls
   ${PROJECT_SOURCE_DIR}/src/idl/MotorControllerUnitModule.idl
 )
@@ -102,7 +100,7 @@ set(MATLAB_DIR "src/matlab_code")
 set(MODEL_DIR "src/model_code")
 set(CONTROLLER_DIR "src/controller_code")
 
-# Set include path
+# Set include path for project
 include_directories(${MODEL_DIR})
 include_directories(${MATLAB_DIR}/extern/include)
 include_directories(${MATLAB_DIR}/simulink/include)
@@ -126,7 +124,7 @@ add_definitions(-DNCSTATES=5)
 add_definitions(-DHAVESTDIO)
 add_definitions(-DMODEL_HAS_DYNAMICALLY_LOADED_SFCNS=0)
 
-# Set executable
+# motor_model_v2
 add_executable(motor_model_v2
   ${MODEL_DIR}/generated_model.cpp
   ${MODEL_DIR}/rtGetInf.cpp
@@ -152,6 +150,7 @@ target_include_directories(controller
   ${PROJECT_SOURCE_DIR}/src/idl/gen
 )
 
+# install
 install(TARGETS
  # Set install
   motor_model_v2
