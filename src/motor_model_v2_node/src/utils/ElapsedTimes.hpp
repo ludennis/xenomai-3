@@ -1,3 +1,6 @@
+#ifndef __ELAPSEDTIMES_HPP__
+#define __ELAPSEDTIMES_HPP__
+
 #include <chrono>
 #include <iomanip>
 #include <string>
@@ -11,25 +14,27 @@ class ElapsedTimes
 {
 public:
   ElapsedTimes()
-    : mSum(0)
-    ,mMin(LLONG_MAX)
-    ,mMax(LLONG_MIN)
+    : mSize(0)
+    , mSum(0)
+    , mMin(LLONG_MAX)
+    , mMax(LLONG_MIN)
+    , mBack(std::chrono::nanoseconds())
   {};
 
   void AddTime(const std::chrono::nanoseconds &time)
   {
-    mTimes.push_back(time);
+    mSize++;
     mSum += time.count();
     if(mMin > time.count())
       mMin = time.count();
     if(mMax < time.count())
       mMax = time.count();
+    mBack = time;
   }
 
   long long int GetAverage()
   {
-
-    return (mTimes.size() > 0) ? mSum / mTimes.size() : 0;
+    return (mSize > 0) ? mSum / mSize : 0;
   }
 
   long long int GetSum()
@@ -49,17 +54,17 @@ public:
 
   std::chrono::nanoseconds Back()
   {
-    return mTimes.back();
+    return mBack;
   }
 
   void Print(const std::string& name)
   {
-    if(mTimes.size() == 0)
+    if(mSize == 0)
     {
       return;
     }
 
-    std::cout << std::left << std::setfill(' ') << std::setw(20) << name;
+    std::cout << std::right << std::setfill(' ') << std::setw(20) << name;
     std::cout << std::right << std::setfill(' ') << std::setw(20) << Back().count();
     std::cout << std::right << std::setfill(' ') << std::setw(20) << GetMax();
     std::cout << std::right << std::setfill(' ') << std::setw(20) << GetMin();
@@ -69,20 +74,23 @@ public:
 
   void PrintHeader(const std::string& entity)
   {
-    std::cout << std::left << std::setfill('-') << std::setw(100) << '-' << std::endl;
-    std::cout << std::left << std::setfill(' ') << std::setw(20)  << entity;
-    std::cout << std::left << std::setfill(' ') << std::setw(20) << "Instance(ns)";
-    std::cout << std::left << std::setfill(' ') << std::setw(20) << "Max(ns)";
-    std::cout << std::left << std::setfill(' ') << std::setw(20) << "Min(ns)";
-    std::cout << std::left << std::setfill(' ') << std::setw(20) << "Avg(ns)" << std::endl;
-    std::cout << std::left << std::setfill('-') << std::setw(100) << '-' << std::endl;
+    std::cout << std::right << std::setfill('-') << std::setw(100) << '-' << std::endl;
+    std::cout << std::right << std::setfill(' ') << std::setw(20)  << entity;
+    std::cout << std::right << std::setfill(' ') << std::setw(20) << "Instance(ns)";
+    std::cout << std::right << std::setfill(' ') << std::setw(20) << "Max(ns)";
+    std::cout << std::right << std::setfill(' ') << std::setw(20) << "Min(ns)";
+    std::cout << std::right << std::setfill(' ') << std::setw(20) << "Avg(ns)" << std::endl;
+    std::cout << std::right << std::setfill('-') << std::setw(100) << '-' << std::endl;
   }
 
 private:
+  long int mSize;
   long long int mSum;
   long long int mMax;
   long long int mMin;
-  std::vector<std::chrono::nanoseconds> mTimes;
+  std::chrono::nanoseconds mBack;
 };
 
 } // namespace utils
+
+#endif // __ELAPSEDTIMES_HPP__
