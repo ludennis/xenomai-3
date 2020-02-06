@@ -138,7 +138,6 @@ add_executable(motor_model_v2
 target_include_directories(motor_model_v2
   PUBLIC
   ${OpenSplice_INCLUDE_DIRS}
-  ${PROJECT_SOURCE_DIR}/src/idl/gen
   ${PROJECT_SOURCE_DIR}/src
 )
 
@@ -160,7 +159,7 @@ target_link_libraries(controller
 target_include_directories(controller
   PUBLIC
   ${OpenSplice_INCLUDE_DIRS}
-  ${PROJECT_SOURCE_DIR}/src/idl/gen
+  ${PROJECT_SOURCE_DIR}/src
 )
 
 # install

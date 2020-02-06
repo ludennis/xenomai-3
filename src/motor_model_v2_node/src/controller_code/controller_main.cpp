@@ -1,12 +1,14 @@
-#include <chrono>
 #include <thread>
 
 #include <dds/dds.hpp>
 
-#include <MotorControllerUnitModule_DCPS.hpp>
+#include <utils/ElapsedTimes.hpp>
+#include <idl/gen/MotorControllerUnitModule_DCPS.hpp>
 
 int main()
 {
+  utils::ElapsedTimes roundTripElapsedTimes;
+
   // domain participant
   dds::domain::DomainParticipant participant(org::opensplice::domain::default_id());
 
@@ -58,6 +60,7 @@ int main()
   for(auto count{1ll};;++count)
   {
     // send control signals to motor
+    auto beginRoundTripTime = std::chrono::high_resolution_clock::now();
     controlMessageWriter << MotorControllerUnitModule::ControlMessage(1, "motor_step");
     std::cout << "requesting motor to step ... ";
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
@@ -71,6 +74,14 @@ int main()
         std::cout << sample->data().content() << std::endl;
       }
     }
+
+    auto endRoundTripTime = std::chrono::high_resolution_clock::now();
+    roundTripElapsedTimes.AddTime(
+      std::chrono::duration_cast<std::chrono::nanoseconds>(
+        endRoundTripTime - beginRoundTripTime));
+
+    roundTripElapsedTimes.PrintHeader("controller");
+    roundTripElapsedTimes.Print("round trip");
   }
 
   return 0;

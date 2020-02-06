@@ -1,4 +1,5 @@
 #include <chrono>
+#include <iomanip>
 #include <string>
 #include <vector>
 
@@ -51,15 +52,38 @@ public:
     return mTimes.back();
   }
 
-  void Print(const std::string& title)
+  void Print(const std::string& name)
   {
     if(mTimes.size() == 0)
     {
       return;
     }
-    std::cout << title << "\t\t\t" << Back().count() <<
-      "\t\t" << GetMax() << "\t\t" << GetMin() << "\t" <<
-      GetAverage() << std::endl << std::endl;
+
+    std::cout << std::left << std::setfill(' ') << std::setw(20) << name;
+    std::cout << std::right << std::setfill(' ') << std::setw(20) << Back().count();
+    std::cout << std::right << std::setfill(' ') << std::setw(20) << GetMax();
+    std::cout << std::right << std::setfill(' ') << std::setw(20) << GetMin();
+    std::cout << std::right << std::setfill(' ') << std::setw(20) << GetAverage();
+    std::cout << std::endl << std::endl;
+    //std::cout << name << "\t\t\t" << Back().count() <<
+    //  "\t\t" << GetMax() << "\t\t" << GetMin() << "\t" <<
+    //  GetAverage() << std::endl << std::endl;
+  }
+
+  void PrintHeader(const std::string& entity)
+  {
+    std::cout << std::left << std::setfill('-') << std::setw(100) << '-' << std::endl;
+    std::cout << std::left << std::setfill(' ') << std::setw(20)  << entity;
+    std::cout << std::left << std::setfill(' ') << std::setw(20) << "Instance(ns)";
+    std::cout << std::left << std::setfill(' ') << std::setw(20) << "Max(ns)";
+    std::cout << std::left << std::setfill(' ') << std::setw(20) << "Min(ns)";
+    std::cout << std::left << std::setfill(' ') << std::setw(20) << "Avg(ns)" << std::endl;
+    std::cout << std::left << std::setfill('-') << std::setw(100) << '-' << std::endl;
+
+    //printf("------------------------------------------------------------------------\n");
+    //printf("%s Measured duration\tInstant(ns)\tMax(ns)\t\tMin(ns)\tAvg(ns)\n", entity);
+    //printf("------------------------------------------------------------------------\n");
+
   }
 
 private:

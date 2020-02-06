@@ -113,10 +113,7 @@ int main(int argc, char * argv[])
       std::chrono::duration_cast<std::chrono::nanoseconds>(
         endTotalTime - beginTotalTime));
 
-    printf("------------------------------------------------------------------------\n");
-    printf("Motor Measured duration\tInstant(ns)\tMax(ns)\t\tMin(ns)\tAvg(ns)\n");
-    printf("------------------------------------------------------------------------\n");
-
+    motorStepElapsedTimes.PrintHeader("motor");
     motorStepElapsedTimes.Print("motorStep");
     publishElapsedTimes.Print("publish");
     totalElapsedTimes.Print("total");
