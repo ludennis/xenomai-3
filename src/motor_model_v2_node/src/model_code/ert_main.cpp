@@ -33,7 +33,8 @@ public:
 
   long long int GetAverage()
   {
-    return mSum / mTimes.size();
+
+    return (mTimes.size() > 0) ? mSum / mTimes.size() : 0;
   }
 
   long long int GetSum()
@@ -58,6 +59,10 @@ public:
 
   void Print(const std::string& title)
   {
+    if(mTimes.size() == 0)
+    {
+      return;
+    }
     std::cout << title << "\t\t\t" << Back().count() <<
       "\t\t" << GetMax() << "\t\t" << GetMin() << "\t" <<
       GetAverage() << std::endl << std::endl;
@@ -70,40 +75,16 @@ private:
   std::vector<std::chrono::nanoseconds> mTimes;
 };
 
-void motorStep(ElapsedTimes& motorStepElapsedTimes,
-  ElapsedTimes& publishElapsedTimes, ElapsedTimes& totalElapsedTimes)
+void motorStep()
 {
-  auto beginTime = std::chrono::steady_clock::now();
-
-  // motor step
   generated_model_step();
-
-  auto endMotorTime = std::chrono::steady_clock::now();
-
-  // publish
-  auto endPublishTime = std::chrono::steady_clock::now();
-
-  motorStepElapsedTimes.AddTime(
-    std::chrono::duration_cast<std::chrono::nanoseconds>(
-      endMotorTime - beginTime));
-  publishElapsedTimes.AddTime(
-    std::chrono::duration_cast<std::chrono::nanoseconds>(
-      endPublishTime - endMotorTime));
-  totalElapsedTimes.AddTime(
-    std::chrono::duration_cast<std::chrono::nanoseconds>(
-      endPublishTime - beginTime));
-
-  printf("------------------------------------------------------------------------\n");
-  printf("Measured duration\tInstant(ns)\tMax(ns)\t\tMin(ns)\tAvg(ns)\n");
-  printf("------------------------------------------------------------------------\n");
-  motorStepElapsedTimes.Print("motor");
-  publishElapsedTimes.Print("publish");
-  totalElapsedTimes.Print("total");
-
 }
 
 int main(int argc, char * argv[])
 {
+  // model instantiation
+  generated_model_initialize();
+
   ElapsedTimes motorStepElapsedTimes;
   ElapsedTimes publishElapsedTimes;
   ElapsedTimes totalElapsedTimes;
@@ -139,16 +120,14 @@ int main(int argc, char * argv[])
   dds::pub::DataWriter<MotorControllerUnitModule::MotorMessage>
     motorMessageWriter(publisher, motorTopic);
 
-  // waiting for controller to establish connection
-
-  /* INSTANTIATION */
-  generated_model_initialize();
   for(auto count{1ll};;++count)
   {
+    // waiting for controller to establish connection
     std::cout << "Waiting for control message ..." << std::endl;
     try
     {
       waitSet.wait(conditionSeq,waitSetTransmissionTimeout);
+      //reader.take();
     }
     catch(dds::core::TimeoutError &e)
     {
@@ -156,6 +135,8 @@ int main(int argc, char * argv[])
       continue;
     }
 
+    // time total time?
+    auto beginTotalTime = std::chrono::high_resolution_clock::now();
     dds::sub::LoanedSamples<MotorControllerUnitModule::ControlMessage> samples =
       reader.take();
 
@@ -167,14 +148,43 @@ int main(int argc, char * argv[])
           std::endl;
         if(sample->data().content() == "motor_step")
         {
-          motorStep(motorStepElapsedTimes, publishElapsedTimes, totalElapsedTimes);
+          // time motor step
+          auto beginMotorStepTime = std::chrono::high_resolution_clock::now();
+          motorStep();
+          auto endMotorStepTime = std::chrono::high_resolution_clock::now();
+          motorStepElapsedTimes.AddTime(
+            std::chrono::duration_cast<std::chrono::nanoseconds>(
+              endMotorStepTime - beginMotorStepTime));
         }
       }
     }
 
     // publish stepped message to confirm (can send in parallel to motor step)
+    // time publish time?
+    auto beginPublishTime = std::chrono::high_resolution_clock::now();
     motorMessageWriter << MotorControllerUnitModule::MotorMessage(count, "Stepped!");
+
     std::cout << "Sending step completion message to controller ..." << std::endl;
+
+    auto endPublishTime = std::chrono::high_resolution_clock::now();
+    auto endTotalTime = std::chrono::high_resolution_clock::now();
+
+
+    publishElapsedTimes.AddTime(
+      std::chrono::duration_cast<std::chrono::nanoseconds>(
+        endPublishTime - beginPublishTime));
+
+    totalElapsedTimes.AddTime(
+      std::chrono::duration_cast<std::chrono::nanoseconds>(
+        endTotalTime - beginTotalTime));
+
+    printf("------------------------------------------------------------------------\n");
+    printf("Motor Measured duration\tInstant(ns)\tMax(ns)\t\tMin(ns)\tAvg(ns)\n");
+    printf("------------------------------------------------------------------------\n");
+
+    motorStepElapsedTimes.Print("motorStep");
+    publishElapsedTimes.Print("publish");
+    totalElapsedTimes.Print("total");
 
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
   }
