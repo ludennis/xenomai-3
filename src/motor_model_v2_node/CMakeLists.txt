@@ -164,7 +164,6 @@ target_include_directories(controller
 
 # install
 install(TARGETS
- # Set install
   motor_model_v2
   controller
   DESTINATION lib/${PROJECT_NAME}
