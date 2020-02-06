@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(motor_model_v2_node)
+project(dds-motor-controller)
 
 # OS environment to find OpenSplice package
 if(WIN32)
@@ -29,12 +29,6 @@ include(MacroOpenSplice)
 
 set(CMAKE_VERBOSE_MAKEFILE = 1)
 find_package(OpenSplice REQUIRED)
-
-#  settings for opensplice dds
-include_directories(
-  ${PROJECT_SOURCE_DIR}
-  ${OpenSplice_INCLUDE_DIRS}
-)
 
 add_definitions(
   ${OpenSplice_DEFINITIONS}
@@ -74,10 +68,17 @@ foreach(idl ${idls})
 endforeach(idl)
 
 set(DATAMODEL datamodel)
+
 add_library(${DATAMODEL} SHARED ${OpenSplice_DATAMODEL})
 
 target_link_libraries(${DATAMODEL}
   ${OpenSplice_LIBRARIES}
+)
+
+target_include_directories(${DATAMODEL}
+  PUBLIC
+  ${PROJECT_SOURCE_DIR}
+  ${OpenSplice_INCLUDE_DIRS}
 )
 
 # Default to C99
@@ -95,19 +96,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 add_compile_options(-O3)
 
-# Set path
-set(MATLAB_DIR "src/matlab_code")
-set(MODEL_DIR "src/model_code")
-set(CONTROLLER_DIR "src/controller_code")
-
-# Set include path for project
-include_directories(${MODEL_DIR})
-include_directories(${MATLAB_DIR}/extern/include)
-include_directories(${MATLAB_DIR}/simulink/include)
-include_directories(${MATLAB_DIR}/rtw/c/src)
-include_directories(${MATLAB_DIR}/rtw/c/src/ext_mode/common)
-include_directories(${MATLAB_DIR}/rtw/c/ert)
-
 # Set define
 add_definitions(-DCLASSIC_INTERFACE=0)
 add_definitions(-DALLOCATIONFCN=0)
@@ -124,6 +112,30 @@ add_definitions(-DNCSTATES=5)
 add_definitions(-DHAVESTDIO)
 add_definitions(-DMODEL_HAS_DYNAMICALLY_LOADED_SFCNS=0)
 
+# Set path
+set(MATLAB_DIR "${PROJECT_SOURCE_DIR}/src/matlab_code")
+set(MODEL_DIR "${PROJECT_SOURCE_DIR}/src/model_code")
+set(CONTROLLER_DIR "${PROJECT_SOURCE_DIR}/src/controller_code")
+set(DDS_ENTITIES_DIR "${PROJECT_SOURCE_DIR}/src/dds_code")
+
+# dds entities
+add_library(dds_entities
+  SHARED
+  ${DDS_ENTITIES_DIR}/Entities.cpp
+)
+
+target_link_libraries(dds_entities
+  ${OpenSplice_LIBRARIES}
+  ${DATAMODEL}
+)
+
+target_include_directories(dds_entities
+  PUBLIC
+  ${OpenSplice_INCLUDE_DIRS}
+  ${DDS_ENTITIES_DIR}
+  ${PROJECT_SOURCE_DIR}/src
+)
+
 # motor_model_v2
 add_executable(motor_model_v2
   ${MODEL_DIR}/generated_model.cpp
@@ -137,6 +149,12 @@ add_executable(motor_model_v2
 
 target_include_directories(motor_model_v2
   PUBLIC
+  ${MODEL_DIR}
+  ${MATLAB_DIR}/extern/include
+  ${MATLAB_DIR}/simulink/include
+  ${MATLAB_DIR}/rtw/c/src
+  ${MATLAB_DIR}/rtw/c/src/ext_mode/common
+  ${MATLAB_DIR}/rtw/c/ert
   ${OpenSplice_INCLUDE_DIRS}
   ${PROJECT_SOURCE_DIR}/src
 )
@@ -154,6 +172,7 @@ add_executable(controller
 target_link_libraries(controller
   ${OpenSplice_LIBRARIES}
   ${DATAMODEL}
+  dds_entities
 )
 
 target_include_directories(controller
