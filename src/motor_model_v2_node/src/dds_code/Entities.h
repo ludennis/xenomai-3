@@ -13,16 +13,19 @@ class Entities
 public:
   Entities(const std::string &publisherPartition, const std::string &subscriberPartition);
 
-private:
-  dds::pub::DataWriter<MotorControllerUnitModule::ControlMessage> mControlWriter;
-  dds::pub::DataWriter<MotorControllerUnitModule::MotorMessage> mMotorWriter;
-  dds::sub::DataReader<MotorControllerUnitModule::ControlMessage> mControlReader;
-  dds::sub::DataReader<MotorControllerUnitModule::MotorMessage> mMotorReader;
-  dds::core::cond::WaitSet mWaitSet;
-  utils::ElapsedTimes roundTripElapsedTimes;
-  utils::ElapsedTimes motorStepElapsedTimes;
-  utils::ElapsedTimes publishElapsedTimes;
-  utils::ElapsedTimes totalElapsedTimes;
+public:
+  dds::pub::DataWriter<MotorControllerUnitModule::ControlMessage> mControlMessageWriter;
+  dds::pub::DataWriter<MotorControllerUnitModule::MotorMessage> mMotorMessageWriter;
+  dds::sub::DataReader<MotorControllerUnitModule::ControlMessage> mControlMessageReader;
+  dds::sub::DataReader<MotorControllerUnitModule::MotorMessage> mMotorMessageReader;
+  dds::core::cond::WaitSet mMotorMessageWaitSet;
+  dds::core::cond::WaitSet mControlMessageWaitSet;
+  utils::ElapsedTimes mRoundTripTimes;
+  utils::ElapsedTimes mControllerWriteTimes;
+  utils::ElapsedTimes mControllerTakeTimes;
+  utils::ElapsedTimes mMotorWriteTimes;
+  utils::ElapsedTimes mMotorTakeTimes;
+  utils::ElapsedTimes mMotorStepTimes;
 };
 
 } // namespace dds_entities

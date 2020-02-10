@@ -162,6 +162,7 @@ target_include_directories(motor_model_v2
 target_link_libraries(motor_model_v2
   ${OpenSplice_LIBRARIES}
   ${DATAMODEL}
+  dds_entities
 )
 
 # controller
