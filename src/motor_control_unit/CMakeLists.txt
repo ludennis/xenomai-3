@@ -1,10 +1,26 @@
 cmake_minimum_required(VERSION 3.5)
 project(dds-motor-controller)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+include(osmacros)
+include(MacroOpenSplice)
+
 # OS environment to find OpenSplice package
 if(WIN32)
-  # suppress C4251 warnings
-  add_compile_options(/wd4251)
+  # adds WholeProgramOptimization
+#  add_compile_options(/GL)
+  # adds ClCompile Optimization MaxSpeed
+  add_compile_options(/O2)
+  # adds IntrinsicFunctions
+  add_compile_options(/Oi)
+  # adds MultiThreadedDLL for RuntimeLibrary
+  add_compile_options(/MD)
+  # adds RuntimeTypeInfo
+  add_compile_options(/GR)
+  # adds warning level3
+  add_compile_options(/W3)
+  # suppress C4251 and C4355 warnings
+  add_compile_options(/wd4251 /wd4355)
   # settings for dll
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS on)
   if(DEBUG)
@@ -22,10 +38,6 @@ else(WIN32)
     endif(PEDANTIC)
   endif(DEBUG)
 endif(WIN32)
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-include(osmacros)
-include(MacroOpenSplice)
 
 set(CMAKE_VERBOSE_MAKEFILE = 1)
 find_package(OpenSplice REQUIRED)
@@ -80,6 +92,15 @@ target_include_directories(${DATAMODEL}
   ${PROJECT_SOURCE_DIR}
   ${OpenSplice_INCLUDE_DIRS}
 )
+
+# adds linker options GenerateDebugInformation, OptimizeReferences, and EnableCOMDATFolding
+if(MSVC)
+  set_property(TARGET ${DATAMODEL}
+    APPEND PROPERTY
+    LINK_FLAGS
+    /DEBUG /OPT /OPT:ICF
+  )
+endif(MSVC)
 
 # Default to C99
 if(NOT CMAKE_C_STANDARD)
