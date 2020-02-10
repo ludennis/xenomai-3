@@ -158,7 +158,7 @@ target_include_directories(dds_entities
 )
 
 # motor_model_v2
-add_executable(motor_model_v2
+add_executable(motor
   ${MODEL_DIR}/generated_model.cpp
   ${MODEL_DIR}/rtGetInf.cpp
   ${MODEL_DIR}/rtGetNaN.cpp
@@ -168,7 +168,7 @@ add_executable(motor_model_v2
   ${MODEL_DIR}/output_interface.cpp
 )
 
-target_include_directories(motor_model_v2
+target_include_directories(motor
   PUBLIC
   ${MODEL_DIR}
   ${MATLAB_DIR}/extern/include
@@ -180,7 +180,7 @@ target_include_directories(motor_model_v2
   ${PROJECT_SOURCE_DIR}/src
 )
 
-target_link_libraries(motor_model_v2
+target_link_libraries(motor
   ${OpenSplice_LIBRARIES}
   ${DATAMODEL}
   dds_entities
@@ -205,7 +205,7 @@ target_include_directories(controller
 
 # install
 install(TARGETS
-  motor_model_v2
+  motor
   controller
-  DESTINATION lib/${PROJECT_NAME}
+  DESTINATION bin/${PROJECT_NAME}
 )
