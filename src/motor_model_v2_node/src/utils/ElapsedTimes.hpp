@@ -57,6 +57,11 @@ public:
     return mBack;
   }
 
+  long int GetSize()
+  {
+    return mSize;
+  }
+
   void Print(const std::string& name)
   {
     if(mSize == 0)
@@ -64,23 +69,31 @@ public:
       return;
     }
 
-    std::cout << std::right << std::setfill(' ') << std::setw(20) << name;
-    std::cout << std::right << std::setfill(' ') << std::setw(20) << Back().count();
-    std::cout << std::right << std::setfill(' ') << std::setw(20) << GetMax();
-    std::cout << std::right << std::setfill(' ') << std::setw(20) << GetMin();
-    std::cout << std::right << std::setfill(' ') << std::setw(20) << GetAverage();
+    std::cout << std::right << std::setfill(' ') << std::setw(15) << name;
+    std::cout << std::right << std::setfill(' ') << std::setw(15) <<
+      Back().count() / kMicrosecondsInOneNanosecond;
+    std::cout << std::right << std::setfill(' ') << std::setw(15) <<
+      GetMin() / kMicrosecondsInOneNanosecond;
+    std::cout << std::right << std::setfill(' ') << std::setw(15) <<
+      GetAverage() / kMicrosecondsInOneNanosecond;
+    std::cout << std::right << std::setfill(' ') << std::setw(15) <<
+      GetMax() / kMicrosecondsInOneNanosecond;
+    std::cout << std::right << std::setfill(' ') << std::setw(15) <<
+      GetSize();
     std::cout << std::endl << std::endl;
   }
 
   void PrintHeader(const std::string& entity)
   {
-    std::cout << std::right << std::setfill('-') << std::setw(100) << '-' << std::endl;
-    std::cout << std::right << std::setfill(' ') << std::setw(20)  << entity;
-    std::cout << std::right << std::setfill(' ') << std::setw(20) << "Instance(ns)";
-    std::cout << std::right << std::setfill(' ') << std::setw(20) << "Max(ns)";
-    std::cout << std::right << std::setfill(' ') << std::setw(20) << "Min(ns)";
-    std::cout << std::right << std::setfill(' ') << std::setw(20) << "Avg(ns)" << std::endl;
-    std::cout << std::right << std::setfill('-') << std::setw(100) << '-' << std::endl;
+    std::cout << std::right << std::setfill('-') << std::setw(90) << '-' << std::endl;
+    std::cout << std::right << std::setfill(' ') << std::setw(15)  << entity;
+    std::cout << std::right << std::setfill(' ') << std::setw(15) << "Instance(us)";
+    std::cout << std::right << std::setfill(' ') << std::setw(15) << "Min(us)";
+    std::cout << std::right << std::setfill(' ') << std::setw(15) << "Avg(us)";
+    std::cout << std::right << std::setfill(' ') << std::setw(15) << "Max(us)";
+    std::cout << std::right << std::setfill(' ') << std::setw(15) << "Count";
+    std::cout << std::endl;
+    std::cout << std::right << std::setfill('-') << std::setw(90) << '-' << std::endl;
   }
 
 private:
