@@ -9,6 +9,8 @@
 namespace utils
 {
 
+constexpr auto kMicrosecondsInOneNanosecond = 1000.;
+
 class ElapsedTimes
 
 {
