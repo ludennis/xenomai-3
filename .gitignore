@@ -5,3 +5,7 @@ CMakeSettings.json
 **/idl/gen/*
 *.log
 *.tlog
+*.user
+*.pdb
+*.rtss
+*.obj
