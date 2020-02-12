@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\d400\source\repos\dds-motor-controller\src\motor_control_unit\x64_vs_proj\CMakeFiles\87a2a343c8c741868f0c591599445798\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{FBB1ADFF-BFF2-3FE9-9DD1-28AC04D9CBE2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\d400\source\repos\dds-motor-controller\src\motor_control_unit\src\idl\gen\MotorControllerUnitModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\d400\source\repos\dds-motor-controller\src\motor_control_unit\src\idl\gen\MotorControllerUnitModuleSplDcps.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\d400\source\repos\dds-motor-controller\src\motor_control_unit\src\idl\gen\MotorControllerUnitModule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="C:\Users\d400\source\repos\dds-motor-controller\src\motor_control_unit\src\idl\gen\MotorControllerUnitModuleSplDcps.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\d400\source\repos\dds-motor-controller\src\motor_control_unit\x64_vs_proj\CMakeFiles\9a668561aab34732c1bb56b939fe08c2\MotorControllerUnitModule.cpp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\d400\source\repos\dds-motor-controller\src\motor_control_unit\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{FBB1ADFF-BFF2-3FE9-9DD1-28AC04D9CBE2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{98C9916C-4DD9-3BCC-85C7-0CFC7A5706B8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{5B19D781-36F4-3BBB-925E-DAE125AAC3A3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
