@@ -10,7 +10,9 @@
 //////////////////////////////////////////////////////////////////
 
 #include "rtss_code.h"
-#include <dds/dds.hpp>   
+#include <dds/dds.hpp>
+
+#include <dds_code/Entities.h>
 
 int _tmain(int argc, _TCHAR * argv[])
 {

@@ -205,7 +205,7 @@
       <Message>RTX64 StampTool</Message>
     </PostBuildEvent>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(RTX64SDKDir3)include;%(AdditionalIncludeDirectories);C:\Program Files\ADLINK\Vortex_v2\Device\VortexOpenSplice\6.10.3\HDE\x86_64.win64\include;C:\Program Files\ADLINK\Vortex_v2\Device\VortexOpenSplice\6.10.3\HDE\x86_64.win64\include\sys;C:\Program Files\ADLINK\Vortex_v2\Device\VortexOpenSplice\6.10.3\HDE\x86_64.win64\include\dcps\C++\isocpp2;C:\Program Files\ADLINK\Vortex_v2\Device\VortexOpenSplice\6.10.3\HDE\x86_64.win64\include\dcps\C++\SACPP</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(RTX64SDKDir3)include;%(AdditionalIncludeDirectories);C:\Program Files\ADLINK\Vortex_v2\Device\VortexOpenSplice\6.10.3\HDE\x86_64.win64\include;C:\Program Files\ADLINK\Vortex_v2\Device\VortexOpenSplice\6.10.3\HDE\x86_64.win64\include\sys;C:\Program Files\ADLINK\Vortex_v2\Device\VortexOpenSplice\6.10.3\HDE\x86_64.win64\include\dcps\C++\isocpp2;C:\Program Files\ADLINK\Vortex_v2\Device\VortexOpenSplice\6.10.3\HDE\x86_64.win64\include\dcps\C++\SACPP;C:\Users\d400\source\repos\dds-motor-controller\src\motor_control_unit\src</AdditionalIncludeDirectories>
       <AdditionalOptions>/openmp- /Gs99999 %(AdditionalOptions)</AdditionalOptions>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <BufferSecurityCheck>false</BufferSecurityCheck>
