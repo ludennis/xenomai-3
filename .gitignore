@@ -3,3 +3,5 @@
 build
 CMakeSettings.json
 **/idl/gen/*
+*.log
+*.tlog
