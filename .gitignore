@@ -9,3 +9,11 @@ CMakeSettings.json
 *.pdb
 *.rtss
 *.obj
+**/Release/*
+**/Debug/*
+**/RtssRelease/*
+**/RtssDebug/*
+*.dir
+*.exe
+*.lib
+**/CMakeFiles/*
