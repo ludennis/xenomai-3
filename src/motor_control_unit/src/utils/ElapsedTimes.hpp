@@ -19,7 +19,8 @@ public:
     : mSize(0)
     , mSum(0)
     , mMin(LLONG_MAX)
-    , mMax(LLONG_MIN)
+    , mLocalMax(LLONG_MIN)
+    , mGlobalMax(LLONG_MIN)
     , mBack(std::chrono::nanoseconds())
   {};
 
@@ -29,8 +30,10 @@ public:
     mSum += time.count();
     if(mMin > time.count())
       mMin = time.count();
-    if(mMax < time.count())
-      mMax = time.count();
+    if(mLocalMax < time.count())
+      mLocalMax = time.count();
+    if(mGlobalMax < time.count())
+      mGlobalMax = time.count();
     mBack = time;
   }
 
@@ -49,9 +52,14 @@ public:
     return mMin;
   }
 
-  long long int GetMax()
+  long long int GetLocalMax()
   {
-    return mMax;
+    return mLocalMax;
+  }
+
+  long long int GetGlobalMax()
+  {
+    return mGlobalMax;
   }
 
   std::chrono::nanoseconds Back()
@@ -79,29 +87,35 @@ public:
     std::cout << std::right << std::setfill(' ') << std::setw(15) <<
       GetAverage() / kMicrosecondsInOneNanosecond;
     std::cout << std::right << std::setfill(' ') << std::setw(15) <<
-      GetMax() / kMicrosecondsInOneNanosecond;
+      GetLocalMax() / kMicrosecondsInOneNanosecond;
+    std::cout << std::right << std::setfill(' ') << std::setw(15) <<
+      GetGlobalMax() / kMicrosecondsInOneNanosecond;
     std::cout << std::right << std::setfill(' ') << std::setw(15) <<
       GetSize();
     std::cout << std::endl << std::endl;
+
+    mLocalMax = LLONG_MIN;
   }
 
   void PrintHeader(const std::string& entity)
   {
-    std::cout << std::right << std::setfill('-') << std::setw(90) << '-' << std::endl;
+    std::cout << std::right << std::setfill('-') << std::setw(105) << '-' << std::endl;
     std::cout << std::right << std::setfill(' ') << std::setw(15)  << entity;
     std::cout << std::right << std::setfill(' ') << std::setw(15) << "Instance(us)";
     std::cout << std::right << std::setfill(' ') << std::setw(15) << "Min(us)";
     std::cout << std::right << std::setfill(' ') << std::setw(15) << "Avg(us)";
-    std::cout << std::right << std::setfill(' ') << std::setw(15) << "Max(us)";
+    std::cout << std::right << std::setfill(' ') << std::setw(15) << "LocalMax(us)";
+    std::cout << std::right << std::setfill(' ') << std::setw(15) << "GlobalMax(us)";
     std::cout << std::right << std::setfill(' ') << std::setw(15) << "Count";
     std::cout << std::endl;
-    std::cout << std::right << std::setfill('-') << std::setw(90) << '-' << std::endl;
+    std::cout << std::right << std::setfill('-') << std::setw(105) << '-' << std::endl;
   }
 
 private:
   long int mSize;
   long long int mSum;
-  long long int mMax;
+  long long int mLocalMax;
+  long long int mGlobalMax;
   long long int mMin;
   std::chrono::nanoseconds mBack;
 };

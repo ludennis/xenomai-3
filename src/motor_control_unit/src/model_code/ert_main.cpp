@@ -23,6 +23,8 @@ int main(int argc, char * argv[])
 
   std::cout << "Listening to Controller ..." << std::endl;
 
+  auto beginTime = std::chrono::steady_clock::now();
+
   for(;;)
   {
     entities.mControlMessageWaitSet.wait(conditionSeq);
@@ -71,6 +73,17 @@ int main(int argc, char * argv[])
     entities.mMotorTakeTimes.AddTime(
       std::chrono::duration_cast<std::chrono::nanoseconds>(
         endTakeTime - beginTakeTime));
+
+    if(std::chrono::duration_cast<std::chrono::seconds>(
+      std::chrono::steady_clock::now() - beginTime).count() >= 1)
+    {
+      entities.mMotorStepTimes.PrintHeader("motor");
+      entities.mMotorTakeTimes.Print("take");
+      entities.mMotorStepTimes.Print("step");
+      entities.mMotorWriteTimes.Print("write");
+
+      beginTime = std::chrono::steady_clock::now();
+    }
   }
 
   generated_model_terminate();
