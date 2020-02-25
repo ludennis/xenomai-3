@@ -36,12 +36,18 @@ int main()
   auto beginTime = std::chrono::steady_clock::now();
   for(auto count{1ll};;++count)
   {
+    auto controlMessage = MotorControllerUnitModule::ControlMessage(count, "motor_step");
+
+    dds::core::InstanceHandle instanceHandle =
+      entities.mControlMessageWriter.register_instance(controlMessage);
+
     auto beginWriteTime = std::chrono::steady_clock::now();
 
-    entities.mControlMessageWriter <<
-      MotorControllerUnitModule::ControlMessage(count, "motor_step");
+    entities.mControlMessageWriter << controlMessage;
 
     auto endWriteTime = std::chrono::steady_clock::now();
+
+    entities.mControlMessageWriter.unregister_instance(instanceHandle);
 
     entities.mMotorMessageWaitSet.wait(conditionSeq, waitSetTransmissionTimeout);
 

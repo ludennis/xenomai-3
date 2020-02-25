@@ -48,17 +48,23 @@ int main(int argc, char * argv[])
           std::chrono::duration_cast<std::chrono::nanoseconds>(
             endMotorStepTime - beginMotorStepTime));
 
+        auto motorMessage =
+          MotorControllerUnitModule::MotorMessage(sample->data().id(), "motor_step");
+
+        dds::core::InstanceHandle instanceHandle =
+          entities.mMotorMessageWriter.register_instance(motorMessage);
+
         auto beginWriteTime = std::chrono::steady_clock::now();
 
-        entities.mMotorMessageWriter <<
-          MotorControllerUnitModule::MotorMessage(sample->data().id(),"motor_step");
+        entities.mMotorMessageWriter << motorMessage;
 
         auto endWriteTime = std::chrono::steady_clock::now();
+
+        entities.mMotorMessageWriter.unregister_instance(instanceHandle);
 
         entities.mMotorWriteTimes.AddTime(
           std::chrono::duration_cast<std::chrono::nanoseconds>(
             endWriteTime - beginWriteTime));
-
       }
     }
 
