@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <fstream>
 #include <iostream>
 #include <thread>
 
@@ -23,6 +24,23 @@ void TerminationHandler(int s)
 
 int main(int argc, char * argv[])
 {
+  std::string outputFilename;
+  std::ofstream outputFile;
+
+  if(argc == 0)
+  {
+    std::cerr << "Usage: motor [latency output]" << std::endl;
+    return -1;
+  }
+
+  if(argc >= 2)
+  {
+    outputFilename = argv[1];
+    std::cout << "Writing to " << outputFilename << " ..." << std::endl;
+    outputFile.open(outputFilename);
+    outputFile << "take (microseconds),step (microseconds),write (microseconds)" << std::endl;
+  }
+
   generated_model_initialize();
 
   struct sigaction signalHandler;
@@ -96,9 +114,22 @@ int main(int argc, char * argv[])
 
       beginTime = std::chrono::steady_clock::now();
     }
+
+    outputFile
+      << entities.mMotorTakeTimes.Back().count() / kMicrosecondsInOneNanosecond << ","
+      << entities.mMotorStepTimes.Back().count() / kMicrosecondsInOneNanosecond << ","
+      << entities.mMotorWriteTimes.Back().count() / kMicrosecondsInOneNanosecond
+      << std::endl;
+
+    std::this_thread::sleep_for(std::chrono::microseconds(10));
   }
 
   generated_model_terminate();
+
+  if(!outputFilename.empty())
+  {
+    outputFile.close();
+  }
 
   std::cout << "Motor Exiting ..." << std::endl;
 
