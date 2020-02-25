@@ -1,3 +1,4 @@
+#include <fstream>
 #include <thread>
 #include <signal.h>
 
@@ -15,8 +16,25 @@ void TerminationHandler(int s)
   entities.mTerminationGuard.trigger_value(true);
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+  std::string outputFilename;
+  std::ofstream outputFile;
+
+  if (argc == 0)
+  {
+    std::cerr << "Usage: controller [latency output]" << std::endl;
+    return -1;
+  }
+
+  if (argc >= 2)
+  {
+    outputFilename = argv[1];
+    std::cout << "Writing to " << outputFilename << " ..." << std::endl;
+    outputFile.open(outputFilename);
+    outputFile << "write (microseconds),roundtrip (microseconds),take (microseconds)" << std::endl;
+  }
+
   // signal handler for ctrl + c
   struct sigaction signalHandler;
   signalHandler.sa_handler = TerminationHandler;
@@ -93,7 +111,21 @@ int main()
 
       beginTime = std::chrono::steady_clock::now();
     }
+
+    outputFile
+      << entities.mControllerWriteTimes.Back().count() / kMicrosecondsInOneNanosecond << ","
+      << entities.mRoundTripTimes.Back().count() / kMicrosecondsInOneNanosecond << ","
+      << entities.mControllerWriteTimes.Back().count() / kMicrosecondsInOneNanosecond
+      << std::endl;
+
+    std::this_thread::sleep_for(std::chrono::microseconds(10));
   }
+
+  if(!outputFilename.empty())
+  {
+    outputFile.close();
+  }
+
 
   std::cout << "Controller Exiting ..." << std::endl;
 
