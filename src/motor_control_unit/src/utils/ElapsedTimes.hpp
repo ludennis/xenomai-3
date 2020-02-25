@@ -6,13 +6,12 @@
 #include <string>
 #include <vector>
 
+constexpr auto kMicrosecondsInOneNanosecond = 1000.;
+
 namespace utils
 {
 
-constexpr auto kMicrosecondsInOneNanosecond = 1000.;
-
 class ElapsedTimes
-
 {
 public:
   ElapsedTimes()
