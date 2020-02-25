@@ -8,16 +8,28 @@
 #include "generated_model.h"
 #include <idl/gen/MotorControllerUnitModule_DCPS.hpp>
 
+static dds_entities::Entities entities("motor", "controller");
+
 void motorStep()
 {
   generated_model_step();
+}
+
+void TerminationHandler(int s)
+{
+  std::cout << "Caught Termination Signal" << std::endl;
+  entities.mTerminationGuard.trigger_value(true);
 }
 
 int main(int argc, char * argv[])
 {
   generated_model_initialize();
 
-  dds_entities::Entities entities("motor", "controller");
+  struct sigaction signalHandler;
+  signalHandler.sa_handler = TerminationHandler;
+  sigemptyset(&signalHandler.sa_mask);
+  signalHandler.sa_flags = 0;
+  sigaction(SIGINT, &signalHandler, NULL);
 
   dds::core::cond::WaitSet::ConditionSeq conditionSeq;
 
@@ -25,7 +37,7 @@ int main(int argc, char * argv[])
 
   auto beginTime = std::chrono::steady_clock::now();
 
-  for(;;)
+  for(; !entities.mTerminationGuard.trigger_value();)
   {
     entities.mControlMessageWaitSet.wait(conditionSeq);
 
@@ -87,5 +99,8 @@ int main(int argc, char * argv[])
   }
 
   generated_model_terminate();
+
+  std::cout << "Motor Exiting ..." << std::endl;
+
   return 0;
 }
