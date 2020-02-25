@@ -62,8 +62,10 @@ Entities::Entities(const std::string &publisherPartition,
   // WaitSet
   mControlMessageWaitSet = dds::core::cond::WaitSet();
   mControlMessageWaitSet += controlDataAvailable;
+  mControlMessageWaitSet += mTerminationGuard;
   mMotorMessageWaitSet = dds::core::cond::WaitSet();
   mMotorMessageWaitSet += motorDataAvailable;
+  mMotorMessageWaitSet += mTerminationGuard;
 }
 
 } // namespace dds_entities

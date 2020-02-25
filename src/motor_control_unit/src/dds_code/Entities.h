@@ -16,16 +16,21 @@ public:
 public:
   dds::pub::DataWriter<MotorControllerUnitModule::ControlMessage> mControlMessageWriter;
   dds::pub::DataWriter<MotorControllerUnitModule::MotorMessage> mMotorMessageWriter;
+
   dds::sub::DataReader<MotorControllerUnitModule::ControlMessage> mControlMessageReader;
   dds::sub::DataReader<MotorControllerUnitModule::MotorMessage> mMotorMessageReader;
+
   dds::core::cond::WaitSet mMotorMessageWaitSet;
   dds::core::cond::WaitSet mControlMessageWaitSet;
+
   utils::ElapsedTimes mRoundTripTimes;
   utils::ElapsedTimes mControllerWriteTimes;
   utils::ElapsedTimes mControllerTakeTimes;
   utils::ElapsedTimes mMotorWriteTimes;
   utils::ElapsedTimes mMotorTakeTimes;
   utils::ElapsedTimes mMotorStepTimes;
+
+  dds::core::cond::GuardCondition mTerminationGuard;
 };
 
 } // namespace dds_entities

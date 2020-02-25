@@ -1,4 +1,5 @@
 #include <thread>
+#include <signal.h>
 
 #include <dds/dds.hpp>
 
@@ -6,9 +7,22 @@
 #include <utils/ElapsedTimes.hpp>
 #include <idl/gen/MotorControllerUnitModule_DCPS.hpp>
 
+static dds_entities::Entities entities("controller", "motor");
+
+void TerminationHandler(int s)
+{
+  std::cout << "Caught Termination Signal" << std::endl;
+  entities.mTerminationGuard.trigger_value(true);
+}
+
 int main()
 {
-  dds_entities::Entities entities("controller", "motor");
+  // signal handler for ctrl + c
+  struct sigaction signalHandler;
+  signalHandler.sa_handler = TerminationHandler;
+  sigemptyset(&signalHandler.sa_mask);
+  signalHandler.sa_flags = 0;
+  sigaction(SIGINT, &signalHandler, NULL);
 
   // conditions for waitisets
   dds::core::cond::WaitSet::ConditionSeq conditionSeq;
@@ -34,7 +48,7 @@ int main()
   }
 
   auto beginTime = std::chrono::steady_clock::now();
-  for(auto count{1ll};;++count)
+  for(auto count{1ll}; !entities.mTerminationGuard.trigger_value();++count)
   {
     auto controlMessage = MotorControllerUnitModule::ControlMessage(count, "motor_step");
 
@@ -80,6 +94,8 @@ int main()
       beginTime = std::chrono::steady_clock::now();
     }
   }
+
+  std::cout << "Controller Exiting ..." << std::endl;
 
   return 0;
 }
