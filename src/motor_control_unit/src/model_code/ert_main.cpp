@@ -38,7 +38,7 @@ int main(int argc, char * argv[])
     outputFilename = argv[1];
     std::cout << "Writing to " << outputFilename << " ..." << std::endl;
     outputFile.open(outputFilename);
-    outputFile << "take (microseconds),step (microseconds),write (microseconds)" << std::endl;
+    outputFile << "take,step,write" << std::endl;
   }
 
   generated_model_initialize();

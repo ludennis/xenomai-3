@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     outputFilename = argv[1];
     std::cout << "Writing to " << outputFilename << " ..." << std::endl;
     outputFile.open(outputFilename);
-    outputFile << "write (microseconds),roundtrip (microseconds),take (microseconds)" << std::endl;
+    outputFile << "write,roundtrip,take" << std::endl;
   }
 
   // signal handler for ctrl + c
