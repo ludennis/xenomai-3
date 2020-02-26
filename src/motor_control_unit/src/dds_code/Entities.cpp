@@ -3,7 +3,7 @@
 namespace dds_entities
 {
 
-Entities::Entities(const std::string &publisherPartition, 
+Entities::Entities(const std::string &publisherPartition,
   const std::string &subscriberPartition)
   : mControlMessageWriter(dds::core::null)
   , mMotorMessageWriter(dds::core::null)
@@ -16,11 +16,11 @@ Entities::Entities(const std::string &publisherPartition,
   dds::domain::DomainParticipant participant(org::opensplice::domain::default_id());
 
   // Topic
-  dds::topic::Topic<MotorControllerUnitModule::ControlMessage> 
+  dds::topic::Topic<MotorControllerUnitModule::ControlMessage>
     controlTopic(participant, "control_topic");
   dds::topic::Topic<MotorControllerUnitModule::MotorMessage>
     motorTopic(participant, "motor_topic");
-  
+
   // Publisher
   dds::pub::qos::PublisherQos publisherQos =
     participant.default_publisher_qos() <<
