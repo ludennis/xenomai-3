@@ -2,15 +2,13 @@ module MotorControllerUnitModule
 {
   struct ControlMessage
   {
-    long id;
     string content;
   };
-  #pragma keylist ControlMessage id
+  #pragma keylist ControlMessage
 
   struct MotorMessage
   {
-    long id;
     string content;
   };
-  #pragma keylist MotorMessage id
+  #pragma keylist MotorMessage
 };

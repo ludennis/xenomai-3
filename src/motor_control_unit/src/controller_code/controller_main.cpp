@@ -132,10 +132,10 @@ int main(int argc, char *argv[])
   dds::core::Duration waitSetTransmissionTimeout(1, 0);
 
   std::cout << "Connecting to motor ...";
-  for(auto count{1ll};;++count)
+  for(;;)
   {
     entities.mControlMessageWriter <<
-      MotorControllerUnitModule::ControlMessage(count, "connect");
+      MotorControllerUnitModule::ControlMessage("connect");
     try
     {
       entities.mMotorMessageWaitSet.wait(conditionSeq, waitSetConnectionTimeout);
@@ -146,14 +146,15 @@ int main(int argc, char *argv[])
     }
     catch(dds::core::TimeoutError &e)
     {
+      // TODO: check if motor is off, if it's off, exit.
       (void)e;
     }
   }
 
   auto beginTime = std::chrono::steady_clock::now();
-  for(auto count{1ll}; !entities.mTerminationGuard.trigger_value();++count)
+  for(; !entities.mTerminationGuard.trigger_value();)
   {
-    auto controlMessage = MotorControllerUnitModule::ControlMessage(count, "motor_step");
+    auto controlMessage = MotorControllerUnitModule::ControlMessage("motor_step");
 
     dds::core::InstanceHandle instanceHandle =
       entities.mControlMessageWriter.register_instance(controlMessage);

@@ -81,7 +81,7 @@ int main(int argc, char * argv[])
             endMotorStepTime - beginMotorStepTime));
 
         auto motorMessage =
-          MotorControllerUnitModule::MotorMessage(sample->data().id(), "motor_step");
+          MotorControllerUnitModule::MotorMessage("motor_step");
 
         dds::core::InstanceHandle instanceHandle =
           entities.mMotorMessageWriter.register_instance(motorMessage);
