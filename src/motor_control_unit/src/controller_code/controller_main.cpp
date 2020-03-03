@@ -1,5 +1,8 @@
 #include <fstream>
+#include <memory>
+#include <mutex>
 #include <thread>
+#include <sstream>
 #include <signal.h>
 
 #include <dds/dds.hpp>
@@ -10,16 +13,91 @@
 
 static dds_entities::Entities entities("controller", "motor");
 
+class SynchronizedFile
+{
+public:
+  SynchronizedFile()
+  {}
+
+  SynchronizedFile(const std::string& path)
+  : mPath(path)
+  {}
+
+  void write(const std::string dataToWrite)
+  {
+    {
+      std::lock_guard<std::mutex> lock(mWriterMutex);
+      mFile.open(mPath, std::ofstream::out | std::ofstream::app);
+      mFile << dataToWrite;
+      mFile.close();
+    }
+  }
+
+  void open(const std::string& path)
+  {
+    mPath = path;
+    mFile.open(mPath);
+  }
+
+  void close()
+  {
+    mFile.close();
+  }
+
+private:
+  std::ofstream mFile;
+  std::string mPath;
+  std::mutex mWriterMutex;
+};
+
+class FileWriter
+{
+public:
+  FileWriter(std::shared_ptr<SynchronizedFile> synchronizedFile)
+  : mSynchronizedFile(synchronizedFile)
+  {}
+
+  FileWriter(std::shared_ptr<SynchronizedFile> synchronizedFile, const std::string& dataToWrite)
+  : mSynchronizedFile(synchronizedFile)
+  , mDataToWrite(dataToWrite)
+  {}
+
+  void flush()
+  {
+    mSynchronizedFile->write(mDataToWrite);
+    mDataToWrite.clear();
+  }
+
+  void write(const std::string dataToWrite)
+  {
+    mSynchronizedFile->write(dataToWrite);
+  }
+
+  void setDataToWrite(const std::string& dataToWrite)
+  {
+    mDataToWrite = dataToWrite;
+  }
+
+private:
+  std::shared_ptr<SynchronizedFile> mSynchronizedFile;
+  std::string mDataToWrite;
+};
+
 void TerminationHandler(int s)
 {
   std::cout << "Caught Termination Signal" << std::endl;
   entities.mTerminationGuard.trigger_value(true);
 }
 
+void writeToOpenedFile(std::ofstream &file, std::stringstream line)
+{
+  file << line.str();
+}
+
 int main(int argc, char *argv[])
 {
   std::string outputFilename;
-  std::ofstream outputFile;
+  auto outputFile = std::make_shared<SynchronizedFile>();
 
   if (argc == 0)
   {
@@ -30,9 +108,15 @@ int main(int argc, char *argv[])
   if (argc >= 2)
   {
     outputFilename = argv[1];
+  }
+
+  if(!outputFilename.empty())
+  {
     std::cout << "Writing to " << outputFilename << " ..." << std::endl;
-    outputFile.open(outputFilename);
-    outputFile << "write,roundtrip,take" << std::endl;
+    outputFile->open(outputFilename);
+    std::stringstream header;
+    header << "write,roundtrip,take" << std::endl;
+    auto fileWriter = FileWriter(outputFile, header.str());
   }
 
   // signal handler for ctrl + c
@@ -56,7 +140,8 @@ int main(int argc, char *argv[])
     {
       entities.mMotorMessageWaitSet.wait(conditionSeq, waitSetConnectionTimeout);
       entities.mMotorMessageReader.take();
-      std::cout << "Connected!" << std::endl;
+      std::cout << "Connected! Warming Up ..." << std::endl;
+      std::this_thread::sleep_for(std::chrono::seconds(5));
       break;
     }
     catch(dds::core::TimeoutError &e)
@@ -112,18 +197,26 @@ int main(int argc, char *argv[])
       beginTime = std::chrono::steady_clock::now();
     }
 
-    outputFile
-      << entities.mControllerWriteTimes.Back().count() / kMicrosecondsInOneNanosecond << ","
-      << entities.mRoundTripTimes.Back().count() / kMicrosecondsInOneNanosecond << ","
-      << entities.mControllerWriteTimes.Back().count() / kMicrosecondsInOneNanosecond
-      << std::endl;
+    if(!outputFilename.empty())
+    {
+      std::stringstream writeLine;
+      writeLine
+        << entities.mControllerWriteTimes.Back().count() / kMicrosecondsInOneNanosecond << ","
+        << entities.mRoundTripTimes.Back().count() / kMicrosecondsInOneNanosecond << ","
+        << entities.mControllerWriteTimes.Back().count() / kMicrosecondsInOneNanosecond
+        << std::endl;
+
+      auto fileWriter = FileWriter(outputFile, writeLine.str());
+      std::thread t(&FileWriter::flush, fileWriter);
+      t.detach();
+    }
 
     std::this_thread::sleep_for(std::chrono::microseconds(10));
   }
 
   if(!outputFilename.empty())
   {
-    outputFile.close();
+    outputFile->close();
   }
 
 

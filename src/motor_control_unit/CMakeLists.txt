@@ -187,6 +187,9 @@ target_link_libraries(motor
 )
 
 # controller
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
 add_executable(controller
   ${CONTROLLER_DIR}/controller_main.cpp
 )
@@ -195,6 +198,7 @@ target_link_libraries(controller
   ${OpenSplice_LIBRARIES}
   ${DATAMODEL}
   dds_entities
+  Threads::Threads
 )
 
 target_include_directories(controller
