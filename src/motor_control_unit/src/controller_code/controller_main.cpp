@@ -1,6 +1,4 @@
 #include <fstream>
-#include <memory>
-#include <mutex>
 #include <thread>
 #include <sstream>
 #include <signal.h>
@@ -9,79 +7,11 @@
 
 #include <dds_code/Entities.h>
 #include <utils/ElapsedTimes.hpp>
+#include <utils/FileWriter.hpp>
+#include <utils/SynchronizedFile.hpp>
 #include <idl/gen/MotorControllerUnitModule_DCPS.hpp>
 
 static dds_entities::Entities entities("controller", "motor");
-
-class SynchronizedFile
-{
-public:
-  SynchronizedFile()
-  {}
-
-  SynchronizedFile(const std::string& path)
-  : mPath(path)
-  {}
-
-  void write(const std::string dataToWrite)
-  {
-    {
-      std::lock_guard<std::mutex> lock(mWriterMutex);
-      mFile.open(mPath, std::ofstream::out | std::ofstream::app);
-      mFile << dataToWrite;
-      mFile.close();
-    }
-  }
-
-  void open(const std::string& path)
-  {
-    mPath = path;
-    mFile.open(mPath);
-  }
-
-  void close()
-  {
-    mFile.close();
-  }
-
-private:
-  std::ofstream mFile;
-  std::string mPath;
-  std::mutex mWriterMutex;
-};
-
-class FileWriter
-{
-public:
-  FileWriter(std::shared_ptr<SynchronizedFile> synchronizedFile)
-  : mSynchronizedFile(synchronizedFile)
-  {}
-
-  FileWriter(std::shared_ptr<SynchronizedFile> synchronizedFile, const std::string& dataToWrite)
-  : mSynchronizedFile(synchronizedFile)
-  , mDataToWrite(dataToWrite)
-  {}
-
-  void flush()
-  {
-    mSynchronizedFile->write(mDataToWrite);
-    mDataToWrite.clear();
-  }
-
-  void write(const std::string dataToWrite)
-  {
-    mSynchronizedFile->write(dataToWrite);
-  }
-
-  void setDataToWrite(const std::string& dataToWrite)
-  {
-    mDataToWrite = dataToWrite;
-  }
-
-private:
-  std::shared_ptr<SynchronizedFile> mSynchronizedFile;
-  std::string mDataToWrite;
-};
 
 void TerminationHandler(int s)
 {
