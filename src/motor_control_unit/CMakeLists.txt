@@ -138,6 +138,7 @@ set(MATLAB_DIR "${PROJECT_SOURCE_DIR}/src/matlab_code")
 set(MODEL_DIR "${PROJECT_SOURCE_DIR}/src/model_code")
 set(CONTROLLER_DIR "${PROJECT_SOURCE_DIR}/src/controller_code")
 set(DDS_ENTITIES_DIR "${PROJECT_SOURCE_DIR}/src/dds_code")
+set(XENOMAI_DIR "${PROJECT_SOURCE_DIR}/src/xenomai_code")
 
 # dds entities
 add_library(dds_entities
@@ -205,6 +206,22 @@ target_include_directories(controller
   PUBLIC
   ${OpenSplice_INCLUDE_DIRS}
   ${PROJECT_SOURCE_DIR}/src
+)
+
+# xenomai rt test
+find_package(Xenomai 3 REQUIRED)
+
+add_executable(test_rt
+  ${XENOMAI_DIR}/test_rt.cpp
+)
+
+target_link_libraries(test_rt
+  ${XENOMAI_LIBRARIES}
+)
+
+target_include_directories(test_rt
+  PUBLIC
+  ${XENOMAI_INCLUDE_DIRS}
 )
 
 # install
