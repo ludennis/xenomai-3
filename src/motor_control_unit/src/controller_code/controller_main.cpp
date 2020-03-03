@@ -6,7 +6,6 @@
 #include <dds/dds.hpp>
 
 #include <dds_code/Entities.h>
-#include <utils/ElapsedTimes.hpp>
 #include <utils/FileWriter.hpp>
 #include <utils/SynchronizedFile.hpp>
 #include <idl/gen/MotorControllerUnitModule_DCPS.hpp>
@@ -22,7 +21,7 @@ void TerminationHandler(int s)
 int main(int argc, char *argv[])
 {
   std::string outputFilename;
-  auto outputFile = std::make_shared<SynchronizedFile>();
+  auto outputFile = std::make_shared<utils::SynchronizedFile>();
 
   if(argc == 0)
   {
@@ -41,7 +40,7 @@ int main(int argc, char *argv[])
     outputFile->open(outputFilename);
     std::stringstream header;
     header << "write,roundtrip,take" << std::endl;
-    auto fileWriter = FileWriter(outputFile, header.str());
+    auto fileWriter = utils::FileWriter(outputFile, header.str());
   }
 
   // signal handler for ctrl + c
@@ -132,8 +131,8 @@ int main(int argc, char *argv[])
         << entities.mControllerWriteTimes.Back().count() / kMicrosecondsInOneNanosecond
         << std::endl;
 
-      auto fileWriter = FileWriter(outputFile, writeLine.str());
-      std::thread t(&FileWriter::flush, fileWriter);
+      auto fileWriter = utils::FileWriter(outputFile, writeLine.str());
+      std::thread t(&utils::FileWriter::flush, fileWriter);
       t.detach();
     }
 

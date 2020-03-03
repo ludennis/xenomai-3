@@ -6,6 +6,9 @@
 
 #include <utils/SynchronizedFile.hpp>
 
+namespace utils
+{
+
 class FileWriter
 {
 public:
@@ -38,5 +41,6 @@ private:
   std::shared_ptr<SynchronizedFile> mSynchronizedFile;
   std::string mDataToWrite;
 };
+} // namespace utils
 
 #endif // __FILE_WRITER_HPP__

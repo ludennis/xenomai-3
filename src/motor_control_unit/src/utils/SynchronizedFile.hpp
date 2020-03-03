@@ -4,6 +4,9 @@
 #include <mutex>
 #include <string>
 
+namespace utils
+{
+
 class SynchronizedFile
 {
 public:
@@ -40,5 +43,6 @@ private:
   std::string mPath;
   std::mutex mWriterMutex;
 };
+} // namespace utils
 
 #endif // __SYNCHRONIZED_FILE_HPP__
