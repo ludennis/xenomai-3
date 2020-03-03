@@ -19,23 +19,18 @@ void TerminationHandler(int s)
   entities.mTerminationGuard.trigger_value(true);
 }
 
-void writeToOpenedFile(std::ofstream &file, std::stringstream line)
-{
-  file << line.str();
-}
-
 int main(int argc, char *argv[])
 {
   std::string outputFilename;
   auto outputFile = std::make_shared<SynchronizedFile>();
 
-  if (argc == 0)
+  if(argc == 0)
   {
     std::cerr << "Usage: controller [latency output]" << std::endl;
     return -1;
   }
 
-  if (argc >= 2)
+  if(argc >= 2)
   {
     outputFilename = argv[1];
   }
