@@ -1,7 +1,11 @@
+#include <sys/mman.h>
+
 #include <fstream>
 #include <thread>
 #include <sstream>
 #include <signal.h>
+
+#include <alchemy/task.h>
 
 #include <dds/dds.hpp>
 
@@ -10,7 +14,71 @@
 #include <utils/SynchronizedFile.hpp>
 #include <idl/gen/MotorControllerUnitModule_DCPS.hpp>
 
+constexpr auto kTaskStackSize = 0;
+constexpr auto kTaskPriority = 20;
+constexpr auto kTaskMode = 0;
+constexpr auto kTaskPeriod = 100000; // 100 us
+constexpr auto kNanosecondsToMicroseconds = 1000;
+constexpr auto kNanosecondsToMilliseconds = 1000000;
+constexpr auto kNanosecondsToSeconds = 1000000000;
+
 static dds_entities::Entities entities("controller", "motor");
+static RT_TASK rtTask;
+static RTIME oneSecondTimer;
+static auto numberOfMessagesSent{0u};
+static auto numberOfMessagesReceived{0u};
+
+// conditions for waitisets
+static dds::core::cond::WaitSet::ConditionSeq conditionSeq;
+static dds::core::Duration waitSetConnectionTimeout(5, 0);
+static dds::core::Duration waitSetTransmissionTimeout(1, 0);
+
+void WriteAndTakeRoutine(void *arg)
+{
+  RTIME now, previous;
+
+  previous = rt_timer_read();
+  while(!entities.mTerminationGuard.trigger_value())
+  {
+    auto controlMessage = MotorControllerUnitModule::ControlMessage("motor_step");
+
+    numberOfMessagesSent++;
+
+    dds::core::InstanceHandle instanceHandle =
+      entities.mControlMessageWriter.register_instance(controlMessage);
+    entities.mControlMessageWriter << controlMessage;
+    entities.mControlMessageWriter.unregister_instance(instanceHandle);
+
+    rt_task_wait_period(NULL);
+
+    auto samples = entities.mMotorMessageReader.take();
+
+    if(samples.begin() != samples.end())
+    {
+      numberOfMessagesReceived++;
+    }
+    else
+    {
+      std::cout << "take() results in empty sample" << std::endl;
+    }
+
+    now = rt_timer_read();
+
+    if(static_cast<long>(now - oneSecondTimer) / kNanosecondsToSeconds > 0)
+    {
+      std::cout << "number of messages sent to motor: " << numberOfMessagesSent << std::endl <<
+        "number of messages received from motor: " << numberOfMessagesReceived << std::endl;
+      std::cout << "Time elapsed for task: " <<
+        static_cast<long>(now - previous) / kNanosecondsToMicroseconds <<
+        "." << static_cast<long>(now - previous) % kNanosecondsToMicroseconds <<
+        " us" << std::endl;
+
+      oneSecondTimer = now;
+    }
+
+    previous = now;
+  }
+}
 
 void TerminationHandler(int s)
 {
@@ -50,11 +118,6 @@ int main(int argc, char *argv[])
   signalHandler.sa_flags = 0;
   sigaction(SIGINT, &signalHandler, NULL);
 
-  // conditions for waitisets
-  dds::core::cond::WaitSet::ConditionSeq conditionSeq;
-  dds::core::Duration waitSetConnectionTimeout(5, 0);
-  dds::core::Duration waitSetTransmissionTimeout(1, 0);
-
   std::cout << "Connecting to motor ...";
   for(;;)
   {
@@ -75,75 +138,27 @@ int main(int argc, char *argv[])
     }
   }
 
-  auto beginTime = std::chrono::steady_clock::now();
-  for(; !entities.mTerminationGuard.trigger_value();)
+  mlockall(MCL_CURRENT | MCL_FUTURE);
+
+  oneSecondTimer = rt_timer_read();
+
+  int e1 = rt_task_create(&rtTask, "WriteAndTakeRoutine", kTaskStackSize, kTaskPriority, kTaskMode);
+  int e2 = rt_task_set_periodic(&rtTask, TM_NOW, rt_timer_ns2ticks(kTaskPeriod));
+  int e3 = rt_task_start(&rtTask, &WriteAndTakeRoutine, NULL);
+
+  if(e1 | e2 | e3)
   {
-    auto controlMessage = MotorControllerUnitModule::ControlMessage("motor_step");
-
-    dds::core::InstanceHandle instanceHandle =
-      entities.mControlMessageWriter.register_instance(controlMessage);
-
-    auto beginWriteTime = std::chrono::steady_clock::now();
-
-    entities.mControlMessageWriter << controlMessage;
-
-    auto endWriteTime = std::chrono::steady_clock::now();
-
-    entities.mControlMessageWriter.unregister_instance(instanceHandle);
-
-    entities.mMotorMessageWaitSet.wait(conditionSeq, waitSetTransmissionTimeout);
-
-    auto beginTakeTime = std::chrono::steady_clock::now();
-
-    auto samples = entities.mMotorMessageReader.take();
-
-    auto endTakeTime = std::chrono::steady_clock::now();
-
-    entities.mControllerWriteTimes.AddTime(
-      std::chrono::duration_cast<std::chrono::nanoseconds>(
-        endWriteTime - beginWriteTime));
-
-    entities.mControllerTakeTimes.AddTime(
-      std::chrono::duration_cast<std::chrono::nanoseconds>(
-        endTakeTime - beginTakeTime));
-
-    entities.mRoundTripTimes.AddTime(
-      std::chrono::duration_cast<std::chrono::nanoseconds>(
-        endTakeTime - beginWriteTime));
-
-    if(std::chrono::duration_cast<std::chrono::seconds>(
-      std::chrono::steady_clock::now() - beginTime).count() >= 1)
-    {
-      entities.mRoundTripTimes.PrintHeader("controller");
-      entities.mControllerWriteTimes.Print("write");
-      entities.mRoundTripTimes.Print("roundtrip");
-      entities.mControllerTakeTimes.Print("take");
-
-      beginTime = std::chrono::steady_clock::now();
-    }
-
-    if(!outputFilename.empty())
-    {
-      std::stringstream writeLine;
-      writeLine
-        << entities.mControllerWriteTimes.Back().count() / kMicrosecondsInOneNanosecond << ","
-        << entities.mRoundTripTimes.Back().count() / kMicrosecondsInOneNanosecond << ","
-        << entities.mControllerWriteTimes.Back().count() / kMicrosecondsInOneNanosecond
-        << std::endl;
-
-      auto fileWriter = utils::FileWriter(outputFile, writeLine.str());
-      std::thread t(&utils::FileWriter::flush, fileWriter);
-      t.detach();
-    }
-
-    std::this_thread::sleep_for(std::chrono::microseconds(10));
+    std::cerr << "Error launching periodic task. Extiting." << std::endl;
+    return -1;
   }
+
+  while(!entities.mTerminationGuard.trigger_value())
+  {}
 
   if(!outputFilename.empty())
   {
     outputFile->close();
   }
-
 
   std::cout << "Controller Exiting ..." << std::endl;
 

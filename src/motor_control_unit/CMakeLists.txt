@@ -5,6 +5,8 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(osmacros)
 include(MacroOpenSplice)
 
+find_package(Xenomai 3 REQUIRED)
+
 # OS environment to find OpenSplice package
 if(WIN32)
   # adds WholeProgramOptimization
@@ -81,7 +83,7 @@ endforeach(idl)
 
 set(DATAMODEL datamodel)
 
-add_library(${DATAMODEL} SHARED ${OpenSplice_DATAMODEL})
+add_library(${DATAMODEL} STATIC ${OpenSplice_DATAMODEL})
 
 target_link_libraries(${DATAMODEL}
   ${OpenSplice_LIBRARIES}
@@ -142,7 +144,7 @@ set(XENOMAI_DIR "${PROJECT_SOURCE_DIR}/src/xenomai_code")
 
 # dds entities
 add_library(dds_entities
-  SHARED
+  STATIC
   ${DDS_ENTITIES_DIR}/Entities.cpp
 )
 
@@ -200,16 +202,17 @@ target_link_libraries(controller
   ${DATAMODEL}
   dds_entities
   Threads::Threads
+  ${XENOMAI_LIBRARIES}
 )
 
 target_include_directories(controller
   PUBLIC
   ${OpenSplice_INCLUDE_DIRS}
   ${PROJECT_SOURCE_DIR}/src
+  ${XENOMAI_INCLUDE_DIRS}
 )
 
 # xenomai rt test
-find_package(Xenomai 3 REQUIRED)
 
 add_executable(test_rt
   ${XENOMAI_DIR}/test_rt.cpp
