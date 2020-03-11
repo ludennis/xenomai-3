@@ -17,7 +17,7 @@
 constexpr auto kTaskStackSize = 0;
 constexpr auto kTaskPriority = 20;
 constexpr auto kTaskMode = 0;
-constexpr auto kTaskPeriod = 100000; // 100 us
+constexpr auto kTaskPeriod = 120000; // 100 us
 constexpr auto kNanosecondsToMicroseconds = 1000;
 constexpr auto kNanosecondsToMilliseconds = 1000000;
 constexpr auto kNanosecondsToSeconds = 1000000000;
@@ -66,8 +66,11 @@ void WriteAndTakeRoutine(void*)
 
     if(static_cast<long>(now - oneSecondTimer) / kNanosecondsToSeconds > 0)
     {
-      std::cout << "number of messages sent to motor: " << numberOfMessagesSent << std::endl <<
-        "number of messages received from motor: " << numberOfMessagesReceived << std::endl;
+      std::cout << "number of messages sent / received / packet rate loss: " <<
+        numberOfMessagesSent << " / " << numberOfMessagesReceived << " / " <<
+        static_cast<double>(numberOfMessagesSent - numberOfMessagesReceived) /
+          numberOfMessagesSent * 100. <<
+        "%" << std::endl;
       std::cout << "Time elapsed for task: " <<
         static_cast<long>(now - previous) / kNanosecondsToMicroseconds <<
         "." << static_cast<long>(now - previous) % kNanosecondsToMicroseconds <<
