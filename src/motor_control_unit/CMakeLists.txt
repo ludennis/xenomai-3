@@ -90,7 +90,7 @@ target_link_libraries(${DATAMODEL}
 )
 
 target_include_directories(${DATAMODEL}
-  PUBLIC
+  SYSTEM PUBLIC
   ${PROJECT_SOURCE_DIR}
   ${OpenSplice_INCLUDE_DIRS}
 )
@@ -114,9 +114,9 @@ if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
+#if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+#  add_compile_options(-Wall -Wextra -Wpedantic)
+#endif()
 add_compile_options(-O3)
 
 # Set define
@@ -155,9 +155,18 @@ target_link_libraries(dds_entities
 
 target_include_directories(dds_entities
   PUBLIC
+  ${PROJECT_SOURCE_DIR}/src
+  SYSTEM PUBLIC
   ${OpenSplice_INCLUDE_DIRS}
   ${DDS_ENTITIES_DIR}
-  ${PROJECT_SOURCE_DIR}/src
+)
+
+target_compile_options(dds_entities
+  PUBLIC
+  -Wall
+  -Wextra
+  -Wpedantic
+  -Werror
 )
 
 # motor_model_v2
@@ -179,14 +188,23 @@ target_include_directories(motor
   ${MATLAB_DIR}/rtw/c/src
   ${MATLAB_DIR}/rtw/c/src/ext_mode/common
   ${MATLAB_DIR}/rtw/c/ert
-  ${OpenSplice_INCLUDE_DIRS}
   ${PROJECT_SOURCE_DIR}/src
+  SYSTEM PUBLIC
+  ${OpenSplice_INCLUDE_DIRS}
 )
 
 target_link_libraries(motor
   ${OpenSplice_LIBRARIES}
   ${DATAMODEL}
   dds_entities
+)
+
+target_compile_options(motor
+  PUBLIC
+  -Wall
+  -Wextra
+  -Wpedantic
+  -Werror
 )
 
 # controller
@@ -206,10 +224,18 @@ target_link_libraries(controller
 )
 
 target_include_directories(controller
-  PUBLIC
-  ${OpenSplice_INCLUDE_DIRS}
+  SYSTEM PUBLIC
   ${PROJECT_SOURCE_DIR}/src
+  ${OpenSplice_INCLUDE_DIRS}
   ${XENOMAI_INCLUDE_DIRS}
+)
+
+target_compile_options(controller
+  PUBLIC
+  -Wall
+  -Wextra
+  -Wpedantic
+  -Werror
 )
 
 # xenomai rt test
@@ -223,7 +249,7 @@ target_link_libraries(test_rt
 )
 
 target_include_directories(test_rt
-  PUBLIC
+  SYSTEM PUBLIC
   ${XENOMAI_INCLUDE_DIRS}
 )
 
