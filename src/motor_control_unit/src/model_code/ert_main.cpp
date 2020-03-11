@@ -16,12 +16,6 @@ void motorStep()
   generated_model_step();
 }
 
-void TerminationHandler(int s)
-{
-  std::cout << "Caught Termination Signal" << std::endl;
-  entities.mTerminationGuard.trigger_value(true);
-}
-
 int main(int argc, char * argv[])
 {
   std::string outputFilename;
@@ -44,7 +38,6 @@ int main(int argc, char * argv[])
   generated_model_initialize();
 
   struct sigaction signalHandler;
-  signalHandler.sa_handler = TerminationHandler;
   sigemptyset(&signalHandler.sa_mask);
   signalHandler.sa_flags = 0;
   sigaction(SIGINT, &signalHandler, NULL);

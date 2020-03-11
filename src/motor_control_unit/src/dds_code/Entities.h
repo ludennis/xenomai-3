@@ -20,8 +20,8 @@ public:
   dds::sub::DataReader<MotorControllerUnitModule::ControlMessage> mControlMessageReader;
   dds::sub::DataReader<MotorControllerUnitModule::MotorMessage> mMotorMessageReader;
 
-  dds::core::cond::WaitSet mMotorMessageWaitSet;
   dds::core::cond::WaitSet mControlMessageWaitSet;
+  dds::core::cond::WaitSet mMotorMessageWaitSet;
 
   utils::ElapsedTimes mRoundTripTimes;
   utils::ElapsedTimes mControllerWriteTimes;

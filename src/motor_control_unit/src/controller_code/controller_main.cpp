@@ -33,7 +33,7 @@ static dds::core::cond::WaitSet::ConditionSeq conditionSeq;
 static dds::core::Duration waitSetConnectionTimeout(5, 0);
 static dds::core::Duration waitSetTransmissionTimeout(1, 0);
 
-void WriteAndTakeRoutine(void *arg)
+void WriteAndTakeRoutine(void*)
 {
   RTIME now, previous;
 
@@ -82,7 +82,7 @@ void WriteAndTakeRoutine(void *arg)
 
 void TerminationHandler(int s)
 {
-  std::cout << "Caught Termination Signal" << std::endl;
+  std::cout << "Caught Termination Signal with code: " << s << std::endl;
   entities.mTerminationGuard.trigger_value(true);
 }
 

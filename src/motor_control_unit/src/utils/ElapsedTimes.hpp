@@ -113,9 +113,9 @@ public:
 private:
   long int mSize;
   long long int mSum;
+  long long int mMin;
   long long int mLocalMax;
   long long int mGlobalMax;
-  long long int mMin;
   std::chrono::nanoseconds mBack;
 };
 

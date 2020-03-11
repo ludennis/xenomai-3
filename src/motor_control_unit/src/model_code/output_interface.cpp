@@ -10,11 +10,6 @@ std::shared_ptr<MsgMotorOutput> MotorOutputPtr;
 std::shared_ptr<MsgDynoSensing> DynoSensingPtr;
 
 /* FUNCTION */
-void setMsgDynoCmd(MsgDynoCmd data)
-{
-    /* MsgDynoCmd */
-}
-
 void setMsgDynoSensing(MsgDynoSensing data)
 {
     std::cout << "output_interface line 19" << std::endl;
@@ -30,11 +25,6 @@ void setMsgDynoSensing(MsgDynoSensing data)
     DynoSensingPtr->ft_CurrentVS = data.ft_CurrentVS;
     std::cout << "output_interface line 31" << std::endl;
     DynoSensingPtr->ft_CurrentWS = data.ft_CurrentWS;
-}
-
-void setMsgMcuOutput(MsgMcuOutput data)
-{
-    /* MsgMcuOutput */
 }
 
 void setMsgMotorOutput(MsgMotorOutput data)
