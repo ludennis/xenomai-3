@@ -6,16 +6,16 @@ const path = require('path');
 main();
 
 function main(){
-  sendMotorMessage('hi').then(() => {
+  sendControlMessage('Hi,from nodejs').then(() => {
     console.log('finished');
     process.exit(0);
   }).catch((error) => {
-    console.log('Error: ' + error.message);
+    console.log(error.stack);
     process.exit(1);
   });
 }
 
-async function sendMotorMessage(message){
+async function sendControlMessage(message){
   console.log('Sending following message to motor: ' + message);
 
   // create dds stuff
@@ -28,28 +28,34 @@ async function sendMotorMessage(message){
     const idlPath = __dirname + '/../idl/' + idlName;
     console.log('idlPath: ' + idlPath);
 
-    const typeSupports = await dds.importIDL(idlPath);
-    const typeSupport = typeSupports.get('MotorControllerUnitModule::MotorMessage');
+    const messageTypes = await dds.importIDL(idlPath);
+    const controlMessageType = messageTypes.get('MotorControllerUnitModule::ControlMessage');
+    const motorMessageType = messageTypes.get('MotorControllerUnitModule::MotorMessage');
 
-    const topicName = 'motor_topic';
-    const topic = participant.createTopic(
-      topicName,
-      typeSupport
+    const controlTopic = participant.createTopic(
+      'control_topic',
+      controlMessageType
     );
 
+    const motorTopic = participant.createTopic(
+      'motor_topic',
+      motorMessageType
+    );
+
+
     const publisherQos = dds.QoS.publisherDefault();
-    publisherQos.partition = {name: 'nodejs'};
+    publisherQos.partition = {names: 'nodejsPartition'};
     const publisher = participant.createPublisher(publisherQos);
 
     const writerQos = new dds.QoS({
-      reliability: {kind: dds.ReliabilityKind.BestEffor}});
-    const writer = publisher.createWriter(topic, writerQos);
+      reliability: {kind: dds.ReliabilityKind.Reliable}});
+    const writer = publisher.createWriter(controlTopic, writerQos);
 
     const subscriberQos = dds.QoS.subscriberDefault();
-    subscriberQos.partition = {name: 'motor'};
+    subscriberQos.partition = {names: 'motorPartition'};
     const subscriber = participant.createSubscriber(subscriberQos);
 
-    const reader = subscriber.createReader(topic);
+    const reader = subscriber.createReader(motorTopic);
 
     let publisherMatchedCondition = null;
     let publisherMatchedWaitset = null;
@@ -67,21 +73,33 @@ async function sendMotorMessage(message){
       }
     }
 
+    // after finding the subscriber and topic, send message
+    let msg = {content: message};
+    console.log('sending: ' + JSON.stringify(msg));
+    writer.writeReliable(msg);
 
+    // wait for data, and terminates if received
+    let newDataCondition = null;
+    let newDataWaitset = null;
 
+    try {
+      // create waitset for new data
+      newDataCondition = reader.createReadCondition(
+        dds.StateMask.sample.not_read
+      );
+      newDataWaitset = new dds.Waitset(newDataCondition);
 
-
-
-
-
-
-
-
-
-
-
-
-
+      await newDataWaitset.wait(10);
+      let takeArray = reader.take(1);
+      if (takeArray.length > 0 && takeArray[0].info.valid_data) {
+        let sample = takeArray[0].sample;
+        console.log('received: ' + JSON.stringify(sample));
+      }
+    } finally {
+      if (newDataWaitset !== null) {
+        newDataWaitset.delete();
+      }
+    }
   } finally {
     console.log('Terminating. Cleaning up Domain Participant.');
     if(participant !== null){

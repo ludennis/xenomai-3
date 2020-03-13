@@ -10,8 +10,8 @@
 #include <idl/gen/MotorControllerUnitModule_DCPS.hpp>
 
 static dds_entities::Entities entities(
-  std::vector<std::string>{"motor"},
-  std::vector<std::string>{"controller", "nodejs"});
+  std::vector<std::string>{"motorPartition"},
+  std::vector<std::string>{"controlPartition", "nodejsPartition"});
 
 void motorStep()
 {
