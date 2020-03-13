@@ -22,7 +22,9 @@ constexpr auto kNanosecondsToMicroseconds = 1000;
 constexpr auto kNanosecondsToMilliseconds = 1000000;
 constexpr auto kNanosecondsToSeconds = 1000000000;
 
-static dds_entities::Entities entities("controller", "motor");
+static dds_entities::Entities entities(
+  std::vector<std::string>{"controller"},
+  std::vector<std::string>{"motor"});
 static RT_TASK rtTask;
 static RTIME oneSecondTimer;
 static auto numberOfMessagesSent{0u};

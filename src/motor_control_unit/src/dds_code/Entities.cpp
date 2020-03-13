@@ -3,8 +3,8 @@
 namespace dds_entities
 {
 
-Entities::Entities(const std::string &publisherPartition,
-  const std::string &subscriberPartition)
+Entities::Entities(const std::vector<std::string> &publisherPartitions,
+  const std::vector<std::string> &subscriberPartitions)
   : mControlMessageWriter(dds::core::null)
   , mMotorMessageWriter(dds::core::null)
   , mControlMessageReader(dds::core::null)
@@ -24,7 +24,7 @@ Entities::Entities(const std::string &publisherPartition,
   // Publisher
   dds::pub::qos::PublisherQos publisherQos =
     participant.default_publisher_qos() <<
-      dds::core::policy::Partition(publisherPartition);
+      dds::core::policy::Partition(publisherPartitions);
   dds::pub::Publisher publisher(participant, publisherQos);
 
   // DataWriter
@@ -40,7 +40,7 @@ Entities::Entities(const std::string &publisherPartition,
   // Subscriber
   dds::sub::qos::SubscriberQos subscriberQos =
     participant.default_subscriber_qos() <<
-      dds::core::policy::Partition(subscriberPartition);
+      dds::core::policy::Partition(subscriberPartitions);
   dds::sub::Subscriber subscriber(participant, subscriberQos);
 
   // DataReader

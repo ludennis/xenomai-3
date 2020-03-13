@@ -11,7 +11,8 @@ namespace dds_entities
 class Entities
 {
 public:
-  Entities(const std::string &publisherPartition, const std::string &subscriberPartition);
+  Entities(const std::vector<std::string> &publisherPartitions,
+    const std::vector<std::string> &subscriberPartitions);
 
 public:
   dds::pub::DataWriter<MotorControllerUnitModule::ControlMessage> mControlMessageWriter;

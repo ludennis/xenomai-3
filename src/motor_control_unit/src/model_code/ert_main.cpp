@@ -9,7 +9,9 @@
 #include "generated_model.h"
 #include <idl/gen/MotorControllerUnitModule_DCPS.hpp>
 
-static dds_entities::Entities entities("motor", "controller");
+static dds_entities::Entities entities(
+  std::vector<std::string>{"motor"},
+  std::vector<std::string>{"controller", "nodejs"});
 
 void motorStep()
 {

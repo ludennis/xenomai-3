@@ -38,7 +38,7 @@ async function sendMotorMessage(message){
     );
 
     const publisherQos = dds.QoS.publisherDefault();
-    publisherQos.partition = {name: 'controller'};
+    publisherQos.partition = {name: 'nodejs'};
     const publisher = participant.createPublisher(publisherQos);
 
     const writerQos = new dds.QoS({
