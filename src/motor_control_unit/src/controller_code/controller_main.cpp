@@ -9,7 +9,7 @@
 
 #include <dds/dds.hpp>
 
-#include <dds_code/Entities.h>
+#include <dds_code/dds_bridge.hpp>
 #include <utils/FileWriter.hpp>
 #include <utils/SynchronizedFile.hpp>
 #include <idl/gen/MotorControllerUnitModule_DCPS.hpp>
@@ -25,7 +25,7 @@ constexpr auto kNanosecondsToMicroseconds = 1000;
 constexpr auto kNanosecondsToMilliseconds = 1000000;
 constexpr auto kNanosecondsToSeconds = 1000000000;
 
-static dds_entities::Entities entities;
+static dds_bridge::DDSBridge ddsBridge;
 
 static RT_TASK rtTask;
 static RTIME oneSecondTimer;
@@ -40,48 +40,48 @@ static dds::core::Duration waitSetTransmissionTimeout(1, 0);
 void WriteAndTakeRoutine(void*)
 {
   /* DomainParticipant */
-  entities.CreateDomainParticipant();
+  ddsBridge.CreateDomainParticipant();
 
   /* Publisher */
-  entities.CreatePublisher();
-  entities.AddPublisherPartition("controlPartition");
+  ddsBridge.CreatePublisher();
+  ddsBridge.AddPublisherPartition("controlPartition");
 
   /* Subscriber */
-  entities.CreateSubscriber();
-  entities.AddSubscriberPartition("motorPartition");
+  ddsBridge.CreateSubscriber();
+  ddsBridge.AddSubscriberPartition("motorPartition");
 
   /* DataWriter */
-  auto writerQos = entities.CreateDataWriterQos();
-  entities.AddQos(writerQos,
+  auto writerQos = ddsBridge.CreateDataWriterQos();
+  ddsBridge.AddQos(writerQos,
     dds::core::policy::Reliability::Reliable(dds::core::Duration(10, 0)));
-  entities.AddQos(writerQos,
+  ddsBridge.AddQos(writerQos,
     dds::core::policy::WriterDataLifecycle::ManuallyDisposeUnregisteredInstances());
 
   auto controlDataWriter =
-    entities.CreateDataWriter<idlControlMessageType>("control_topic", writerQos);
+    ddsBridge.CreateDataWriter<idlControlMessageType>("control_topic", writerQos);
 
   /* DataReader */
-  auto readerQos = entities.CreateDataReaderQos();
-  entities.AddQos(readerQos,
+  auto readerQos = ddsBridge.CreateDataReaderQos();
+  ddsBridge.AddQos(readerQos,
     dds::core::policy::Reliability::Reliable(dds::core::Duration(10, 0)));
 
   auto motorDataReader =
-    entities.CreateDataReader<idlMotorMessageType>("motor_topic", readerQos);
+    ddsBridge.CreateDataReader<idlMotorMessageType>("motor_topic", readerQos);
 
   /* WaitSet */
-  entities.CreateWaitSet();
+  ddsBridge.CreateWaitSet();
 
   auto motorStatusCondition =
-    entities.CreateStatusCondition<idlMotorMessageType>(motorDataReader);
-  entities.EnableStatus(motorStatusCondition, dds::core::status::StatusMask::data_available());
+    ddsBridge.CreateStatusCondition<idlMotorMessageType>(motorDataReader);
+  ddsBridge.EnableStatus(motorStatusCondition, dds::core::status::StatusMask::data_available());
 
-  entities.AddStatusCondition(motorStatusCondition);
-  entities.AddGuardCondition(entities.mTerminationGuard);
+  ddsBridge.AddStatusCondition(motorStatusCondition);
+  ddsBridge.AddGuardCondition(ddsBridge.mTerminationGuard);
 
   RTIME now, previous;
 
   previous = rt_timer_read();
-  while(!entities.mTerminationGuard.trigger_value())
+  while(!ddsBridge.mTerminationGuard.trigger_value())
   {
     auto controlMessage = MotorControllerUnitModule::ControlMessage("motor_step");
 
@@ -129,7 +129,7 @@ void WriteAndTakeRoutine(void*)
 void TerminationHandler(int s)
 {
   std::cout << "Caught Termination Signal with code: " << s << std::endl;
-  entities.mTerminationGuard.trigger_value(true);
+  ddsBridge.mTerminationGuard.trigger_value(true);
 }
 
 int main(int argc, char *argv[])
@@ -180,7 +180,7 @@ int main(int argc, char *argv[])
     return -1;
   }
 
-  while(!entities.mTerminationGuard.trigger_value())
+  while(!ddsBridge.mTerminationGuard.trigger_value())
   {}
 
   if(!outputFilename.empty())

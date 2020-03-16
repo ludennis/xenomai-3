@@ -3,15 +3,18 @@
 #include <utils/ElapsedTimes.hpp>
 #include <idl/gen/MotorControllerUnitModule_DCPS.hpp>
 
-//static dds::core::cond::GuardCondition terminated;
-
-namespace dds_entities
+namespace dds_bridge
 {
 
-class Entities
+class DDSBridge
 {
 public:
-  Entities();
+  DDSBridge()
+  : mParticipant(dds::core::null)
+  , mPublisher(dds::core::null)
+  , mSubscriber(dds::core::null)
+  , mWaitSet(dds::core::null)
+  {}
 
   /* General */
   template <typename EntityType, typename PolicyType>
@@ -21,19 +24,64 @@ public:
   }
 
   /* DomainParticipant */
-  void CreateDomainParticipant();
-  void CreateDomainParticipant(unsigned int id);
+  void CreateDomainParticipant()
+  {
+    this->mParticipant = dds::domain::DomainParticipant(org::opensplice::domain::default_id());
+  }
+
+  void CreateDomainParticipant(const unsigned int id)
+  {
+    this->mParticipant = dds::domain::DomainParticipant(id);
+  }
 
   /* Publisher */
-  void CreatePublisher();
-  void AddPublisherPartition(const std::string &partition);
+  void CreatePublisher()
+  {
+    if(this->mPublisherPartitions.empty())
+    {
+      this->mPublisher = dds::pub::Publisher(this->mParticipant);
+    }
+    else
+    {
+      dds::pub::qos::PublisherQos publisherQos =
+        this->mParticipant.default_publisher_qos() <<
+          dds::core::policy::Partition(this->mPublisherPartitions);
+      this->mPublisher << publisherQos;
+    }
+  }
+
+  void AddPublisherPartition(const std::string &partition)
+  {
+    this->mPublisherPartitions.push_back(partition);
+  }
 
   /* Subscriber */
-  void CreateSubscriber();
-  void AddSubscriberPartition(const std::string &partition);
+  void CreateSubscriber()
+  {
+    if(this->mSubscriberPartitions.empty())
+    {
+      this->mSubscriber = dds::sub::Subscriber(this->mParticipant);
+    }
+    else
+    {
+      dds::sub::qos::SubscriberQos subscriberQos =
+        this->mParticipant.default_subscriber_qos() <<
+          dds::core::policy::Partition(this->mSubscriberPartitions);
+      this->mSubscriber << subscriberQos;
+    }
+  }
+
+  void AddSubscriberPartition(const std::string &partition)
+  {
+    this->mSubscriberPartitions.push_back(partition);
+  }
 
   /* DataWriter */
-  dds::pub::qos::DataWriterQos CreateDataWriterQos();
+  dds::pub::qos::DataWriterQos CreateDataWriterQos()
+  {
+    dds::pub::qos::DataWriterQos writerQos;
+    return writerQos;
+  }
 
   template <typename MessageType>
   dds::pub::DataWriter<MessageType> CreateDataWriter(const std::string &topicName,
@@ -45,7 +93,11 @@ public:
   }
 
   /* DataReader */
-  dds::sub::qos::DataReaderQos CreateDataReaderQos();
+  dds::sub::qos::DataReaderQos CreateDataReaderQos()
+  {
+    dds::sub::qos::DataReaderQos readerQos;
+    return readerQos;
+  }
 
   template <typename MessageType>
   dds::sub::DataReader<MessageType> CreateDataReader(const std::string &topicName,
@@ -56,15 +108,22 @@ public:
     return dataReader;
   }
 
-  template <typename MessageType, typename PolicyType>
-  void AddDataReaderQos(dds::sub::DataReader<MessageType> &reader, PolicyType policy)
+  /* WaitSet */
+  void CreateWaitSet()
   {
-    auto readerQos = dds::sub::qos::DataReaderQos();
-    readerQos << policy;
-    reader << readerQos;
+    this->mWaitSet = dds::core::cond::WaitSet();
   }
 
-  /* WaitSet */
+  void AddStatusCondition(dds::core::cond::StatusCondition &statusCondition)
+  {
+    this->mWaitSet += statusCondition;
+  }
+
+  void AddGuardCondition(dds::core::cond::GuardCondition &guardCondition)
+  {
+    this->mWaitSet += guardCondition;
+  }
+
   template <typename MessageType>
   dds::core::cond::StatusCondition CreateStatusCondition(
     dds::sub::DataReader<MessageType> reader)
@@ -81,12 +140,6 @@ public:
     statusMask << mask;
     statusCondition.enabled_statuses(statusMask);
   }
-
-  void CreateWaitSet();
-
-  void AddStatusCondition(dds::core::cond::StatusCondition &statusCondition);
-
-  void AddGuardCondition(dds::core::cond::GuardCondition &guardCondition);
 
 public:
   dds::domain::DomainParticipant mParticipant;
@@ -107,6 +160,7 @@ public:
 
   std::vector<std::string> mPublisherPartitions;
   std::vector<std::string> mSubscriberPartitions;
-};
 
-} // namespace dds_entities
+}; // class DDSBridge
+
+} // namespace dds_bridge

@@ -5,14 +5,14 @@
 
 #include <dds/dds.hpp>
 
-#include <dds_code/Entities.h>
+#include <dds_code/dds_bridge.hpp>
 #include "generated_model.h"
 #include <idl/gen/MotorControllerUnitModule_DCPS.hpp>
 
 using idlControlMessageType = MotorControllerUnitModule::ControlMessage;
 using idlMotorMessageType = MotorControllerUnitModule::MotorMessage;
 
-static dds_entities::Entities entities;
+static dds_bridge::DDSBridge ddsBridge;
 
 void motorStep()
 {
@@ -22,43 +22,43 @@ void motorStep()
 int main(int argc, char * argv[])
 {
   /* DomainParticipant */
-  entities.CreateDomainParticipant();
+  ddsBridge.CreateDomainParticipant();
 
   /* Publisher */
-  entities.CreatePublisher();
-  entities.AddPublisherPartition("motorPartition");
+  ddsBridge.CreatePublisher();
+  ddsBridge.AddPublisherPartition("motorPartition");
 
   /* Subscriber */
-  entities.CreateSubscriber();
-  entities.AddSubscriberPartition("controlPartition");
-  entities.AddSubscriberPartition("nodejsPartition");
+  ddsBridge.CreateSubscriber();
+  ddsBridge.AddSubscriberPartition("controlPartition");
+  ddsBridge.AddSubscriberPartition("nodejsPartition");
 
   /* DataWriter */
-  auto writerQos = entities.CreateDataWriterQos();
-  entities.AddQos(writerQos,
+  auto writerQos = ddsBridge.CreateDataWriterQos();
+  ddsBridge.AddQos(writerQos,
     dds::core::policy::Reliability::Reliable(dds::core::Duration(10, 0)));
-  entities.AddQos(writerQos,
+  ddsBridge.AddQos(writerQos,
     dds::core::policy::WriterDataLifecycle::ManuallyDisposeUnregisteredInstances());
 
   auto motorDataWriter =
-    entities.CreateDataWriter<idlMotorMessageType>("motor_topic", writerQos);
+    ddsBridge.CreateDataWriter<idlMotorMessageType>("motor_topic", writerQos);
 
   /* DataReader */
-  auto readerQos = entities.CreateDataReaderQos();
-  entities.AddQos(readerQos,
+  auto readerQos = ddsBridge.CreateDataReaderQos();
+  ddsBridge.AddQos(readerQos,
     dds::core::policy::Reliability::Reliable(dds::core::Duration(10, 0)));
 
   auto controlDataReader =
-    entities.CreateDataReader<idlControlMessageType>("control_topic", readerQos);
+    ddsBridge.CreateDataReader<idlControlMessageType>("control_topic", readerQos);
 
   /* WaitSet */
   auto controlStatusCondition =
-    entities.CreateStatusCondition<idlControlMessageType>(controlDataReader);
-  entities.EnableStatus(controlStatusCondition, dds::core::status::StatusMask::data_available());
+    ddsBridge.CreateStatusCondition<idlControlMessageType>(controlDataReader);
+  ddsBridge.EnableStatus(controlStatusCondition, dds::core::status::StatusMask::data_available());
 
-  entities.CreateWaitSet();
-  entities.AddStatusCondition(controlStatusCondition);
-  entities.AddGuardCondition(entities.mTerminationGuard);
+  ddsBridge.CreateWaitSet();
+  ddsBridge.AddStatusCondition(controlStatusCondition);
+  ddsBridge.AddGuardCondition(ddsBridge.mTerminationGuard);
 
   std::string outputFilename;
   std::ofstream outputFile;
@@ -90,9 +90,9 @@ int main(int argc, char * argv[])
 
   auto beginTime = std::chrono::steady_clock::now();
 
-  for(; !entities.mTerminationGuard.trigger_value();)
+  for(; !ddsBridge.mTerminationGuard.trigger_value();)
   {
-    entities.mWaitSet.wait(conditionSeq);
+    ddsBridge.mWaitSet.wait(conditionSeq);
 
     auto beginTakeTime = std::chrono::steady_clock::now();
 
@@ -111,7 +111,7 @@ int main(int argc, char * argv[])
 
         auto endMotorStepTime = std::chrono::steady_clock::now();
 
-        entities.mMotorStepTimes.AddTime(
+        ddsBridge.mMotorStepTimes.AddTime(
           std::chrono::duration_cast<std::chrono::nanoseconds>(
             endMotorStepTime - beginMotorStepTime));
 
@@ -129,31 +129,31 @@ int main(int argc, char * argv[])
 
         motorDataWriter.unregister_instance(instanceHandle);
 
-        entities.mMotorWriteTimes.AddTime(
+        ddsBridge.mMotorWriteTimes.AddTime(
           std::chrono::duration_cast<std::chrono::nanoseconds>(
             endWriteTime - beginWriteTime));
       }
     }
 
-    entities.mMotorTakeTimes.AddTime(
+    ddsBridge.mMotorTakeTimes.AddTime(
       std::chrono::duration_cast<std::chrono::nanoseconds>(
         endTakeTime - beginTakeTime));
 
     if(std::chrono::duration_cast<std::chrono::seconds>(
       std::chrono::steady_clock::now() - beginTime).count() >= 1)
     {
-      entities.mMotorStepTimes.PrintHeader("motor");
-      entities.mMotorTakeTimes.Print("take");
-      entities.mMotorStepTimes.Print("step");
-      entities.mMotorWriteTimes.Print("write");
+      ddsBridge.mMotorStepTimes.PrintHeader("motor");
+      ddsBridge.mMotorTakeTimes.Print("take");
+      ddsBridge.mMotorStepTimes.Print("step");
+      ddsBridge.mMotorWriteTimes.Print("write");
 
       beginTime = std::chrono::steady_clock::now();
     }
 
     outputFile
-      << entities.mMotorTakeTimes.Back().count() / kMicrosecondsInOneNanosecond << ","
-      << entities.mMotorStepTimes.Back().count() / kMicrosecondsInOneNanosecond << ","
-      << entities.mMotorWriteTimes.Back().count() / kMicrosecondsInOneNanosecond
+      << ddsBridge.mMotorTakeTimes.Back().count() / kMicrosecondsInOneNanosecond << ","
+      << ddsBridge.mMotorStepTimes.Back().count() / kMicrosecondsInOneNanosecond << ","
+      << ddsBridge.mMotorWriteTimes.Back().count() / kMicrosecondsInOneNanosecond
       << std::endl;
 
     std::this_thread::sleep_for(std::chrono::microseconds(10));
