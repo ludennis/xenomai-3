@@ -3,9 +3,11 @@
 namespace dds_entities
 {
 
-Entities::Entities(const std::vector<std::string> &publisherPartitions,
-  const std::vector<std::string> &subscriberPartitions)
-  : mControlMessageWriter(dds::core::null)
+Entities::Entities()
+  : mParticipant(dds::core::null)
+  , mPublisher(dds::core::null)
+  , mSubscriber(dds::core::null)
+  , mControlMessageWriter(dds::core::null)
   , mMotorMessageWriter(dds::core::null)
   , mControlMessageReader(dds::core::null)
   , mMotorMessageReader(dds::core::null)
@@ -13,19 +15,16 @@ Entities::Entities(const std::vector<std::string> &publisherPartitions,
   , mMotorMessageWaitSet(dds::core::null)
 {
   // Domain
-  dds::domain::DomainParticipant participant(org::opensplice::domain::default_id());
+  this->mParticipant = dds::domain::DomainParticipant(org::opensplice::domain::default_id());
 
   // Topic
   dds::topic::Topic<MotorControllerUnitModule::ControlMessage>
-    controlTopic(participant, "control_topic");
+    controlTopic(this->mParticipant, "control_topic");
   dds::topic::Topic<MotorControllerUnitModule::MotorMessage>
-    motorTopic(participant, "motor_topic");
+    motorTopic(this->mParticipant, "motor_topic");
 
   // Publisher
-  dds::pub::qos::PublisherQos publisherQos =
-    participant.default_publisher_qos() <<
-      dds::core::policy::Partition(publisherPartitions);
-  dds::pub::Publisher publisher(participant, publisherQos);
+  this->mPublisher = dds::pub::Publisher(this->mParticipant);
 
   // DataWriter
   dds::pub::qos::DataWriterQos writerQos = controlTopic.qos();
@@ -33,23 +32,20 @@ Entities::Entities(const std::vector<std::string> &publisherPartitions,
   writerQos << dds::core::policy::Reliability::Reliable(dds::core::Duration(10, 0))
     << dds::core::policy::WriterDataLifecycle::ManuallyDisposeUnregisteredInstances();
   mControlMessageWriter = dds::pub::DataWriter<MotorControllerUnitModule::ControlMessage>(
-    publisher, controlTopic, writerQos);
+    this->mPublisher, controlTopic, writerQos);
   mMotorMessageWriter = dds::pub::DataWriter<MotorControllerUnitModule::MotorMessage>(
-    publisher, motorTopic, writerQos);
+    this->mPublisher, motorTopic, writerQos);
 
   // Subscriber
-  dds::sub::qos::SubscriberQos subscriberQos =
-    participant.default_subscriber_qos() <<
-      dds::core::policy::Partition(subscriberPartitions);
-  dds::sub::Subscriber subscriber(participant, subscriberQos);
+  this->mSubscriber = dds::sub::Subscriber(this->mParticipant);
 
   // DataReader
   dds::sub::qos::DataReaderQos readerQos = controlTopic.qos();
   readerQos << dds::core::policy::Reliability::Reliable(dds::core::Duration(10, 0));
   mControlMessageReader = dds::sub::DataReader<MotorControllerUnitModule::ControlMessage>(
-    subscriber, controlTopic, readerQos);
+    this->mSubscriber, controlTopic, readerQos);
   mMotorMessageReader = dds::sub::DataReader<MotorControllerUnitModule::MotorMessage>(
-    subscriber, motorTopic, readerQos);
+    this->mSubscriber, motorTopic, readerQos);
 
   // StatusCondition
   dds::core::cond::StatusCondition controlDataAvailable(mControlMessageReader);
@@ -66,6 +62,46 @@ Entities::Entities(const std::vector<std::string> &publisherPartitions,
   mMotorMessageWaitSet = dds::core::cond::WaitSet();
   mMotorMessageWaitSet += motorDataAvailable;
   mMotorMessageWaitSet += mTerminationGuard;
+}
+
+void Entities::AddPublisherPartition(const std::string &partition)
+{
+  this->mPublisherPartitions.push_back(partition);
+}
+
+void Entities::AddSubscriberPartition(const std::string &partition)
+{
+  this->mSubscriberPartitions.push_back(partition);
+}
+
+void Entities::CreatePublisher()
+{
+  if(this->mPublisherPartitions.empty())
+  {
+    this->mPublisher = dds::pub::Publisher(this->mParticipant);
+  }
+  else
+  {
+    dds::pub::qos::PublisherQos publisherQos =
+      this->mParticipant.default_publisher_qos() <<
+        dds::core::policy::Partition(this->mPublisherPartitions);
+    this->mPublisher << publisherQos;
+  }
+}
+
+void Entities::CreateSubscriber()
+{
+  if(this->mSubscriberPartitions.empty())
+  {
+    this->mSubscriber = dds::sub::Subscriber(this->mParticipant);
+  }
+  else
+  {
+    dds::sub::qos::SubscriberQos subscriberQos =
+      this->mParticipant.default_subscriber_qos() <<
+        dds::core::policy::Partition(this->mSubscriberPartitions);
+    this->mSubscriber << subscriberQos;
+  }
 }
 
 } // namespace dds_entities

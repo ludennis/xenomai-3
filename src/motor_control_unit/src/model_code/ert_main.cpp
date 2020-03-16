@@ -9,9 +9,7 @@
 #include "generated_model.h"
 #include <idl/gen/MotorControllerUnitModule_DCPS.hpp>
 
-static dds_entities::Entities entities(
-  std::vector<std::string>{"motorPartition"},
-  std::vector<std::string>{"controlPartition", "nodejsPartition"});
+static dds_entities::Entities entities;
 
 void motorStep()
 {
@@ -20,6 +18,12 @@ void motorStep()
 
 int main(int argc, char * argv[])
 {
+  entities.AddPublisherPartition("motorPartition");
+  entities.AddSubscriberPartition("controlPartition");
+  entities.AddSubscriberPartition("nodejsPartition");
+  entities.CreatePublisher();
+  entities.CreateSubscriber();
+
   std::string outputFilename;
   std::ofstream outputFile;
 

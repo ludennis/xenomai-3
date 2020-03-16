@@ -22,9 +22,8 @@ constexpr auto kNanosecondsToMicroseconds = 1000;
 constexpr auto kNanosecondsToMilliseconds = 1000000;
 constexpr auto kNanosecondsToSeconds = 1000000000;
 
-static dds_entities::Entities entities(
-  std::vector<std::string>{"controlPartition"},
-  std::vector<std::string>{"motorPartition"});
+static dds_entities::Entities entities;
+
 static RT_TASK rtTask;
 static RTIME oneSecondTimer;
 static auto numberOfMessagesSent{0u};
@@ -37,6 +36,11 @@ static dds::core::Duration waitSetTransmissionTimeout(1, 0);
 
 void WriteAndTakeRoutine(void*)
 {
+  entities.AddPublisherPartition("controlPartition");
+  entities.AddSubscriberPartition("motorPartition");
+  entities.CreatePublisher();
+  entities.CreateSubscriber();
+
   RTIME now, previous;
 
   previous = rt_timer_read();
