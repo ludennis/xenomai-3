@@ -13,6 +13,9 @@ class Entities
 public:
   Entities();
 
+  void CreateDomainParticipant();
+  void CreateDomainParticipant(unsigned int id);
+
   void AddPublisherPartition(const std::string &partition);
   void AddSubscriberPartition(const std::string &partition);
 

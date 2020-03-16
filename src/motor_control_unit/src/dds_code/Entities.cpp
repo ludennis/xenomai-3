@@ -14,9 +14,6 @@ Entities::Entities()
   , mControlMessageWaitSet(dds::core::null)
   , mMotorMessageWaitSet(dds::core::null)
 {
-  // Domain
-  this->mParticipant = dds::domain::DomainParticipant(org::opensplice::domain::default_id());
-
   // Topic
   dds::topic::Topic<MotorControllerUnitModule::ControlMessage>
     controlTopic(this->mParticipant, "control_topic");
@@ -62,6 +59,16 @@ Entities::Entities()
   mMotorMessageWaitSet = dds::core::cond::WaitSet();
   mMotorMessageWaitSet += motorDataAvailable;
   mMotorMessageWaitSet += mTerminationGuard;
+}
+
+void Entities::CreateDomainParticipant()
+{
+  this->mParticipant = dds::domain::DomainParticipant(org::opensplice::domain::default_id());
+}
+
+void Entities::CreateDomainParticipant(unsigned int id)
+{
+  this->mParticipant = dds::domain::DomainParticipant(id);
 }
 
 void Entities::AddPublisherPartition(const std::string &partition)

@@ -36,6 +36,8 @@ static dds::core::Duration waitSetTransmissionTimeout(1, 0);
 
 void WriteAndTakeRoutine(void*)
 {
+  entities.CreateDomainParticipant();
+
   entities.AddPublisherPartition("controlPartition");
   entities.AddSubscriberPartition("motorPartition");
   entities.CreatePublisher();

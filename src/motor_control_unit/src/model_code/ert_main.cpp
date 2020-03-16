@@ -18,6 +18,8 @@ void motorStep()
 
 int main(int argc, char * argv[])
 {
+  entities.CreateDomainParticipant();
+
   entities.AddPublisherPartition("motorPartition");
   entities.AddSubscriberPartition("controlPartition");
   entities.AddSubscriberPartition("nodejsPartition");
