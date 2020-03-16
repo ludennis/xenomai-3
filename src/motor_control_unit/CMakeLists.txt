@@ -139,35 +139,7 @@ add_definitions(-DMODEL_HAS_DYNAMICALLY_LOADED_SFCNS=0)
 set(MATLAB_DIR "${PROJECT_SOURCE_DIR}/src/matlab_code")
 set(MODEL_DIR "${PROJECT_SOURCE_DIR}/src/model_code")
 set(CONTROLLER_DIR "${PROJECT_SOURCE_DIR}/src/controller_code")
-set(DDS_ENTITIES_DIR "${PROJECT_SOURCE_DIR}/src/dds_code")
 set(XENOMAI_DIR "${PROJECT_SOURCE_DIR}/src/xenomai_code")
-
-# dds entities
-add_library(dds_entities
-  STATIC
-  ${DDS_ENTITIES_DIR}/Entities.cpp
-)
-
-target_link_libraries(dds_entities
-  ${OpenSplice_LIBRARIES}
-  ${DATAMODEL}
-)
-
-target_include_directories(dds_entities
-  PUBLIC
-  ${PROJECT_SOURCE_DIR}/src
-  SYSTEM PUBLIC
-  ${OpenSplice_INCLUDE_DIRS}
-  ${DDS_ENTITIES_DIR}
-)
-
-target_compile_options(dds_entities
-  PUBLIC
-  -Wall
-  -Wextra
-  -Wpedantic
-  -Werror
-)
 
 # motor_model_v2
 add_executable(motor
@@ -196,7 +168,6 @@ target_include_directories(motor
 target_link_libraries(motor
   ${OpenSplice_LIBRARIES}
   ${DATAMODEL}
-  dds_entities
 )
 
 target_compile_options(motor
@@ -218,7 +189,6 @@ add_executable(controller
 target_link_libraries(controller
   ${OpenSplice_LIBRARIES}
   ${DATAMODEL}
-  dds_entities
   Threads::Threads
   ${XENOMAI_LIBRARIES}
 )
