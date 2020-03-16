@@ -26,12 +26,12 @@ int main(int argc, char * argv[])
 
   /* Publisher */
   ddsBridge.CreatePublisher();
-  ddsBridge.AddPublisherPartition("motorPartition");
+  ddsBridge.AddPublisherPartition("MotorResponsePartition");
 
   /* Subscriber */
   ddsBridge.CreateSubscriber();
-  ddsBridge.AddSubscriberPartition("controlPartition");
-  ddsBridge.AddSubscriberPartition("nodejsPartition");
+  ddsBridge.AddSubscriberPartition("ControlCommandPartition");
+  ddsBridge.AddSubscriberPartition("NodejsRequestPartition");
 
   /* DataWriter */
   auto writerQos = ddsBridge.CreateDataWriterQos();
