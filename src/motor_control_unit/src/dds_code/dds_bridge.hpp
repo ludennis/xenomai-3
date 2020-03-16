@@ -46,7 +46,7 @@ public:
       dds::pub::qos::PublisherQos publisherQos =
         this->mParticipant.default_publisher_qos() <<
           dds::core::policy::Partition(this->mPublisherPartitions);
-      this->mPublisher << publisherQos;
+      this->mPublisher = dds::pub::Publisher(this->mParticipant, publisherQos);
     }
   }
 
@@ -67,7 +67,7 @@ public:
       dds::sub::qos::SubscriberQos subscriberQos =
         this->mParticipant.default_subscriber_qos() <<
           dds::core::policy::Partition(this->mSubscriberPartitions);
-      this->mSubscriber << subscriberQos;
+      this->mSubscriber = dds::sub::Subscriber(this->mParticipant, subscriberQos);
     }
   }
 

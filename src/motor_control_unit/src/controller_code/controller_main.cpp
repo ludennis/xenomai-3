@@ -43,12 +43,12 @@ void WriteAndTakeRoutine(void*)
   ddsBridge.CreateDomainParticipant();
 
   /* Publisher */
-  ddsBridge.CreatePublisher();
   ddsBridge.AddPublisherPartition("ControlCommandPartition");
+  ddsBridge.CreatePublisher();
 
   /* Subscriber */
-  ddsBridge.CreateSubscriber();
   ddsBridge.AddSubscriberPartition("MotorResponsePartition");
+  ddsBridge.CreateSubscriber();
 
   /* DataWriter */
   auto writerQos = ddsBridge.CreateDataWriterQos();
