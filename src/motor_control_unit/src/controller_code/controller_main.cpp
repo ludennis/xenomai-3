@@ -14,6 +14,9 @@
 #include <utils/SynchronizedFile.hpp>
 #include <idl/gen/MotorControllerUnitModule_DCPS.hpp>
 
+using idlControlMessageType = MotorControllerUnitModule::ControlMessage;
+using idlMotorMessageType = MotorControllerUnitModule::MotorMessage;
+
 constexpr auto kTaskStackSize = 0;
 constexpr auto kTaskPriority = 20;
 constexpr auto kTaskMode = 0;
@@ -36,18 +39,44 @@ static dds::core::Duration waitSetTransmissionTimeout(1, 0);
 
 void WriteAndTakeRoutine(void*)
 {
+  /* DomainParticipant */
   entities.CreateDomainParticipant();
 
-  entities.AddPublisherPartition("controlPartition");
-  entities.AddSubscriberPartition("motorPartition");
+  /* Publisher */
   entities.CreatePublisher();
+  entities.AddPublisherPartition("controlPartition");
+
+  /* Subscriber */
   entities.CreateSubscriber();
+  entities.AddSubscriberPartition("motorPartition");
+
+  /* DataWriter */
+  auto writerQos = entities.CreateDataWriterQos();
+  entities.AddQos(writerQos,
+    dds::core::policy::Reliability::Reliable(dds::core::Duration(10, 0)));
+  entities.AddQos(writerQos,
+    dds::core::policy::WriterDataLifecycle::ManuallyDisposeUnregisteredInstances());
 
   auto controlDataWriter =
-    entities.CreateDataWriter<MotorControllerUnitModule::ControlMessage>("control_topic");
+    entities.CreateDataWriter<idlControlMessageType>("control_topic", writerQos);
+
+  /* DataReader */
+  auto readerQos = entities.CreateDataReaderQos();
+  entities.AddQos(readerQos,
+    dds::core::policy::Reliability::Reliable(dds::core::Duration(10, 0)));
 
   auto motorDataReader =
-    entities.CreateDataReader<MotorControllerUnitModule::MotorMessage>("motor_topic");
+    entities.CreateDataReader<idlMotorMessageType>("motor_topic", readerQos);
+
+  /* WaitSet */
+  entities.CreateWaitSet();
+
+  auto motorStatusCondition =
+    entities.CreateStatusCondition<idlMotorMessageType>(motorDataReader);
+  entities.EnableStatus(motorStatusCondition, dds::core::status::StatusMask::data_available());
+
+  entities.AddStatusCondition(motorStatusCondition);
+  entities.AddGuardCondition(entities.mTerminationGuard);
 
   RTIME now, previous;
 
@@ -59,13 +88,13 @@ void WriteAndTakeRoutine(void*)
     numberOfMessagesSent++;
 
     dds::core::InstanceHandle instanceHandle =
-      entities.mControlMessageWriter.register_instance(controlMessage);
-    entities.mControlMessageWriter << controlMessage;
-    entities.mControlMessageWriter.unregister_instance(instanceHandle);
+      controlDataWriter.register_instance(controlMessage);
+    controlDataWriter << controlMessage;
+    controlDataWriter.unregister_instance(instanceHandle);
 
     rt_task_wait_period(NULL);
 
-    auto samples = entities.mMotorMessageReader.take();
+    auto samples = motorDataReader.take();
 
     if(samples.begin() != samples.end())
     {
@@ -136,24 +165,6 @@ int main(int argc, char *argv[])
   sigaction(SIGINT, &signalHandler, NULL);
 
   std::cout << "Connecting to motor ...";
-  for(;;)
-  {
-    entities.mControlMessageWriter <<
-      MotorControllerUnitModule::ControlMessage("connect");
-    try
-    {
-      entities.mMotorMessageWaitSet.wait(conditionSeq, waitSetConnectionTimeout);
-      entities.mMotorMessageReader.take();
-      std::cout << "Connected! Warming Up ..." << std::endl;
-      std::this_thread::sleep_for(std::chrono::seconds(5));
-      break;
-    }
-    catch(dds::core::TimeoutError &e)
-    {
-      // TODO: check if motor is off, if it's off, exit.
-      (void)e;
-    }
-  }
 
   mlockall(MCL_CURRENT | MCL_FUTURE);
 

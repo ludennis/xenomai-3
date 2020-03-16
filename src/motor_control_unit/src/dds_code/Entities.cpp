@@ -7,59 +7,8 @@ Entities::Entities()
   : mParticipant(dds::core::null)
   , mPublisher(dds::core::null)
   , mSubscriber(dds::core::null)
-  , mControlMessageWriter(dds::core::null)
-  , mMotorMessageWriter(dds::core::null)
-  , mControlMessageReader(dds::core::null)
-  , mMotorMessageReader(dds::core::null)
-  , mControlMessageWaitSet(dds::core::null)
-  , mMotorMessageWaitSet(dds::core::null)
-{
-  // Topic
-  dds::topic::Topic<MotorControllerUnitModule::ControlMessage>
-    controlTopic(this->mParticipant, "control_topic");
-  dds::topic::Topic<MotorControllerUnitModule::MotorMessage>
-    motorTopic(this->mParticipant, "motor_topic");
-
-  // Publisher
-  this->mPublisher = dds::pub::Publisher(this->mParticipant);
-
-  // DataWriter
-  dds::pub::qos::DataWriterQos writerQos = controlTopic.qos();
-  dds::pub::qos::DataWriterQos motorWriterQos = motorTopic.qos();
-  writerQos << dds::core::policy::Reliability::Reliable(dds::core::Duration(10, 0))
-    << dds::core::policy::WriterDataLifecycle::ManuallyDisposeUnregisteredInstances();
-  mControlMessageWriter = dds::pub::DataWriter<MotorControllerUnitModule::ControlMessage>(
-    this->mPublisher, controlTopic, writerQos);
-  mMotorMessageWriter = dds::pub::DataWriter<MotorControllerUnitModule::MotorMessage>(
-    this->mPublisher, motorTopic, writerQos);
-
-  // Subscriber
-  this->mSubscriber = dds::sub::Subscriber(this->mParticipant);
-
-  // DataReader
-  dds::sub::qos::DataReaderQos readerQos = controlTopic.qos();
-  readerQos << dds::core::policy::Reliability::Reliable(dds::core::Duration(10, 0));
-  mControlMessageReader = dds::sub::DataReader<MotorControllerUnitModule::ControlMessage>(
-    this->mSubscriber, controlTopic, readerQos);
-  mMotorMessageReader = dds::sub::DataReader<MotorControllerUnitModule::MotorMessage>(
-    this->mSubscriber, motorTopic, readerQos);
-
-  // StatusCondition
-  dds::core::cond::StatusCondition controlDataAvailable(mControlMessageReader);
-  dds::core::cond::StatusCondition motorDataAvailable(mMotorMessageReader);
-  dds::core::status::StatusMask statusMask;
-  statusMask << dds::core::status::StatusMask::data_available();
-  controlDataAvailable.enabled_statuses(statusMask);
-  motorDataAvailable.enabled_statuses(statusMask);
-
-  // WaitSet
-  mControlMessageWaitSet = dds::core::cond::WaitSet();
-  mControlMessageWaitSet += controlDataAvailable;
-  mControlMessageWaitSet += mTerminationGuard;
-  mMotorMessageWaitSet = dds::core::cond::WaitSet();
-  mMotorMessageWaitSet += motorDataAvailable;
-  mMotorMessageWaitSet += mTerminationGuard;
-}
+  , mWaitSet(dds::core::null)
+{}
 
 void Entities::CreateDomainParticipant()
 {
@@ -109,6 +58,33 @@ void Entities::CreateSubscriber()
         dds::core::policy::Partition(this->mSubscriberPartitions);
     this->mSubscriber << subscriberQos;
   }
+}
+
+dds::pub::qos::DataWriterQos Entities::CreateDataWriterQos()
+{
+  dds::pub::qos::DataWriterQos writerQos;
+  return writerQos;
+}
+
+dds::sub::qos::DataReaderQos Entities::CreateDataReaderQos()
+{
+  dds::sub::qos::DataReaderQos readerQos;
+  return readerQos;
+}
+
+void Entities::CreateWaitSet()
+{
+  this->mWaitSet = dds::core::cond::WaitSet();
+}
+
+void Entities::AddStatusCondition(dds::core::cond::StatusCondition &statusCondition)
+{
+  this->mWaitSet += statusCondition;
+}
+
+void Entities::AddGuardCondition(dds::core::cond::GuardCondition &guardCondition)
+{
+  this->mWaitSet += guardCondition;
 }
 
 } // namespace dds_entities

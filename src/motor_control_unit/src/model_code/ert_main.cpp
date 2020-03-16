@@ -9,6 +9,9 @@
 #include "generated_model.h"
 #include <idl/gen/MotorControllerUnitModule_DCPS.hpp>
 
+using idlControlMessageType = MotorControllerUnitModule::ControlMessage;
+using idlMotorMessageType = MotorControllerUnitModule::MotorMessage;
+
 static dds_entities::Entities entities;
 
 void motorStep()
@@ -18,20 +21,44 @@ void motorStep()
 
 int main(int argc, char * argv[])
 {
+  /* DomainParticipant */
   entities.CreateDomainParticipant();
 
+  /* Publisher */
+  entities.CreatePublisher();
   entities.AddPublisherPartition("motorPartition");
+
+  /* Subscriber */
+  entities.CreateSubscriber();
   entities.AddSubscriberPartition("controlPartition");
   entities.AddSubscriberPartition("nodejsPartition");
 
-  entities.CreatePublisher();
-  entities.CreateSubscriber();
+  /* DataWriter */
+  auto writerQos = entities.CreateDataWriterQos();
+  entities.AddQos(writerQos,
+    dds::core::policy::Reliability::Reliable(dds::core::Duration(10, 0)));
+  entities.AddQos(writerQos,
+    dds::core::policy::WriterDataLifecycle::ManuallyDisposeUnregisteredInstances());
 
-  auto controlDataWriter =
-    entities.CreateDataWriter<MotorControllerUnitModule::ControlMessage>("control_topic");
+  auto motorDataWriter =
+    entities.CreateDataWriter<idlMotorMessageType>("motor_topic", writerQos);
 
-  auto motorDataReader =
-    entities.CreateDataReader<MotorControllerUnitModule::MotorMessage>("motor_topic");
+  /* DataReader */
+  auto readerQos = entities.CreateDataReaderQos();
+  entities.AddQos(readerQos,
+    dds::core::policy::Reliability::Reliable(dds::core::Duration(10, 0)));
+
+  auto controlDataReader =
+    entities.CreateDataReader<idlControlMessageType>("control_topic", readerQos);
+
+  /* WaitSet */
+  auto controlStatusCondition =
+    entities.CreateStatusCondition<idlControlMessageType>(controlDataReader);
+  entities.EnableStatus(controlStatusCondition, dds::core::status::StatusMask::data_available());
+
+  entities.CreateWaitSet();
+  entities.AddStatusCondition(controlStatusCondition);
+  entities.AddGuardCondition(entities.mTerminationGuard);
 
   std::string outputFilename;
   std::ofstream outputFile;
@@ -65,12 +92,12 @@ int main(int argc, char * argv[])
 
   for(; !entities.mTerminationGuard.trigger_value();)
   {
-    entities.mControlMessageWaitSet.wait(conditionSeq);
+    entities.mWaitSet.wait(conditionSeq);
 
     auto beginTakeTime = std::chrono::steady_clock::now();
 
     dds::sub::LoanedSamples<MotorControllerUnitModule::ControlMessage> samples =
-      entities.mControlMessageReader.take();
+      controlDataReader.take();
 
     auto endTakeTime = std::chrono::steady_clock::now();
 
@@ -92,15 +119,15 @@ int main(int argc, char * argv[])
           MotorControllerUnitModule::MotorMessage("motor_step");
 
         dds::core::InstanceHandle instanceHandle =
-          entities.mMotorMessageWriter.register_instance(motorMessage);
+          motorDataWriter.register_instance(motorMessage);
 
         auto beginWriteTime = std::chrono::steady_clock::now();
 
-        entities.mMotorMessageWriter << motorMessage;
+        motorDataWriter << motorMessage;
 
         auto endWriteTime = std::chrono::steady_clock::now();
 
-        entities.mMotorMessageWriter.unregister_instance(instanceHandle);
+        motorDataWriter.unregister_instance(instanceHandle);
 
         entities.mMotorWriteTimes.AddTime(
           std::chrono::duration_cast<std::chrono::nanoseconds>(
