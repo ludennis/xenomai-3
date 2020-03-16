@@ -21,8 +21,15 @@ int main(int argc, char * argv[])
   entities.AddPublisherPartition("motorPartition");
   entities.AddSubscriberPartition("controlPartition");
   entities.AddSubscriberPartition("nodejsPartition");
+
   entities.CreatePublisher();
   entities.CreateSubscriber();
+
+  auto controlDataWriter =
+    entities.CreateDataWriter<MotorControllerUnitModule::ControlMessage>("control_topic");
+
+  auto motorDataReader =
+    entities.CreateDataReader<MotorControllerUnitModule::MotorMessage>("motor_topic");
 
   std::string outputFilename;
   std::ofstream outputFile;

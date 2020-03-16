@@ -41,6 +41,12 @@ void WriteAndTakeRoutine(void*)
   entities.CreatePublisher();
   entities.CreateSubscriber();
 
+  auto controlDataWriter =
+    entities.CreateDataWriter<MotorControllerUnitModule::ControlMessage>("control_topic");
+
+  auto motorDataReader =
+    entities.CreateDataReader<MotorControllerUnitModule::MotorMessage>("motor_topic");
+
   RTIME now, previous;
 
   previous = rt_timer_read();

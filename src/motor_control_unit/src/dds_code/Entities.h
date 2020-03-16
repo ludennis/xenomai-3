@@ -19,6 +19,22 @@ public:
   void CreatePublisher();
   void CreateSubscriber();
 
+  template <typename MessageType>
+  dds::pub::DataWriter<MessageType> CreateDataWriter(const std::string &topicName)
+  {
+    dds::topic::Topic<MessageType> topic(this->mParticipant, topicName);
+    auto dataWriter = dds::pub::DataWriter<MessageType>(this->mPublisher, topic);
+    return dataWriter;
+  }
+
+  template <typename MessageType>
+  dds::sub::DataReader<MessageType> CreateDataReader(const std::string &topicName)
+  {
+    dds::topic::Topic<MessageType> topic(this->mParticipant, topicName);
+    auto dataReader = dds::sub::DataReader<MessageType>(this->mSubscriber, topic);
+    return dataReader;
+  }
+
 public:
   dds::domain::DomainParticipant mParticipant;
 
