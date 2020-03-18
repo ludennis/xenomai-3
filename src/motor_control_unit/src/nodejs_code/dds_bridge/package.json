@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "typescript": "^3.8.3",
     "vortexdds": "file:../../../../../../ADLINK/Vortex_v2/Device/VortexOpenSplice/6.10.3/HDE/x86_64.linux/tools/nodejs/vortexdds-6.10.0.tgz"
   }
 }
