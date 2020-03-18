@@ -17,3 +17,4 @@ CMakeSettings.json
 *.exe
 *.lib
 **/CMakeFiles/*
+node_modules
