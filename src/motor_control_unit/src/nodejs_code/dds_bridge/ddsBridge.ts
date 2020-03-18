@@ -5,17 +5,23 @@ main();
 
 function main() {
   /* finds and loads the IDL file */
-  const idlFileDirectory = "../../idl/"
+  const idlFileDirectory = "/../../../idl/"
   const idlFilename = "MotorControllerUnitModule.idl";
-  LoadIDLFile(idlFileDirectory, idlFilename);
+  const idlPath = __dirname + idlFileDirectory + idlFilename;
 
-  console.log('finished');
-  process.exit(0);
+  const messageTypes = LoadIDLFile(idlPath);
+
+
 }
 
-function LoadIDLFile(idlFileDirectory: string, idlFilename: string) {
-  console.log("looking into directory: " + idlFileDirectory);
-  console.log("looking for file: " + idlFilename);
+async function LoadIDLFile(idlPath: string) {
+  console.log("looking file at path: " + idlPath);
 
-  return dds.importIDL(idlFileDirectory + idlFilename);
+  try {
+    const result = await dds.importIDL(idlPath);
+    console.log(await result);
+  }
+  catch (err) {
+    console.log('dds.importIDL failed', err);
+  }
 }
