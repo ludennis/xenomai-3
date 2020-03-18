@@ -1,0 +1,14 @@
+{
+  "name": "dds_bridge",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "vortexdds": "file:../../../../../../ADLINK/Vortex_v2/Device/VortexOpenSplice/6.10.3/HDE/x86_64.linux/tools/nodejs/vortexdds-6.10.0.tgz"
+  }
+}
