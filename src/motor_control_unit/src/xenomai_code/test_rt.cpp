@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
 
   mlockall(MCL_CURRENT|MCL_FUTURE);
 
-  int e1 = rt_task_create(&rtTask, "periodTask", kTaskStackSize, kTaskPriority, kTaskMode);
+  int e1 = rt_task_create(&rtTask, "periodicTask", kTaskStackSize, kTaskPriority, kTaskMode);
   int e2 = rt_task_set_periodic(&rtTask, TM_NOW, rt_timer_ns2ticks(kTaskPeriod));
   int e3 = rt_task_start(&rtTask, &periodicTask, NULL);
 

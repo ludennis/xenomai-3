@@ -208,21 +208,6 @@ target_compile_options(controller
   -Werror
 )
 
-# xenomai rt test
-
-add_executable(test_rt
-  ${XENOMAI_DIR}/test_rt.cpp
-)
-
-target_link_libraries(test_rt
-  ${XENOMAI_LIBRARIES}
-)
-
-target_include_directories(test_rt
-  SYSTEM PUBLIC
-  ${XENOMAI_INCLUDE_DIRS}
-)
-
 # install
 install(TARGETS
   motor
