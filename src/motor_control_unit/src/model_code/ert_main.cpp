@@ -7,6 +7,7 @@
 
 #include <dds_code/dds_bridge.hpp>
 #include "generated_model.h"
+#include "input_interface.h"
 #include <idl/gen/MotorControllerUnitModule_DCPS.hpp>
 
 using idlControlMessageType = MotorControllerUnitModule::ControlMessage;
@@ -14,10 +15,21 @@ using idlMotorMessageType = MotorControllerUnitModule::MotorMessage;
 
 static dds_bridge::DDSBridge ddsBridge;
 
+namespace {
+
 void motorStep()
 {
   generated_model_step();
 }
+
+void OutputMsgMotorOutput(const MsgMotorOutput& output)
+{
+  std::cout << "MsgMotorOutput: ft_CurrentU = " << output.ft_CurrentU
+    << ", ft_CurrentV = " << output.ft_CurrentV << ", ft_CurrentW = " << output.ft_CurrentW
+    << ", ft_OutputTorque = " << output.ft_OutputTorque << std::endl;
+}
+
+} // namespace
 
 int main(int argc, char * argv[])
 {
@@ -108,6 +120,8 @@ int main(int argc, char * argv[])
         auto beginMotorStepTime = std::chrono::steady_clock::now();
 
         motorStep();
+
+        OutputMsgMotorOutput(input_interface::GetMsgMotorOutput());
 
         auto endMotorStepTime = std::chrono::steady_clock::now();
 

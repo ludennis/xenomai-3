@@ -1,40 +1,32 @@
-/* INCLUDE */
-#include <chrono>
 #include "input_interface.h"
 
 auto constexpr kDummyDynoRPM = 5.5;
-auto constexpr kDummyDutyUPhase = 1.5;
-auto constexpr kDummyDutyVPhase = 0.3;
-auto constexpr kDummyDutyWPhase = 1.1;
 
-/* FUNCTION */
-MsgDynoCmd getMsgDynoCmd()
+namespace input_interface
 {
-    MsgDynoCmd MsgDynoCmdRetData;
-    MsgDynoCmdRetData.ft_DynoRPM = kDummyDynoRPM;
-    return MsgDynoCmdRetData;
+
+MsgDynoCmd GetMsgDynoCmd()
+{
+  MsgDynoCmd MsgDynoCmdRetData;
+  MsgDynoCmdRetData.ft_DynoRPM = kDummyDynoRPM;
+  return MsgDynoCmdRetData;
 }
 
-MsgDynoSensing getMsgDynoSensing()
+MsgDynoSensing GetMsgDynoSensing()
 {
-    MsgDynoSensing MsgDynoSensingRetData;
-    return MsgDynoSensingRetData;
+  return generated_model_DW.BusConversion_InsertedFor_MsgDynoSensing_at_inport_0_BusCreator1;
 }
 
-MsgMcuOutput getMsgMcuOutput()
+MsgMcuOutput GetMsgMcuOutput()
 {
-    MsgMcuOutput MsgMcuOutputRetData;
-    MsgMcuOutputRetData.ft_DutyUPhase = kDummyDutyUPhase;
-    MsgMcuOutputRetData.ft_DutyVPhase = kDummyDutyVPhase;
-    MsgMcuOutputRetData.ft_DutyWPhase = kDummyDutyWPhase;
-    return MsgMcuOutputRetData;
+  return generated_model_DW.MsgMcuOutput_m;
 }
 
-MsgMotorOutput getMsgMotorOutput()
+MsgMotorOutput GetMsgMotorOutput()
 {
-    MsgMotorOutput MsgMotorOutputRetData;
-    return MsgMotorOutputRetData;
+  return generated_model_DW.BusConversion_InsertedFor_MsgMotorOutput_at_inport_0_BusCreator1;
 }
-
 
 void getAAA(){}
+
+} // namespace input_interface

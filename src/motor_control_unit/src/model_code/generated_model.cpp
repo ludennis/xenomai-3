@@ -357,7 +357,7 @@ void generated_model_step(void)
   if (rtmIsMajorTimeStep(generated_model_M)) {
     // S-Function (setMsgMotorOutput): '<Root>/MsgMotorOutput'
     // S-Function (getMsgMcuOutput): '<Root>/MsgMcuOutput'
-    generated_model_DW.MsgMcuOutput_m = getMsgMcuOutput();
+    generated_model_DW.MsgMcuOutput_m = input_interface::GetMsgMcuOutput();
 
     // Gain: '<S5>/Gain3'
     rtb_Ic = 0.01F * generated_model_DW.MsgMcuOutput_m.ft_DutyUPhase;
@@ -432,7 +432,7 @@ void generated_model_step(void)
     generated_model_DW.Product * 0.16762) - 0.026 * generated_model_DW.Product5;
   if (rtmIsMajorTimeStep(generated_model_M)) {
     // S-Function (getMsgDynoCmd): '<Root>/MsgDynoCmd'
-    rtb_MsgDynoCmd = getMsgDynoCmd();
+    rtb_MsgDynoCmd = input_interface::GetMsgDynoCmd();
 
     // Switch: '<S17>/Switch Bound' incorporates:
     //   Constant: '<S2>/Constant10'
