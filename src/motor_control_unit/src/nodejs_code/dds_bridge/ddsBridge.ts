@@ -7,6 +7,8 @@ class DDSBridge {
   subscriber: typeof dds.Subscriber;
   writer: typeof dds.Writer;
   reader: typeof dds.Reader;
+  waitset: typeof dds.Waitset;
+  guard: typeof dds.GuardCondition;
 
   // TODO: make partitionName an Array of strings
 
@@ -22,7 +24,6 @@ class DDSBridge {
       console.log('dds.importIDL failed', err);
     }
   }
-
 
   CreateDomainParticipant() {
     this.participant = new dds.Participant();
@@ -54,6 +55,58 @@ class DDSBridge {
     const readerQos = new dds.QoS({
       reliability: {kind: dds.ReliabilityKind.Reliable}});
     this.reader = this.subscriber.createReader(topic, readerQos);
+  }
+
+  async FindMatchedPublication() {
+    let publicationMatchedCondition = null;
+    publicationMatchedCondition = this.writer.createStatusCondition();
+    publicationMatchedCondition.enable(dds.StatusMask.publication_matched);
+
+    this.waitset = new dds.Waitset(publicationMatchedCondition);
+    this.guard = new dds.GuardCondition();
+    this.waitset.attach(this.guard);
+
+    console.log('Finding matching publication topic for writer ...');
+    await this.waitset.wait(dds.SEC_TO_NANO(10));
+    // TODO: to add ctrl + c guard condition to waitset
+    console.log('Found matching publication');
+  }
+
+  SendMessage(message: any) {
+    this.writer.writeReliable(message);
+  }
+
+  async WaitForReply() {
+    let newDataCondition = null;
+
+    try {
+      newDataCondition = this.reader.createReadCondition(
+        dds.StateMask.sample.not_read
+      );
+
+      this.waitset = new dds.Waitset(this.reader.createReadCondition(
+        dds.StateMask.sample.not_read));
+
+      await this.waitset.wait(10);
+      let takeArray = this.reader.take(1);
+      if(takeArray.length > 0 && takeArray[0].info.valid_data) {
+        let samples = takeArray[0].sample;
+        console.log("received: " + JSON.stringify(samples));
+        return samples;
+      }
+    } finally {
+      if(this.waitset !== null) {
+        this.waitset.delete();
+      }
+    }
+  }
+
+  DeleteDomainParticipant() {
+    if(this.participant !== null) {
+      this.participant.delete().catch((error: any) => {
+        console.log('Error cleaning up Domain Participant: ' + error.message);
+      });
+    }
   }
 }
 
@@ -104,7 +157,16 @@ async function sendNodejsRequestToMotor() {
     )
   );
 
-  /* WaitSet */
+  /* Check Matching Publication with Waitset */
+  await ddsBridge.FindMatchedPublication();
 
-  process.exit(0);
+  /* Send Message */
+  let message = {content: "Hello"};
+  ddsBridge.SendMessage(message);
+
+  /* Wait for replaying message */
+  let samples = await ddsBridge.WaitForReply();
+
+  /* Cleanup Resources */
+  ddsBridge.DeleteDomainParticipant();
 }
