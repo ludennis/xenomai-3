@@ -1,6 +1,14 @@
 import path = require("path");
 import dds = require("vortexdds");
 
+interface SampleObject {
+  content: string
+}
+
+interface MessageObject {
+  content: string
+}
+
 class DDSBridge {
   participant: typeof dds.Participant;
   publisher: typeof dds.Publisher;
@@ -72,8 +80,9 @@ class DDSBridge {
     console.log('Found matching publication');
   }
 
-  SendMessage(message: any) {
+  SendMessage(message: MessageObject) {
     this.writer.writeReliable(message);
+    console.log("Message sent: " + JSON.stringify(message));
   }
 
   async WaitForReply() {
@@ -90,9 +99,9 @@ class DDSBridge {
       await this.waitset.wait(10);
       let takeArray = this.reader.take(1);
       if(takeArray.length > 0 && takeArray[0].info.valid_data) {
-        let samples = takeArray[0].sample;
-        console.log("received: " + JSON.stringify(samples));
-        return samples;
+        let sample = takeArray[0].sample;
+        console.log("received: " + JSON.stringify(sample));
+        return sample;
       }
     } finally {
       if(this.waitset !== null) {
@@ -107,6 +116,10 @@ class DDSBridge {
         console.log('Error cleaning up Domain Participant: ' + error.message);
       });
     }
+  }
+
+  DDSSampleToJsonObject(sample: SampleObject) {
+    return JSON.parse(sample.content);
   }
 }
 
@@ -161,11 +174,13 @@ async function sendNodejsRequestToMotor() {
   await ddsBridge.FindMatchedPublication();
 
   /* Send Message */
-  let message = {content: "Hello"};
+  let message = {content: "RequestMsgMotorOutput"};
   ddsBridge.SendMessage(message);
 
   /* Wait for replaying message */
-  let samples = await ddsBridge.WaitForReply();
+  let sample = await ddsBridge.WaitForReply();
+
+  let jsonObject = ddsBridge.DDSSampleToJsonObject(sample);
 
   /* Cleanup Resources */
   ddsBridge.DeleteDomainParticipant();
