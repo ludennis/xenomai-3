@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <thread>
+#include <sstream>
 
 #include <dds/dds.hpp>
 
@@ -27,6 +28,18 @@ void OutputMsgMotorOutput(const MsgMotorOutput& output)
   std::cout << "MsgMotorOutput: ft_CurrentU = " << output.ft_CurrentU
     << ", ft_CurrentV = " << output.ft_CurrentV << ", ft_CurrentW = " << output.ft_CurrentW
     << ", ft_OutputTorque = " << output.ft_OutputTorque << std::endl;
+}
+
+std::string MsgMotorOutputToJsonString(const MsgMotorOutput& output)
+{
+  std::stringstream ss;
+  ss << "{\"ft_CurrentU\":" << output.ft_CurrentU << ","
+    << "\"ft_CurrentV\":" << output.ft_CurrentV << ","
+    << "\"ft_CurrentW\":" << output.ft_CurrentW << ","
+    << "\"ft_RotorRPM\":" << output.ft_RotorRPM << ","
+    << "\"ft_RotorDegreeRad\":" << output.ft_RotorDegreeRad << ","
+    << "\"ft_OutputTorque\":" << output.ft_OutputTorque << "}";
+  return ss.str();
 }
 
 } // namespace
@@ -117,20 +130,34 @@ int main(int argc, char * argv[])
     {
       if(sample->info().valid())
       {
-        auto beginMotorStepTime = std::chrono::steady_clock::now();
+        MotorControllerUnitModule::MotorMessage motorMessage;
 
-        motorStep();
+        if(sample->data().content() == "RequestMsgMotorOutput")
+        {
+          OutputMsgMotorOutput(input_interface::GetMsgMotorOutput());
 
-        OutputMsgMotorOutput(input_interface::GetMsgMotorOutput());
+          std::cout << "Json string: "
+            << MsgMotorOutputToJsonString(input_interface::GetMsgMotorOutput()) << std::endl;
 
-        auto endMotorStepTime = std::chrono::steady_clock::now();
+          motorMessage = MotorControllerUnitModule::MotorMessage(
+            MsgMotorOutputToJsonString(input_interface::GetMsgMotorOutput()));
 
-        ddsBridge.mMotorStepTimes.AddTime(
-          std::chrono::duration_cast<std::chrono::nanoseconds>(
-            endMotorStepTime - beginMotorStepTime));
+        }
+        else
+        {
+          auto beginMotorStepTime = std::chrono::steady_clock::now();
 
-        auto motorMessage =
-          MotorControllerUnitModule::MotorMessage("motor_step");
+          motorStep();
+
+          auto endMotorStepTime = std::chrono::steady_clock::now();
+
+          ddsBridge.mMotorStepTimes.AddTime(
+            std::chrono::duration_cast<std::chrono::nanoseconds>(
+              endMotorStepTime - beginMotorStepTime));
+
+          motorMessage =
+            MotorControllerUnitModule::MotorMessage("motor_step");
+        }
 
         dds::core::InstanceHandle instanceHandle =
           motorDataWriter.register_instance(motorMessage);
