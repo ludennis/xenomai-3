@@ -18,8 +18,6 @@ class DDSBridge {
   waitset: typeof dds.Waitset;
   guard: typeof dds.GuardCondition;
 
-  // TODO: make partitionName an Array of strings
-
   constructor() {
   }
 
@@ -74,7 +72,7 @@ class DDSBridge {
     this.guard = new dds.GuardCondition();
     this.waitset.attach(this.guard);
 
-    console.log('Finding matching publication topic for writer ...');
+    console.log('Finding matching publication topic ...');
     await this.waitset.wait(dds.SEC_TO_NANO(10));
     // TODO: to add ctrl + c guard condition to waitset
     console.log('Found matching publication');

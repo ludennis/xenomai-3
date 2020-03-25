@@ -109,7 +109,7 @@ int main(int argc, char * argv[])
 
   dds::core::cond::WaitSet::ConditionSeq conditionSeq;
 
-  std::cout << "Listening to Controller ..." << std::endl;
+  std::cout << "Listening ..." << std::endl;
 
   auto beginTime = std::chrono::steady_clock::now();
 
@@ -177,7 +177,6 @@ int main(int argc, char * argv[])
             std::chrono::duration_cast<std::chrono::nanoseconds>(
               endWriteTime - beginWriteTime));
         }
-
       }
     }
 
