@@ -120,14 +120,14 @@ class DDSBridge {
 main();
 
 function main() {
-  sendNodejsRequestToController().then(() => {
+  sendNodejsRequestToController("RequestMsgMotorOutput").then(() => {
     console.log("successfully sent message to controller");
   }).catch((error: any) => {
     console.log("error sending message to controller");
   });
 }
 
-async function sendNodejsRequestToController() {
+async function sendNodejsRequestToController(requestString: string) {
 
   /* DDS */
   let ddsBridge = new DDSBridge();
@@ -168,7 +168,7 @@ async function sendNodejsRequestToController() {
   await ddsBridge.FindMatchedPublication();
 
   /* Send Message */
-  let requestMessage = {request: "RequestMsgMotorOutput"};
+  let requestMessage = {request: requestString};
   ddsBridge.SendMessage(requestMessage);
 
   /* Wait for replaying message */
