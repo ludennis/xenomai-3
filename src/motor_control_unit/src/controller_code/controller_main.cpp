@@ -51,9 +51,11 @@ void DrawHorizontalLine(int size)
 
 void WaitForNodejsRequestRoutine(void*)
 {
-  // subscriber to nodejs_request_topic
-  // sends motor a request for MotorOutputMessage
-  // then forwards MotorOutputMessage from motor to nodejs
+  /*
+   *  subscriber to nodejs_request_topic
+   *  sends motor a request for MotorOutputMessage
+   *  then forwards MotorOutputMessage from motor to nodejs
+   */
 
   ddsBridge.CreateDomainParticipant();
 
@@ -104,7 +106,6 @@ void WaitForNodejsRequestRoutine(void*)
 
   while(!ddsBridge.mTerminationGuard.trigger_value())
   {
-    std::cout << "Waiting for Nodejs Request ..." << std::endl;
     conditionSeq = ddsBridge.mWaitSet.wait();
 
     for(const auto &condition : conditionSeq)
@@ -123,6 +124,9 @@ void WaitForNodejsRequestRoutine(void*)
             controlCommandWriter.write(controlCommandMessage);
             std::cout << "Forwarded RequestMsgMotorOutput to motor" << std::endl;
             DrawHorizontalLine(100);
+
+            //TODO: probably need to save which message to return to or include id in
+            // nodejsrequest message
           }
         }
       }

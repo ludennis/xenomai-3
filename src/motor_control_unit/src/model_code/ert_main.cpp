@@ -133,6 +133,7 @@ int main(int argc, char * argv[])
         {
           std::cout << "Received RequestMsgMotorOutput" << std::endl;
 
+          // TODO: spawn RT task for sending motoroutput
           auto msgMotorOutput = input_interface::GetMsgMotorOutput();
 
           std::cout << "Sending message with content: ";
