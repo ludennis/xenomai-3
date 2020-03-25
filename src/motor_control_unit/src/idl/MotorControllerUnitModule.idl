@@ -1,16 +1,16 @@
 module MotorControllerUnitModule
 {
-  struct ControlMessage
+  struct ControlCommandMessage
   {
-    string content;
+    string command;
   };
-  #pragma keylist ControlMessage
+  #pragma keylist ControlCommandMessage
 
-  struct MotorMessage
+  struct MotorResponseMessage
   {
-    string content;
+    string response;
   };
-  #pragma keylist MotorMessage
+  #pragma keylist MotorResponseMessage
 
   struct MotorOutputMessage
   {

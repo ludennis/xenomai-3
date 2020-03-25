@@ -11,8 +11,8 @@
 #include "input_interface.h"
 #include <idl/gen/MotorControllerUnitModule_DCPS.hpp>
 
-using idlControlMessageType = MotorControllerUnitModule::ControlMessage;
-using idlMotorMessageType = MotorControllerUnitModule::MotorMessage;
+using idlControlCommandMessageType = MotorControllerUnitModule::ControlCommandMessage;
+using idlMotorResponseMessageType = MotorControllerUnitModule::MotorResponseMessage;
 using idlMotorOutputMessageType = MotorControllerUnitModule::MotorOutputMessage;
 
 static dds_bridge::DDSBridge ddsBridge;
@@ -63,9 +63,9 @@ int main(int argc, char * argv[])
     dds::core::policy::WriterDataLifecycle::ManuallyDisposeUnregisteredInstances());
 
   auto motorDataWriter =
-    ddsBridge.CreateDataWriter<idlMotorMessageType>("motor_topic", writerQos);
+    ddsBridge.CreateDataWriter<idlMotorResponseMessageType>("motor_response_topic", writerQos);
   auto nodejsDataWriter =
-    ddsBridge.CreateDataWriter<idlMotorOutputMessageType>("nodejs_topic", writerQos);
+    ddsBridge.CreateDataWriter<idlMotorOutputMessageType>("motor_output_topic", writerQos);
 
   /* DataReader */
   auto readerQos = ddsBridge.CreateDataReaderQos();
@@ -73,11 +73,11 @@ int main(int argc, char * argv[])
     dds::core::policy::Reliability::Reliable(dds::core::Duration(10, 0)));
 
   auto controlDataReader =
-    ddsBridge.CreateDataReader<idlControlMessageType>("control_topic", readerQos);
+    ddsBridge.CreateDataReader<idlControlCommandMessageType>("control_command_topic", readerQos);
 
   /* WaitSet */
   auto controlStatusCondition =
-    ddsBridge.CreateStatusCondition<idlControlMessageType>(controlDataReader);
+    ddsBridge.CreateStatusCondition<idlControlCommandMessageType>(controlDataReader);
   ddsBridge.EnableStatus(controlStatusCondition, dds::core::status::StatusMask::data_available());
 
   ddsBridge.CreateWaitSet();
@@ -120,7 +120,7 @@ int main(int argc, char * argv[])
 
     auto beginTakeTime = std::chrono::steady_clock::now();
 
-    dds::sub::LoanedSamples<idlControlMessageType> samples = controlDataReader.take();
+    dds::sub::LoanedSamples<idlControlCommandMessageType> samples = controlDataReader.take();
 
     auto endTakeTime = std::chrono::steady_clock::now();
 
@@ -128,9 +128,9 @@ int main(int argc, char * argv[])
     {
       if(sample->info().valid())
       {
-        idlMotorMessageType motorMessage;
+        idlMotorResponseMessageType motorMessage;
 
-        if(sample->data().content() == "RequestMsgMotorOutput")
+        if(sample->data().command() == "RequestMsgMotorOutput")
         {
           std::cout << "Received RequestMsgMotorOutput" << std::endl;
 
@@ -161,7 +161,7 @@ int main(int argc, char * argv[])
             std::chrono::duration_cast<std::chrono::nanoseconds>(
               endMotorStepTime - beginMotorStepTime));
 
-          motorMessage = idlMotorMessageType("motor_step");
+          motorMessage = idlMotorResponseMessageType("motor_step");
 
           dds::core::InstanceHandle instanceHandle =
             motorDataWriter.register_instance(motorMessage);

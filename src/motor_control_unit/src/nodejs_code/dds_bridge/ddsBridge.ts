@@ -153,15 +153,15 @@ async function sendNodejsRequestToMotor() {
   /* DataWriter */
   ddsBridge.CreateDataWriter(
     ddsBridge.CreateTopic(
-      'control_topic',
-      messageTypes.get('MotorControllerUnitModule::ControlMessage')
+      'nodejs_request_topic',
+      messageTypes.get('MotorControllerUnitModule::ControlCommandMessage')
     )
   );
 
   /* DataReader */
   ddsBridge.CreateDataReader(
     ddsBridge.CreateTopic(
-      'nodejs_topic',
+      'motor_output_topic',
       messageTypes.get('MotorControllerUnitModule::MotorOutputMessage')
     )
   );

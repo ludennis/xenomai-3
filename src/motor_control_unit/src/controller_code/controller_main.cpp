@@ -14,8 +14,8 @@
 #include <utils/SynchronizedFile.hpp>
 #include <idl/gen/MotorControllerUnitModule_DCPS.hpp>
 
-using idlControlMessageType = MotorControllerUnitModule::ControlMessage;
-using idlMotorMessageType = MotorControllerUnitModule::MotorMessage;
+using idlControlCommandMessageType = MotorControllerUnitModule::ControlCommandMessage;
+using idlMotorResponseMessageType = MotorControllerUnitModule::MotorResponseMessage;
 
 constexpr auto kTaskStackSize = 0;
 constexpr auto kTaskPriority = 20;
@@ -58,7 +58,7 @@ void WriteAndTakeRoutine(void*)
     dds::core::policy::WriterDataLifecycle::ManuallyDisposeUnregisteredInstances());
 
   auto controlDataWriter =
-    ddsBridge.CreateDataWriter<idlControlMessageType>("control_topic", writerQos);
+    ddsBridge.CreateDataWriter<idlControlCommandMessageType>("control_command_topic", writerQos);
 
   /* DataReader */
   auto readerQos = ddsBridge.CreateDataReaderQos();
@@ -66,13 +66,13 @@ void WriteAndTakeRoutine(void*)
     dds::core::policy::Reliability::Reliable(dds::core::Duration(10, 0)));
 
   auto motorDataReader =
-    ddsBridge.CreateDataReader<idlMotorMessageType>("motor_topic", readerQos);
+    ddsBridge.CreateDataReader<idlMotorResponseMessageType>("motor_response_topic", readerQos);
 
   /* WaitSet */
   ddsBridge.CreateWaitSet();
 
   auto motorStatusCondition =
-    ddsBridge.CreateStatusCondition<idlMotorMessageType>(motorDataReader);
+    ddsBridge.CreateStatusCondition<idlMotorResponseMessageType>(motorDataReader);
   ddsBridge.EnableStatus(motorStatusCondition, dds::core::status::StatusMask::data_available());
 
   ddsBridge.AddStatusCondition(motorStatusCondition);
@@ -83,7 +83,7 @@ void WriteAndTakeRoutine(void*)
   previous = rt_timer_read();
   while(!ddsBridge.mTerminationGuard.trigger_value())
   {
-    auto controlMessage = MotorControllerUnitModule::ControlMessage("motor_step");
+    auto controlMessage = idlControlCommandMessageType("motor_step");
 
     numberOfMessagesSent++;
 
