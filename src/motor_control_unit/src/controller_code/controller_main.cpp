@@ -41,6 +41,14 @@ static dds::core::cond::WaitSet::ConditionSeq conditionSeq;
 static dds::core::Duration waitSetConnectionTimeout(5, 0);
 static dds::core::Duration waitSetTransmissionTimeout(1, 0);
 
+namespace
+{
+void DrawHorizontalLine(int size)
+{
+  std::cout << std::setfill('-') << std::setw(size) << '-' << std::endl;
+}
+} // namespace
+
 void WaitForNodejsRequestRoutine(void*)
 {
   // subscriber to nodejs_request_topic
@@ -108,11 +116,13 @@ void WaitForNodejsRequestRoutine(void*)
         {
           if(sample->info().valid())
           {
+            DrawHorizontalLine(100);
             std::cout << "Received request from nodejs: " << sample->data().request() << std::endl;
             auto controlCommandMessage =
               idlControlCommandMessageType("RequestMsgMotorOutput");
             controlCommandWriter.write(controlCommandMessage);
             std::cout << "Forwarded RequestMsgMotorOutput to motor" << std::endl;
+            DrawHorizontalLine(100);
           }
         }
       }
@@ -123,12 +133,11 @@ void WaitForNodejsRequestRoutine(void*)
         {
           if(sample->info().valid())
           {
-            std::cout << "Received motor output from motor, rpm: "
-              << sample->data().ftRotorRPM() << ", ft_CurrentU: "
-              << sample->data().ftCurrentU() << std::endl;
-
+            DrawHorizontalLine(100);
+            std::cout << "Received motor output from motor" << std::endl;
             motorOutputWriter.write(sample->data());
             std::cout << "Forwarded MotorOutput to nodejs" << std::endl;
+            DrawHorizontalLine(100);
           }
         }
       }
