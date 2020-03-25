@@ -64,7 +64,7 @@ void WaitForNodejsRequestRoutine(void*)
     dds::core::policy::WriterDataLifecycle::ManuallyDisposeUnregisteredInstances());
 
   auto motorOutputWriter =
-    ddsBridge.CreateDataWriter<idlMotorOutputMessageType>("motor_output_topic", writerQos);
+    ddsBridge.CreateDataWriter<idlMotorOutputMessageType>("forwarded_motor_output_topic", writerQos);
   auto controlCommandWriter =
     ddsBridge.CreateDataWriter<idlControlCommandMessageType>("control_command_topic", writerQos);
 
@@ -83,8 +83,13 @@ void WaitForNodejsRequestRoutine(void*)
     ddsBridge.CreateStatusCondition<idlNodejsRequestMessageType>(nodejsRequestReader);
   ddsBridge.EnableStatus(receivedNodejsRequestStatusCondition,
     dds::core::status::StatusMask::data_available());
+  auto receivedMotorOutputMessageStatusCondition =
+    ddsBridge.CreateStatusCondition<idlMotorOutputMessageType>(motorOutputReader);
+  ddsBridge.EnableStatus(receivedMotorOutputMessageStatusCondition,
+    dds::core::status::StatusMask::data_available());
 
   ddsBridge.AddStatusCondition(receivedNodejsRequestStatusCondition);
+  ddsBridge.AddStatusCondition(receivedMotorOutputMessageStatusCondition);
   ddsBridge.AddGuardCondition(ddsBridge.mTerminationGuard);
 
   dds::core::cond::WaitSet::ConditionSeq conditionSeq;
@@ -92,28 +97,42 @@ void WaitForNodejsRequestRoutine(void*)
   while(!ddsBridge.mTerminationGuard.trigger_value())
   {
     std::cout << "Waiting for Nodejs Request ..." << std::endl;
-    ddsBridge.mWaitSet.wait(conditionSeq);
+    conditionSeq = ddsBridge.mWaitSet.wait();
 
-    dds::sub::LoanedSamples<idlNodejsRequestMessageType> samples = nodejsRequestReader.take();
-
-    for(auto sample = samples.begin(); sample < samples.end(); ++sample)
+    for(const auto &condition : conditionSeq)
     {
-      if(sample->info().valid())
+      if(condition == receivedNodejsRequestStatusCondition)
       {
-        std::cout << "Received request from nodejs: " << sample->data().request() << std::endl;
-        // forward nodejs's request of motor output to motor
+        dds::sub::LoanedSamples<idlNodejsRequestMessageType> samples = nodejsRequestReader.take();
+        for(auto sample = samples.begin(); sample < samples.end(); ++sample)
+        {
+          if(sample->info().valid())
+          {
+            std::cout << "Received request from nodejs: " << sample->data().request() << std::endl;
+            auto controlCommandMessage =
+              idlControlCommandMessageType("RequestMsgMotorOutput");
+            controlCommandWriter.write(controlCommandMessage);
+            std::cout << "Forwarded RequestMsgMotorOutput to motor" << std::endl;
+          }
+        }
+      }
+      else if(condition == receivedMotorOutputMessageStatusCondition)
+      {
+        dds::sub::LoanedSamples<idlMotorOutputMessageType> samples = motorOutputReader.take();
+        for(auto sample = samples.begin(); sample < samples.end(); ++sample)
+        {
+          if(sample->info().valid())
+          {
+            std::cout << "Received motor output from motor, rpm: "
+              << sample->data().ftRotorRPM() << ", ft_CurrentU: "
+              << sample->data().ftCurrentU() << std::endl;
+
+            motorOutputWriter.write(sample->data());
+            std::cout << "Forwarded MotorOutput to nodejs" << std::endl;
+          }
+        }
       }
     }
-
-    if(samples.begin() != samples.end())
-    {
-      numberOfMessagesReceived++;
-    }
-    else
-    {
-      std::cout << "take() results in empty sample" << std::endl;
-    }
-
   }
 }
 

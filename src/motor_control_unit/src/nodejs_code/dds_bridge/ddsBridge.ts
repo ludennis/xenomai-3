@@ -159,7 +159,7 @@ async function sendNodejsRequestToController() {
   /* DataReader */
   ddsBridge.CreateDataReader(
     ddsBridge.CreateTopic(
-      'motor_output_topic',
+      'forwarded_motor_output_topic',
       messageTypes.get('MotorControllerUnitModule::MotorOutputMessage')
     )
   );
