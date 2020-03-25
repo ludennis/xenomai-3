@@ -21,7 +21,7 @@ using idlNodejsRequestMessageType = MotorControllerUnitModule::NodejsRequestMess
 
 constexpr auto kTaskStackSize = 0;
 constexpr auto kMediumTaskPriority = 50;
-constexpr auto kHighTaskPriority = 90;
+constexpr auto kHighTaskPriority = 75;
 constexpr auto kTaskMode = 0;
 constexpr auto kTaskPeriod = 200000; // 200 us
 constexpr auto kNanosecondsToMicroseconds = 1000;
