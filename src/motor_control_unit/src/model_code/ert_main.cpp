@@ -52,7 +52,6 @@ int main(int argc, char * argv[])
 
   /* Subscriber */
   ddsBridge.AddSubscriberPartition("ControlCommandPartition");
-  ddsBridge.AddSubscriberPartition("NodejsRequestPartition");
   ddsBridge.CreateSubscriber();
 
   /* DataWriter */

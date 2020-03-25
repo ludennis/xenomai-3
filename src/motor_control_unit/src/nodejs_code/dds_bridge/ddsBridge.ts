@@ -5,8 +5,8 @@ interface SampleObject {
   content: string
 }
 
-interface MessageObject {
-  content: string
+interface RequestMessageObject {
+  request: string
 }
 
 class DDSBridge {
@@ -80,7 +80,7 @@ class DDSBridge {
     console.log('Found matching publication');
   }
 
-  SendMessage(message: MessageObject) {
+  SendMessage(message: RequestMessageObject) {
     this.writer.writeReliable(message);
     console.log("Message sent: " + JSON.stringify(message));
   }
@@ -122,14 +122,14 @@ class DDSBridge {
 main();
 
 function main() {
-  sendNodejsRequestToMotor().then(() => {
-    console.log("successfully sent message to motor");
+  sendNodejsRequestToController().then(() => {
+    console.log("successfully sent message to controller");
   }).catch((error: any) => {
-    console.log("error sending message to motor");
+    console.log("error sending message to controller");
   });
 }
 
-async function sendNodejsRequestToMotor() {
+async function sendNodejsRequestToController() {
 
   /* DDS */
   let ddsBridge = new DDSBridge();
@@ -145,16 +145,16 @@ async function sendNodejsRequestToMotor() {
   ddsBridge.CreateDomainParticipant();
 
   /* Publisher */
-  ddsBridge.CreatePublisher('NodejsRequestPartition');
+  ddsBridge.CreatePublisher('NodejsPartition');
 
   /* Subscriber */
-  ddsBridge.CreateSubscriber('MotorResponsePartition');
+  ddsBridge.CreateSubscriber('NodejsPartition');
 
   /* DataWriter */
   ddsBridge.CreateDataWriter(
     ddsBridge.CreateTopic(
       'nodejs_request_topic',
-      messageTypes.get('MotorControllerUnitModule::ControlCommandMessage')
+      messageTypes.get('MotorControllerUnitModule::NodejsRequestMessage')
     )
   );
 
@@ -170,8 +170,8 @@ async function sendNodejsRequestToMotor() {
   await ddsBridge.FindMatchedPublication();
 
   /* Send Message */
-  let message = {content: "RequestMsgMotorOutput"};
-  ddsBridge.SendMessage(message);
+  let requestMessage = {request: "RequestMsgMotorOutput"};
+  ddsBridge.SendMessage(requestMessage);
 
   /* Wait for replaying message */
   let sample = await ddsBridge.WaitForReply();

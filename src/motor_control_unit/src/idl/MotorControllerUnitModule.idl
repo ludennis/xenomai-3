@@ -22,4 +22,10 @@ module MotorControllerUnitModule
     float ftOutputTorque;
   };
   #pragma keylist MotorOutputMessage
+
+  struct NodejsRequestMessage
+  {
+    string request;
+  };
+  #pragma keylist NodejsRequestMessage
 };

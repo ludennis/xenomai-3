@@ -16,9 +16,12 @@
 
 using idlControlCommandMessageType = MotorControllerUnitModule::ControlCommandMessage;
 using idlMotorResponseMessageType = MotorControllerUnitModule::MotorResponseMessage;
+using idlMotorOutputMessageType = MotorControllerUnitModule::MotorOutputMessage;
+using idlNodejsRequestMessageType = MotorControllerUnitModule::NodejsRequestMessage;
 
 constexpr auto kTaskStackSize = 0;
-constexpr auto kTaskPriority = 20;
+constexpr auto kMediumTaskPriority = 50;
+constexpr auto kHighTaskPriority = 90;
 constexpr auto kTaskMode = 0;
 constexpr auto kTaskPeriod = 120000; // 100 us
 constexpr auto kNanosecondsToMicroseconds = 1000;
@@ -28,6 +31,7 @@ constexpr auto kNanosecondsToSeconds = 1000000000;
 static dds_bridge::DDSBridge ddsBridge;
 
 static RT_TASK rtTask;
+static RT_TASK rtNodejsRequestTask;
 static RTIME oneSecondTimer;
 static auto numberOfMessagesSent{0u};
 static auto numberOfMessagesReceived{0u};
@@ -36,6 +40,82 @@ static auto numberOfMessagesReceived{0u};
 static dds::core::cond::WaitSet::ConditionSeq conditionSeq;
 static dds::core::Duration waitSetConnectionTimeout(5, 0);
 static dds::core::Duration waitSetTransmissionTimeout(1, 0);
+
+void WaitForNodejsRequestRoutine(void*)
+{
+  // subscriber to nodejs_request_topic
+  // sends motor a request for MotorOutputMessage
+  // then forwards MotorOutputMessage from motor to nodejs
+
+  ddsBridge.CreateDomainParticipant();
+
+  ddsBridge.AddPublisherPartition("ControlCommandPartition");
+  ddsBridge.AddPublisherPartition("NodejsPartition");
+  ddsBridge.CreatePublisher();
+
+  ddsBridge.AddSubscriberPartition("NodejsPartition");
+  ddsBridge.AddSubscriberPartition("MotorResponsePartition");
+  ddsBridge.CreateSubscriber();
+
+  auto writerQos = ddsBridge.CreateDataWriterQos();
+  ddsBridge.AddQos(writerQos,
+    dds::core::policy::Reliability::Reliable(dds::core::Duration(10, 0)));
+  ddsBridge.AddQos(writerQos,
+    dds::core::policy::WriterDataLifecycle::ManuallyDisposeUnregisteredInstances());
+
+  auto motorOutputWriter =
+    ddsBridge.CreateDataWriter<idlMotorOutputMessageType>("motor_output_topic", writerQos);
+  auto controlCommandWriter =
+    ddsBridge.CreateDataWriter<idlControlCommandMessageType>("control_command_topic", writerQos);
+
+  auto readerQos = ddsBridge.CreateDataReaderQos();
+  ddsBridge.AddQos(readerQos,
+    dds::core::policy::Reliability::Reliable(dds::core::Duration(10, 0)));
+
+  auto nodejsRequestReader =
+    ddsBridge.CreateDataReader<idlNodejsRequestMessageType>("nodejs_request_topic", readerQos);
+  auto motorOutputReader =
+    ddsBridge.CreateDataReader<idlMotorOutputMessageType>("motor_output_topic", readerQos);
+
+  ddsBridge.CreateWaitSet();
+
+  auto receivedNodejsRequestStatusCondition =
+    ddsBridge.CreateStatusCondition<idlNodejsRequestMessageType>(nodejsRequestReader);
+  ddsBridge.EnableStatus(receivedNodejsRequestStatusCondition,
+    dds::core::status::StatusMask::data_available());
+
+  ddsBridge.AddStatusCondition(receivedNodejsRequestStatusCondition);
+  ddsBridge.AddGuardCondition(ddsBridge.mTerminationGuard);
+
+  dds::core::cond::WaitSet::ConditionSeq conditionSeq;
+
+  while(!ddsBridge.mTerminationGuard.trigger_value())
+  {
+    std::cout << "Waiting for Nodejs Request ..." << std::endl;
+    ddsBridge.mWaitSet.wait(conditionSeq);
+
+    dds::sub::LoanedSamples<idlNodejsRequestMessageType> samples = nodejsRequestReader.take();
+
+    for(auto sample = samples.begin(); sample < samples.end(); ++sample)
+    {
+      if(sample->info().valid())
+      {
+        std::cout << "Received request from nodejs: " << sample->data().request() << std::endl;
+        // forward nodejs's request of motor output to motor
+      }
+    }
+
+    if(samples.begin() != samples.end())
+    {
+      numberOfMessagesReceived++;
+    }
+    else
+    {
+      std::cout << "take() results in empty sample" << std::endl;
+    }
+
+  }
+}
 
 void WriteAndTakeRoutine(void*)
 {
@@ -48,6 +128,7 @@ void WriteAndTakeRoutine(void*)
 
   /* Subscriber */
   ddsBridge.AddSubscriberPartition("MotorResponsePartition");
+  ddsBridge.AddSubscriberPartition("NodejsPartition");
   ddsBridge.CreateSubscriber();
 
   /* DataWriter */
@@ -67,6 +148,9 @@ void WriteAndTakeRoutine(void*)
 
   auto motorDataReader =
     ddsBridge.CreateDataReader<idlMotorResponseMessageType>("motor_response_topic", readerQos);
+
+  auto nodejsRequestReader =
+    ddsBridge.CreateDataReader<idlNodejsRequestMessageType>("nodejs_request_topic", readerQos);
 
   /* WaitSet */
   ddsBridge.CreateWaitSet();
@@ -170,14 +254,24 @@ int main(int argc, char *argv[])
 
   oneSecondTimer = rt_timer_read();
 
-  int e1 = rt_task_create(&rtTask, "WriteAndTakeRoutine", kTaskStackSize, kTaskPriority, kTaskMode);
+  int e1 = rt_task_create(&rtTask, "WriteAndTakeRoutine",
+    kTaskStackSize, kMediumTaskPriority, kTaskMode);
   int e2 = rt_task_set_periodic(&rtTask, TM_NOW, rt_timer_ns2ticks(kTaskPeriod));
   int e3 = rt_task_start(&rtTask, &WriteAndTakeRoutine, NULL);
 
   if(e1 | e2 | e3)
   {
-    std::cerr << "Error launching periodic task. Extiting." << std::endl;
+    std::cerr << "Error launching periodic WriteAndTakeRoutine. Extiting." << std::endl;
     return -1;
+  }
+
+  int e4 = rt_task_create(&rtNodejsRequestTask, "NodejsRequestRoutine",
+    kTaskStackSize, kHighTaskPriority, kTaskMode);
+  int e5 = rt_task_start(&rtNodejsRequestTask, &WaitForNodejsRequestRoutine, NULL);
+
+  if(e4 | e5)
+  {
+    std::cerr << "Error launching task NodejsRequestRoutine. Exiting." << std::endl;
   }
 
   while(!ddsBridge.mTerminationGuard.trigger_value())
