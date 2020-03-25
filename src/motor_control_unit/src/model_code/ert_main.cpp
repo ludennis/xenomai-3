@@ -13,6 +13,7 @@
 
 using idlControlMessageType = MotorControllerUnitModule::ControlMessage;
 using idlMotorMessageType = MotorControllerUnitModule::MotorMessage;
+using idlMotorOutputMessageType = MotorControllerUnitModule::MotorOutputMessage;
 
 static dds_bridge::DDSBridge ddsBridge;
 
@@ -27,19 +28,15 @@ void OutputMsgMotorOutput(const MsgMotorOutput& output)
 {
   std::cout << "MsgMotorOutput: ft_CurrentU = " << output.ft_CurrentU
     << ", ft_CurrentV = " << output.ft_CurrentV << ", ft_CurrentW = " << output.ft_CurrentW
-    << ", ft_OutputTorque = " << output.ft_OutputTorque << std::endl;
+    << ", ft_RotorRPM = " << output.ft_RotorRPM << ", ft_RotorDegreeRad = "
+    << output.ft_RotorDegreeRad << ", ft_OutputTorque = " << output.ft_OutputTorque
+    << std::endl;
 }
 
-std::string MsgMotorOutputToJsonString(const MsgMotorOutput& output)
+idlMotorOutputMessageType ToIDLMotorOutputMessage(const MsgMotorOutput& output)
 {
-  std::stringstream ss;
-  ss << "{\"ft_CurrentU\":" << output.ft_CurrentU << ","
-    << "\"ft_CurrentV\":" << output.ft_CurrentV << ","
-    << "\"ft_CurrentW\":" << output.ft_CurrentW << ","
-    << "\"ft_RotorRPM\":" << output.ft_RotorRPM << ","
-    << "\"ft_RotorDegreeRad\":" << output.ft_RotorDegreeRad << ","
-    << "\"ft_OutputTorque\":" << output.ft_OutputTorque << "}";
-  return ss.str();
+  return idlMotorOutputMessageType(output.ft_CurrentU, output.ft_CurrentV, output.ft_CurrentW,
+    output.ft_RotorRPM, output.ft_RotorDegreeRad, output.ft_OutputTorque);
 }
 
 } // namespace
@@ -67,6 +64,8 @@ int main(int argc, char * argv[])
 
   auto motorDataWriter =
     ddsBridge.CreateDataWriter<idlMotorMessageType>("motor_topic", writerQos);
+  auto nodejsDataWriter =
+    ddsBridge.CreateDataWriter<idlMotorOutputMessageType>("nodejs_topic", writerQos);
 
   /* DataReader */
   auto readerQos = ddsBridge.CreateDataReaderQos();
@@ -121,8 +120,7 @@ int main(int argc, char * argv[])
 
     auto beginTakeTime = std::chrono::steady_clock::now();
 
-    dds::sub::LoanedSamples<MotorControllerUnitModule::ControlMessage> samples =
-      controlDataReader.take();
+    dds::sub::LoanedSamples<idlControlMessageType> samples = controlDataReader.take();
 
     auto endTakeTime = std::chrono::steady_clock::now();
 
@@ -130,18 +128,26 @@ int main(int argc, char * argv[])
     {
       if(sample->info().valid())
       {
-        MotorControllerUnitModule::MotorMessage motorMessage;
+        idlMotorMessageType motorMessage;
 
         if(sample->data().content() == "RequestMsgMotorOutput")
         {
-          OutputMsgMotorOutput(input_interface::GetMsgMotorOutput());
+          std::cout << "Received RequestMsgMotorOutput" << std::endl;
 
-          std::cout << "Json string: "
-            << MsgMotorOutputToJsonString(input_interface::GetMsgMotorOutput()) << std::endl;
+          auto msgMotorOutput = input_interface::GetMsgMotorOutput();
 
-          motorMessage = MotorControllerUnitModule::MotorMessage(
-            MsgMotorOutputToJsonString(input_interface::GetMsgMotorOutput()));
+          std::cout << "Sending message with content: ";
+          OutputMsgMotorOutput(msgMotorOutput);
 
+          auto motorOutputMessage = idlMotorOutputMessageType(
+            ToIDLMotorOutputMessage(msgMotorOutput));
+
+          dds::core::InstanceHandle instanceHandle =
+            nodejsDataWriter.register_instance(motorOutputMessage);
+
+          nodejsDataWriter << motorOutputMessage;
+
+          nodejsDataWriter.unregister_instance(instanceHandle);
         }
         else
         {
@@ -155,24 +161,24 @@ int main(int argc, char * argv[])
             std::chrono::duration_cast<std::chrono::nanoseconds>(
               endMotorStepTime - beginMotorStepTime));
 
-          motorMessage =
-            MotorControllerUnitModule::MotorMessage("motor_step");
+          motorMessage = idlMotorMessageType("motor_step");
+
+          dds::core::InstanceHandle instanceHandle =
+            motorDataWriter.register_instance(motorMessage);
+
+          auto beginWriteTime = std::chrono::steady_clock::now();
+
+          motorDataWriter << motorMessage;
+
+          auto endWriteTime = std::chrono::steady_clock::now();
+
+          motorDataWriter.unregister_instance(instanceHandle);
+
+          ddsBridge.mMotorWriteTimes.AddTime(
+            std::chrono::duration_cast<std::chrono::nanoseconds>(
+              endWriteTime - beginWriteTime));
         }
 
-        dds::core::InstanceHandle instanceHandle =
-          motorDataWriter.register_instance(motorMessage);
-
-        auto beginWriteTime = std::chrono::steady_clock::now();
-
-        motorDataWriter << motorMessage;
-
-        auto endWriteTime = std::chrono::steady_clock::now();
-
-        motorDataWriter.unregister_instance(instanceHandle);
-
-        ddsBridge.mMotorWriteTimes.AddTime(
-          std::chrono::duration_cast<std::chrono::nanoseconds>(
-            endWriteTime - beginWriteTime));
       }
     }
 

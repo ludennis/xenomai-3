@@ -11,4 +11,15 @@ module MotorControllerUnitModule
     string content;
   };
   #pragma keylist MotorMessage
+
+  struct MotorOutputMessage
+  {
+    float ftCurrentU;
+    float ftCurrentV;
+    float ftCurrentW;
+    float ftRotorRPM;
+    float ftRotorDegreeRad;
+    float ftOutputTorque;
+  };
+  #pragma keylist MotorOutputMessage
 };

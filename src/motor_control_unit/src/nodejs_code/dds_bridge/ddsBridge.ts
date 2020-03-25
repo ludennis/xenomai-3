@@ -117,10 +117,6 @@ class DDSBridge {
       });
     }
   }
-
-  DDSSampleToJsonObject(sample: SampleObject) {
-    return JSON.parse(sample.content);
-  }
 }
 
 main();
@@ -165,8 +161,8 @@ async function sendNodejsRequestToMotor() {
   /* DataReader */
   ddsBridge.CreateDataReader(
     ddsBridge.CreateTopic(
-      'motor_topic',
-      messageTypes.get('MotorControllerUnitModule::MotorMessage')
+      'nodejs_topic',
+      messageTypes.get('MotorControllerUnitModule::MotorOutputMessage')
     )
   );
 
@@ -179,8 +175,6 @@ async function sendNodejsRequestToMotor() {
 
   /* Wait for replaying message */
   let sample = await ddsBridge.WaitForReply();
-
-  let jsonObject = ddsBridge.DDSSampleToJsonObject(sample);
 
   /* Cleanup Resources */
   ddsBridge.DeleteDomainParticipant();
