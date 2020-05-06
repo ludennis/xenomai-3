@@ -4,6 +4,65 @@
 
 #include <Pilpxi.h>
 
+void SetSubunitResistance(DWORD bus, DWORD device, DWORD subunit, DWORD resistance)
+{
+  DWORD err;
+  DWORD cardNum;
+  CHAR id[100];
+  DWORD data[100];
+
+  printf("Accessing bus %d, device %d, target resistance %d\n", bus, device, resistance);
+
+  // check target id is a resistor
+  err = PIL_OpenSpecifiedCard(bus, device, &cardNum);
+
+  if(err == 0)
+  {
+    printf("Card Number is %d\n", cardNum);
+    PIL_CardId(cardNum, id);
+    printf("Card id is %s\n", id);
+
+    // check if the card is a resistor
+    std::string cardId(id);
+    std::string resistorId("40-295-121");
+    if(cardId.find(resistorId) != std::string::npos)
+    {
+      printf("it has resistor id(%s)!\n", resistorId.c_str());
+    }
+    else
+    {
+      printf("Card doesn't have resistor id (%s), might not be a resistor card\n",
+        resistorId.c_str());
+    }
+
+    // change the resistance
+
+    if(resistance > 0.0)
+    {
+      // read sub to get data
+      printf("reading sub\n");
+      PIL_ReadSub(cardNum, subunit, data);
+
+      printf("Resistance = %d\n", data[0]);
+
+      data[0] = resistance;
+
+      // write sub with data read from sub unit
+      printf("writing sub\n");
+      PIL_WriteSub(cardNum, subunit, data);
+      printf("Resistance changed to = %d\n", data[0]);
+    }
+    PIL_ClearSub(cardNum, subunit);
+    // close card
+    PIL_CloseSpecifiedCard(cardNum);
+  }
+  else
+  {
+    printf("error return is %d\n", err);
+  }
+
+}
+
 int main(int argc, char **argv)
 {
   DWORD numOfFreeCards;
@@ -16,6 +75,7 @@ int main(int argc, char **argv)
   DWORD resistance;
   CHAR id[100];
   DWORD data[100];
+  DWORD subunit;
 
   if(argc == 1)
   {
@@ -41,64 +101,18 @@ int main(int argc, char **argv)
       }
     }
   }
-  else if(argc == 4)
+  else if(argc == 5)
   {
     bus = std::atoi(argv[1]);
     device = std::atoi(argv[2]);
-    resistance = std::atoi(argv[3]);
+    subunit = std::atoi(argv[3]);
+    resistance = std::atoi(argv[4]);
 
-    printf("Accessing bus %d, device %d, target resistance %d\n", bus, device, resistance);
-
-    // check target id is a resistor
-    err = PIL_OpenSpecifiedCard(bus, device, &cardNum);
-
-    if(err == 0)
-    {
-      printf("Card Number is %d\n", cardNum);
-      PIL_CardId(cardNum, id);
-      printf("Card id is %s\n", id);
-
-      // check if the card is a resistor
-      std::string cardId(id);
-      std::string resistorId("40-295-121");
-      if(cardId.find(resistorId) != std::string::npos)
-      {
-        printf("it has resistor id(%s)!\n", resistorId.c_str());
-      }
-      else
-      {
-        printf("Card doesn't have resistor id (%s), might not be a resistor card\n",
-          resistorId.c_str());
-      }
-
-      // change the resistance
-
-      if(resistance > 0.0)
-      {
-        // read sub to get data
-        printf("reading sub\n");
-        PIL_ReadSub(cardNum, 1, data);
-
-        printf("Resistance = %d\n", data[0]);
-
-        data[0] = resistance;
-
-        // write sub with data read from sub unit
-        printf("writing sub\n");
-        PIL_WriteSub(cardNum, 1, data);
-        printf("Resistance changed to = %d\n", data[0]);
-      }
-      // close card
-      PIL_CloseSpecifiedCard(cardNum);
-    }
-    else
-    {
-      printf("error return is %d\n", err);
-    }
+    SetSubunitResistance(bus, device, subunit, resistance);
   }
   else
   {
-    printf("usage: non_precision_resistor_controller [bus] [device] [resistance]\n");
+    printf("usage: non_precision_resistor_controller [bus] [device] [subunit] [resistance]\n");
   }
 
   return 0;
