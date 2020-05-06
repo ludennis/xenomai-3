@@ -226,6 +226,7 @@ target_include_directories(non_precision_resistor_controller
 
 target_link_libraries(non_precision_resistor_controller
   pilpxi64
+  ${XENOMAI_LIBRARIES}
 )
 
 # install

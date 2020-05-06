@@ -2,15 +2,34 @@
 #include <stdlib.h>
 #include <string>
 
+#include <alchemy/task.h>
+
 #include <Pilpxi.h>
 
-void SetSubunitResistance(DWORD bus, DWORD device, DWORD subunit, DWORD resistance)
-{
-  DWORD err;
-  DWORD cardNum;
-  CHAR id[100];
-  DWORD data[100];
+constexpr auto kTaskStackSize = 0;
+constexpr auto kMediumTaskPriority = 50;
+constexpr auto kTaskMode = 0;
+constexpr auto kTaskPeriod = 1000; // 1 us
+constexpr auto kNanosecondsToMicroseconds = 1e3;
+constexpr auto kNanosecondsToMilliseconds = 1e6;
+constexpr auto kNanosecondsToSeconds = 1e9;
 
+static RT_TASK rtTask;
+
+static DWORD numOfFreeCards;
+static DWORD buses[100]; // assume theres a maximum of 100 cards
+static DWORD devices[100]; // assume theres a maximum of 100 cards
+static DWORD resistance;
+static CHAR id[100];
+static DWORD data[100];
+static DWORD subunit;
+static DWORD bus;
+static DWORD device;
+static DWORD err;
+static DWORD cardNum;
+
+void SetSubunitResistanceRoutine(void*)
+{
   printf("Accessing bus %d, device %d, target resistance %d\n", bus, device, resistance);
 
   // check target id is a resistor
@@ -65,18 +84,6 @@ void SetSubunitResistance(DWORD bus, DWORD device, DWORD subunit, DWORD resistan
 
 int main(int argc, char **argv)
 {
-  DWORD numOfFreeCards;
-  DWORD buses[100]; // assume theres a maximum of 100 cards
-  DWORD devices[100]; // assume theres a maximum of 100 cards
-  DWORD bus;
-  DWORD device;
-  DWORD cardNum;
-  DWORD err;
-  DWORD resistance;
-  CHAR id[100];
-  DWORD data[100];
-  DWORD subunit;
-
   if(argc == 1)
   {
     // find free cards
@@ -108,7 +115,12 @@ int main(int argc, char **argv)
     subunit = std::atoi(argv[3]);
     resistance = std::atoi(argv[4]);
 
-    SetSubunitResistance(bus, device, subunit, resistance);
+    // make it an rt task
+    int e1 = rt_task_create(&rtTask, "SetSubunitResistanceRoutine",
+      kTaskStackSize, kMediumTaskPriority, kTaskMode);
+    int e2 = rt_task_set_periodic(&rtTask, TM_NOW, rt_timer_ns2ticks(kTaskPeriod));
+    int e3 = rt_task_start(&rtTask, &SetSubunitResistanceRoutine, NULL);
+//    SetSubunitResistance();
   }
   else
   {
