@@ -3,4 +3,4 @@ non_precision_resistor_controller: non_precision_resistor_controller_main.cpp
 			-L/usr/local/lib64 -lpilpxi64 -Wl,-rpath /usr/local/lib
 
 clean:
-	rm -f non_precision_resistor
+	rm -f non_precision_resistor_controller
