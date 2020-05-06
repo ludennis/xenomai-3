@@ -15,6 +15,7 @@ int main(int argc, char **argv)
   DWORD err;
   DWORD resistance;
   CHAR id[100];
+  DWORD data[100];
 
   if(argc == 1)
   {
@@ -70,7 +71,24 @@ int main(int argc, char **argv)
           resistorId.c_str());
       }
 
+      // change the resistance
 
+      if(resistance > 0.0)
+      {
+        // read sub to get data
+        printf("reading sub\n");
+        PIL_ReadSub(cardNum, 1, data);
+
+        printf("Resistance = %d\n", data[0]);
+
+        data[0] = resistance;
+
+        // write sub with data read from sub unit
+        printf("writing sub\n");
+        PIL_WriteSub(cardNum, 1, data);
+        printf("Resistance changed to = %d\n", data[0]);
+      }
+      // close card
       PIL_CloseSpecifiedCard(cardNum);
     }
     else
