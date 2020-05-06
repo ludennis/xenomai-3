@@ -140,6 +140,9 @@ set(MATLAB_DIR "${PROJECT_SOURCE_DIR}/src/matlab_code")
 set(MODEL_DIR "${PROJECT_SOURCE_DIR}/src/model_code")
 set(CONTROLLER_DIR "${PROJECT_SOURCE_DIR}/src/controller_code")
 set(XENOMAI_DIR "${PROJECT_SOURCE_DIR}/src/xenomai_code")
+set(PICKERING_DIR "${PROJECT_SOURCE_DIR}/src/pickering_code")
+
+set(PICKERING_INCLUDE_DIR "/usr/local/lib")
 
 # motor_model_v2
 add_executable(motor
@@ -206,6 +209,23 @@ target_compile_options(controller
   -Wextra
   -Wpedantic
   -Werror
+)
+
+# pickering rt task
+link_directories("/usr/local/lib")
+
+add_executable(non_precision_resistor_controller
+  ${PICKERING_DIR}/non_precision_resistor_controller_main.cpp
+)
+
+target_include_directories(non_precision_resistor_controller
+  SYSTEM PUBLIC
+  ${XENOMAI_INCLUDE_DIRS}
+  ${PICKERING_INCLUDE_DIR}
+)
+
+target_link_libraries(non_precision_resistor_controller
+  pilpxi64
 )
 
 # install
