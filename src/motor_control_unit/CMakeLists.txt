@@ -141,6 +141,7 @@ set(MODEL_DIR "${PROJECT_SOURCE_DIR}/src/model_code")
 set(CONTROLLER_DIR "${PROJECT_SOURCE_DIR}/src/controller_code")
 set(XENOMAI_DIR "${PROJECT_SOURCE_DIR}/src/xenomai_code")
 set(PICKERING_DIR "${PROJECT_SOURCE_DIR}/src/pickering_code")
+set(SIMULINK_GENERATED_DIR "${PROJECT_SOURCE_DIR}/src/simulink_generated_code")
 
 set(PICKERING_INCLUDE_DIR "/usr/local/lib")
 
@@ -228,6 +229,42 @@ target_link_libraries(non_precision_resistor_controller
   pilpxi64
   ${XENOMAI_LIBRARIES}
 )
+
+# simulink generated code
+add_executable(simulink_generated
+  ${SIMULINK_GENERATED_DIR}/testing_grt_rtw/testing.cpp
+  ${SIMULINK_GENERATED_DIR}/testing_grt_rtw/testing_data.cpp
+  ${MATLAB_DIR}/rtw/c/src/common/rt_cppclass_main.cpp
+)
+
+target_include_directories(simulink_generated
+  PUBLIC
+  ${SIMULINK_GENERATED_DIR}
+  ${SIMULINK_GENERATED_DIR}/testing_grt_rtw
+  ${MATLAB_DIR}/extern/include
+  ${MATLAB_DIR}/simulink/include
+  ${MATLAB_DIR}/rtw/c/src
+  ${MATLAB_DIR}/rtw/c/src/ext_mode/common
+#  ${MATLAB_DIR}/rtw/c/ert
+#  ${PROJECT_SOURCE_DIR}/src
+#  SYSTEM PUBLIC
+#  ${OpenSplice_INCLUDE_DIRS}
+)
+
+#target_link_libraries(simulink_generated
+#  ${OpenSplice_LIBRARIES}
+#  ${DATAMODEL}
+#)
+#
+#target_compile_options(simulink_generated
+#  PUBLIC
+#  -Wall
+#  -Wextra
+#  -Wpedantic
+#  -Werror
+#)
+
+
 
 # install
 install(TARGETS
