@@ -31,12 +31,16 @@ static DWORD device;
 static DWORD err;
 static DWORD cardNum;
 
+void TerminationHandler(int s)
+{
+  printf("Caught ctrl + c signal. Closing Card and Exiting.\n");
+  PIL_ClearCard(cardNum);
+  PIL_CloseSpecifiedCard(cardNum);
+  exit(1);
+}
+
 void SetSubunitResistanceRoutine(void*)
 {
-  RTIME now, previous;
-
-  previous = rt_timer_read();
-
   printf("Accessing bus %d, device %d, target resistance %d\n", bus, device, resistance);
 
   // change the resistance
@@ -69,14 +73,18 @@ void SetSubunitResistanceRoutine(void*)
 
       previous = now;
     }
-    // close card
-    PIL_ClearCard(cardNum);
-    PIL_CloseSpecifiedCard(cardNum);
   }
 }
 
 int main(int argc, char **argv)
 {
+  // ctrl + c signal handler
+  struct sigaction signalHandler;
+  signalHandler.sa_handler = TerminationHandler;
+  sigemptyset(&signalHandler.sa_mask);
+  signalHandler.sa_flags = 0;
+  sigaction(SIGINT, &signalHandler, NULL);
+
   if(argc == 1)
   {
     // find free cards
