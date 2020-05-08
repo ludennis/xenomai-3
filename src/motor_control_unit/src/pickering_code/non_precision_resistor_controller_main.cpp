@@ -9,7 +9,7 @@
 constexpr auto kTaskStackSize = 0;
 constexpr auto kMediumTaskPriority = 50;
 constexpr auto kTaskMode = 0;
-constexpr auto kTaskPeriod = 1000; // 1 us
+constexpr auto kTaskPeriod = 20000; // 20 us
 constexpr auto kNanosecondsToMicroseconds = 1000;
 constexpr auto kNanosecondsToMilliseconds = 1000000;
 constexpr auto kNanosecondsToSeconds = 1000000000;
@@ -39,76 +39,40 @@ void SetSubunitResistanceRoutine(void*)
 
   printf("Accessing bus %d, device %d, target resistance %d\n", bus, device, resistance);
 
-  // check target id is a resistor
-  err = PIL_OpenSpecifiedCard(bus, device, &cardNum);
+  // change the resistance
+  RTIME now, previous;
+  previous = rt_timer_read();
 
-  if(err == 0)
+  while(resistance > 0.0)
   {
-    printf("Card Number is %d\n", cardNum);
-    PIL_EnumerateSubs(cardNum, &numInputSubunits, &numOutputSubunits);
-    PIL_CardId(cardNum, id);
-    printf("Card id is %s, number of input subunits: %d, number of output subunits: %d\n",
-      id, numInputSubunits, numOutputSubunits);
-
-    // check if the card is a resistor
-    std::string cardId(id);
-    std::string resistorId("40-295-121");
-    if(cardId.find(resistorId) != std::string::npos)
+    for(auto i{0u}; i < numOutputSubunits; ++i)
     {
-      printf("it has resistor id(%s)!\n", resistorId.c_str());
-    }
-    else
-    {
-      printf("Card doesn't have resistor id (%s), might not be a resistor card\n",
-        resistorId.c_str());
-    }
+      PIL_ReadSub(cardNum, i, data);
+      auto previousResistance = data[0];
+      data[0] = resistance;
+      PIL_WriteSub(cardNum, subunit, data);
+      //printf("Subunit #%d's resistance changed from %d -> %d\n",
+      //  i, previousResistance, resistance);
 
-    // change the resistance
-    RTIME now, previous;
-    previous = rt_timer_read();
+      rt_task_wait_period(NULL);
 
-    while(resistance > 0.0)
-    {
-      for(auto i{0u}; i < numOutputSubunits; ++i)
+      now = rt_timer_read();
+
+      if(static_cast<long>(now - oneSecondTimer) / kNanosecondsToSeconds > 0)
       {
-        // read sub to get data
-        //printf("reading subunit #%d\n", i);
-        PIL_ReadSub(cardNum, i, data);
-        //printf("Resistance before writing = %d\n", data[0]);
-        auto previousResistance = data[0];
-        data[0] = resistance;
-        // write sub with data read from sub unit
-        //printf("writing subunit #%d\n", i);
-        PIL_WriteSub(cardNum, subunit, data);
-        //printf("Resistance changed to = %d\n", data[0]);
-        //printf("Subunit #%d's resistance changed from %d -> %d\n",
-        //  i, previousResistance, resistance);
+        printf("Time elapsed for task: %ld.%ld microseconds\n",
+          static_cast<long>(now - previous) / kNanosecondsToMicroseconds,
+          static_cast<long>(now - previous) % kNanosecondsToMicroseconds);
 
-        rt_task_wait_period(NULL);
-
-        now = rt_timer_read();
-
-        if(static_cast<long>(now - oneSecondTimer) / kNanosecondsToMicroseconds > 0)
-        {
-          printf("Time elapsed for task: %ld.%ld microseconds\n",
-            static_cast<long>(now - previous) / kNanosecondsToMicroseconds,
-            static_cast<long>(now - previous) % kNanosecondsToMicroseconds);
-
-          oneSecondTimer = now;
-        }
-
-        previous = now;
+        oneSecondTimer = now;
       }
+
+      previous = now;
     }
     // close card
     PIL_ClearCard(cardNum);
     PIL_CloseSpecifiedCard(cardNum);
   }
-  else
-  {
-    printf("error return is %d\n", err);
-  }
-
 }
 
 int main(int argc, char **argv)
@@ -144,13 +108,54 @@ int main(int argc, char **argv)
     subunit = std::atoi(argv[3]);
     resistance = std::atoi(argv[4]);
 
-    oneSecondTimer = rt_timer_read();
+    // open card
+    err = PIL_OpenSpecifiedCard(bus, device, &cardNum);
 
-    // make it an rt task
-    int e1 = rt_task_create(&rtTask, "SetSubunitResistanceRoutine",
-      kTaskStackSize, kMediumTaskPriority, kTaskMode);
-    int e2 = rt_task_set_periodic(&rtTask, TM_NOW, rt_timer_ns2ticks(kTaskPeriod));
-    int e3 = rt_task_start(&rtTask, &SetSubunitResistanceRoutine, NULL);
+    if(err == 0)
+    {
+      printf("Card Number is %d\n", cardNum);
+      PIL_EnumerateSubs(cardNum, &numInputSubunits, &numOutputSubunits);
+      PIL_CardId(cardNum, id);
+      printf("Card id is %s, number of input subunits: %d, number of output subunits: %d\n",
+        id, numInputSubunits, numOutputSubunits);
+
+      // check if the card is a resistor
+      std::string cardId(id);
+      std::string resistorId("40-295-121");
+      if(cardId.find(resistorId) != std::string::npos)
+      {
+        printf("it has resistor id(%s)!\n", resistorId.c_str());
+      }
+      else
+      {
+        printf("Card doesn't have resistor id (%s), might not be a resistor card\n",
+          resistorId.c_str());
+        return -1;
+      }
+      oneSecondTimer = rt_timer_read();
+      // make it an rt task
+      int e1 = rt_task_create(&rtTask, "SetSubunitResistanceRoutine",
+        kTaskStackSize, kMediumTaskPriority, kTaskMode);
+      int e2 = rt_task_set_periodic(&rtTask, TM_NOW, rt_timer_ns2ticks(kTaskPeriod));
+      int e3 = rt_task_start(&rtTask, &SetSubunitResistanceRoutine, NULL);
+
+      if(e1 | e2 | e3)
+      {
+        printf("Error launching periodic task SetSubunitResistanceRoutine. Exiting.\n");
+        return -1;
+      }
+
+      while(true)
+      {}
+
+      // close card
+    }
+    else
+    {
+      printf("Error opening card, error %d\n", err);
+      return -1;
+    }
+
   }
   else
   {
