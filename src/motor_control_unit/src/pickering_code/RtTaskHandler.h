@@ -25,15 +25,15 @@ public:
 
   static DWORD mBus;
   static DWORD mBuses[100];
-  static DWORD mDevices[100];
-  static DWORD mDevice;
   static DWORD mCardNum;
   static DWORD mData[100];
-  static DWORD mSubunit;
-  static DWORD mResistance;
+  static DWORD mDevices[100];
+  static DWORD mDevice;
   static DWORD mNumInputSubunits;
-  static DWORD mNumOutputSubunits;
   static DWORD mNumOfFreeCards;
+  static DWORD mNumOutputSubunits;
+  static DWORD mResistance;
+  static DWORD mSubunit;
 
 public:
   RtTaskHandler();

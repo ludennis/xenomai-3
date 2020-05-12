@@ -1,24 +1,22 @@
 #include <RtTaskHandler.h>
 
 /* static definition for RtTaskHandler */
-DWORD RtTaskHandler::mNumOfFreeCards;
-DWORD RtTaskHandler::mBuses[100];
-DWORD RtTaskHandler::mDevices[100];
-DWORD RtTaskHandler::mResistance;
-DWORD RtTaskHandler::mDevice;
-DWORD RtTaskHandler::mBus;
-DWORD RtTaskHandler::mSubunit;
-DWORD RtTaskHandler::mCardNum;
-DWORD RtTaskHandler::mNumInputSubunits;
-DWORD RtTaskHandler::mNumOutputSubunits;
-DWORD RtTaskHandler::mData[100];
-
 RT_TASK RtTaskHandler::mRtTask;
-
-RTIME RtTaskHandler::mPrevious;
 RTIME RtTaskHandler::mNow;
 RTIME RtTaskHandler::mOneSecondTimer;
-RtTaskHandler::RtTaskHandler(){}
+RTIME RtTaskHandler::mPrevious;
+
+DWORD RtTaskHandler::mBus;
+DWORD RtTaskHandler::mBuses[100];
+DWORD RtTaskHandler::mCardNum;
+DWORD RtTaskHandler::mData[100];
+DWORD RtTaskHandler::mDevices[100];
+DWORD RtTaskHandler::mDevice;
+DWORD RtTaskHandler::mNumInputSubunits;
+DWORD RtTaskHandler::mNumOfFreeCards;
+DWORD RtTaskHandler::mNumOutputSubunits;
+DWORD RtTaskHandler::mResistance;
+DWORD RtTaskHandler::mSubunit;
 
 /* RtTaskHandler function definitions */
 int RtTaskHandler::SetSubunitResistance()
