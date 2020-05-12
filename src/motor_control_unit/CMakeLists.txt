@@ -232,9 +232,10 @@ target_link_libraries(non_precision_resistor_controller
 
 # simulink generated code
 add_executable(simulink_generated
+  ${SIMULINK_GENERATED_DIR}/testing_grt_rtw/testing_main.cpp
   ${SIMULINK_GENERATED_DIR}/testing_grt_rtw/testing.cpp
   ${SIMULINK_GENERATED_DIR}/testing_grt_rtw/testing_data.cpp
-  ${MATLAB_DIR}/rtw/c/src/common/rt_cppclass_main.cpp
+#  ${MATLAB_DIR}/rtw/c/src/common/rt_cppclass_main.cpp
 )
 
 target_include_directories(simulink_generated
