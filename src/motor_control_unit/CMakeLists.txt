@@ -217,12 +217,15 @@ link_directories("/usr/local/lib")
 
 add_executable(non_precision_resistor_controller
   ${PICKERING_DIR}/non_precision_resistor_controller_main.cpp
+  ${PICKERING_DIR}/RtTaskHandler.cpp
+  ${PICKERING_DIR}/RtTaskHandler.h
 )
 
 target_include_directories(non_precision_resistor_controller
   SYSTEM PUBLIC
   ${XENOMAI_INCLUDE_DIRS}
   ${PICKERING_INCLUDE_DIR}
+  ${PICKERING_DIR}
 )
 
 target_link_libraries(non_precision_resistor_controller
