@@ -224,7 +224,7 @@ add_executable(non_precision_resistor_controller
 target_include_directories(non_precision_resistor_controller
   SYSTEM PUBLIC
   ${XENOMAI_INCLUDE_DIRS}
-  ${PICKERING_INCLUDE_DIR}
+  ${PICKERING_INCLUDE_DIRS}
   ${PICKERING_DIR}
 )
 
@@ -238,6 +238,8 @@ add_executable(simulink_generated
   ${SIMULINK_GENERATED_DIR}/testing_grt_rtw/testing_main.cpp
   ${SIMULINK_GENERATED_DIR}/testing_grt_rtw/testing.cpp
   ${SIMULINK_GENERATED_DIR}/testing_grt_rtw/testing_data.cpp
+  ${PICKERING_DIR}/RtTaskHandler.cpp
+  ${PICKERING_DIR}/RtTaskHandler.h
 #  ${MATLAB_DIR}/rtw/c/src/common/rt_cppclass_main.cpp
 )
 
@@ -249,16 +251,19 @@ target_include_directories(simulink_generated
   ${MATLAB_DIR}/simulink/include
   ${MATLAB_DIR}/rtw/c/src
   ${MATLAB_DIR}/rtw/c/src/ext_mode/common
+  ${PICKERING_DIR}
+  ${PICKERING_INCLUDE_DIRS}
+  ${XENOMAI_INCLUDE_DIRS}
 #  ${MATLAB_DIR}/rtw/c/ert
 #  ${PROJECT_SOURCE_DIR}/src
 #  SYSTEM PUBLIC
 #  ${OpenSplice_INCLUDE_DIRS}
 )
 
-#target_link_libraries(simulink_generated
-#  ${OpenSplice_LIBRARIES}
-#  ${DATAMODEL}
-#)
+target_link_libraries(simulink_generated
+  pilpxi64
+  ${XENOMAI_LIBRARIES}
+)
 #
 #target_compile_options(simulink_generated
 #  PUBLIC
