@@ -1,3 +1,4 @@
+#include <memory>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
@@ -14,66 +15,106 @@ constexpr auto kNanosecondsToMicroseconds = 1000;
 constexpr auto kNanosecondsToMilliseconds = 1000000;
 constexpr auto kNanosecondsToSeconds = 1000000000;
 
-static RT_TASK rtTask;
-static RTIME oneSecondTimer;
+class RtTaskHandler
+{
+public:
+  static RT_TASK mRtTask;
+  static RTIME mNow;
+  static RTIME mPrevious;
+  static RTIME mOneSecondTimer;
 
-static DWORD numOfFreeCards;
-static DWORD buses[100]; // assume theres a maximum of 100 cards
-static DWORD devices[100]; // assume theres a maximum of 100 cards
-static DWORD resistance;
+  static DWORD mBus;
+  static DWORD mBuses[100];
+  static DWORD mDevices[100];
+  static DWORD mDevice;
+  static DWORD mCardNum;
+  static DWORD mData[100];
+  static DWORD mSubunit;
+  static DWORD mResistance;
+  static DWORD mNumInputSubunits;
+  static DWORD mNumOutputSubunits;
+  static DWORD mNumOfFreeCards;
+
+public:
+  RtTaskHandler(){}
+
+  int SetSubunitResistance()
+  {
+    // TODO: check if cardNum, device, bus has been set
+    int e1 = rt_task_create(&mRtTask, "SetSubunitResistanceRoutine",
+      kTaskStackSize, kMediumTaskPriority, kTaskMode);
+    int e2 = rt_task_set_periodic(&mRtTask, TM_NOW, rt_timer_ns2ticks(kTaskPeriod));
+    int e3 = rt_task_start(&mRtTask, &SetSubunitResistanceRoutine, NULL);
+
+    if(e1 | e2 | e3)
+    {
+      printf("Error launching periodic task SetSubunitResistanceRoutine. Exiting.\n");
+      return -1;
+    }
+  }
+
+  static void SetSubunitResistanceRoutine(void*)
+  {
+    printf("Accessing bus %d, device %d, target resistance %d\n", mBus, mDevice, mResistance);
+    // change the resistance
+    //RTIME now, previous;
+    mPrevious = rt_timer_read();
+    while(mResistance > 0.0)
+    {
+      for(auto i{0u}; i < mNumOutputSubunits; ++i)
+      {
+        PIL_ReadSub(mCardNum, i, mData);
+        auto previousResistance = mData[0];
+        mData[0] = mResistance;
+        PIL_WriteSub(mCardNum, mSubunit, mData);
+        //printf("Subunit #%d's resistance changed from %d -> %d\n",
+        //  i, previousResistance, mResistance);
+        rt_task_wait_period(NULL);
+        mNow = rt_timer_read();
+        if(static_cast<long>(mNow - mOneSecondTimer) / kNanosecondsToSeconds > 0)
+        {
+          printf("Time elapsed for task: %ld.%ld microseconds\n",
+            static_cast<long>(mNow - mPrevious) / kNanosecondsToMicroseconds,
+            static_cast<long>(mNow - mPrevious) % kNanosecondsToMicroseconds);
+          mOneSecondTimer = mNow;
+        }
+        mPrevious = mNow;
+      }
+    }
+  }
+};
+
+/* static definition for RtTaskHandler */
+DWORD RtTaskHandler::mNumOfFreeCards;
+DWORD RtTaskHandler::mBuses[100];
+DWORD RtTaskHandler::mDevices[100];
+DWORD RtTaskHandler::mResistance;
+DWORD RtTaskHandler::mDevice;
+DWORD RtTaskHandler::mBus;
+DWORD RtTaskHandler::mSubunit;
+DWORD RtTaskHandler::mCardNum;
+DWORD RtTaskHandler::mNumInputSubunits;
+DWORD RtTaskHandler::mNumOutputSubunits;
+DWORD RtTaskHandler::mData[100];
+
+RT_TASK RtTaskHandler::mRtTask;
+
+RTIME RtTaskHandler::mPrevious;
+RTIME RtTaskHandler::mNow;
+RTIME RtTaskHandler::mOneSecondTimer;
+
+/* initialize rt task handler for rt tasks */
+auto rtTaskHandler = std::make_unique<RtTaskHandler>();
+
 static CHAR id[100];
-static DWORD data[100];
-static DWORD subunit;
-static DWORD numInputSubunits;
-static DWORD numOutputSubunits;
-static DWORD bus;
-static DWORD device;
 static DWORD err;
-static DWORD cardNum;
 
 void TerminationHandler(int s)
 {
   printf("Caught ctrl + c signal. Closing Card and Exiting.\n");
-  PIL_ClearCard(cardNum);
-  PIL_CloseSpecifiedCard(cardNum);
+  PIL_ClearCard(rtTaskHandler->mCardNum);
+  PIL_CloseSpecifiedCard(rtTaskHandler->mCardNum);
   exit(1);
-}
-
-void SetSubunitResistanceRoutine(void*)
-{
-  printf("Accessing bus %d, device %d, target resistance %d\n", bus, device, resistance);
-
-  // change the resistance
-  RTIME now, previous;
-  previous = rt_timer_read();
-
-  while(resistance > 0.0)
-  {
-    for(auto i{0u}; i < numOutputSubunits; ++i)
-    {
-      PIL_ReadSub(cardNum, i, data);
-      auto previousResistance = data[0];
-      data[0] = resistance;
-      PIL_WriteSub(cardNum, subunit, data);
-      //printf("Subunit #%d's resistance changed from %d -> %d\n",
-      //  i, previousResistance, resistance);
-
-      rt_task_wait_period(NULL);
-
-      now = rt_timer_read();
-
-      if(static_cast<long>(now - oneSecondTimer) / kNanosecondsToSeconds > 0)
-      {
-        printf("Time elapsed for task: %ld.%ld microseconds\n",
-          static_cast<long>(now - previous) / kNanosecondsToMicroseconds,
-          static_cast<long>(now - previous) % kNanosecondsToMicroseconds);
-
-        oneSecondTimer = now;
-      }
-
-      previous = now;
-    }
-  }
 }
 
 int main(int argc, char **argv)
@@ -88,20 +129,23 @@ int main(int argc, char **argv)
   if(argc == 1)
   {
     // find free cards
-    PIL_CountFreeCards(&numOfFreeCards);
-    printf("Found %d free cards\n", numOfFreeCards);
-    PIL_FindFreeCards(numOfFreeCards, buses, devices);
+    PIL_CountFreeCards(&(rtTaskHandler->mNumOfFreeCards));
+    printf("Found %d free cards\n", rtTaskHandler->mNumOfFreeCards);
+    PIL_FindFreeCards(
+      rtTaskHandler->mNumOfFreeCards, rtTaskHandler->mBuses, rtTaskHandler->mDevices);
     printf("Card addresses:\n");
-    for(auto i{0}; i < numOfFreeCards; ++i)
+    for(auto i{0}; i < rtTaskHandler->mNumOfFreeCards; ++i)
     {
-      printf("Opening card at bus %d, device %d\n", buses[i], devices[i]);
-      err = PIL_OpenSpecifiedCard(buses[i], devices[i], &cardNum);
+      printf("Opening card at bus %d, device %d\n",
+        rtTaskHandler->mBuses[i], rtTaskHandler->mDevices[i]);
+      err = PIL_OpenSpecifiedCard(
+        rtTaskHandler->mBuses[i], rtTaskHandler->mDevices[i], &(rtTaskHandler->mCardNum));
       if(err == 0)
       {
-        printf("Card Number is %d\n", cardNum);
-        PIL_CardId(cardNum, id);
+        printf("Card Number is %d\n", rtTaskHandler->mCardNum);
+        PIL_CardId(rtTaskHandler->mCardNum, id);
         printf(" Card id is %s\n", id);
-        PIL_CloseSpecifiedCard(cardNum);
+        PIL_CloseSpecifiedCard(rtTaskHandler->mCardNum);
       }
       else
       {
@@ -111,21 +155,24 @@ int main(int argc, char **argv)
   }
   else if(argc == 5)
   {
-    bus = std::atoi(argv[1]);
-    device = std::atoi(argv[2]);
-    subunit = std::atoi(argv[3]);
-    resistance = std::atoi(argv[4]);
+    rtTaskHandler->mBus = std::atoi(argv[1]);
+    rtTaskHandler->mDevice = std::atoi(argv[2]);
+    rtTaskHandler->mSubunit = std::atoi(argv[3]);
+    rtTaskHandler->mResistance = std::atoi(argv[4]);
 
     // open card
-    err = PIL_OpenSpecifiedCard(bus, device, &cardNum);
+    err = PIL_OpenSpecifiedCard(
+      rtTaskHandler->mBus, rtTaskHandler->mDevice, &(rtTaskHandler->mCardNum));
 
     if(err == 0)
     {
-      printf("Card Number is %d\n", cardNum);
-      PIL_EnumerateSubs(cardNum, &numInputSubunits, &numOutputSubunits);
-      PIL_CardId(cardNum, id);
+      printf("Card Number is %d\n", rtTaskHandler->mCardNum);
+      PIL_EnumerateSubs(
+        rtTaskHandler->mCardNum, &(rtTaskHandler->mNumInputSubunits),
+        &(rtTaskHandler->mNumOutputSubunits));
+      PIL_CardId(rtTaskHandler->mCardNum, id);
       printf("Card id is %s, number of input subunits: %d, number of output subunits: %d\n",
-        id, numInputSubunits, numOutputSubunits);
+        id, rtTaskHandler->mNumInputSubunits, rtTaskHandler->mNumOutputSubunits);
 
       // check if the card is a resistor
       std::string cardId(id);
@@ -140,30 +187,19 @@ int main(int argc, char **argv)
           resistorId.c_str());
         return -1;
       }
-      oneSecondTimer = rt_timer_read();
-      // make it an rt task
-      int e1 = rt_task_create(&rtTask, "SetSubunitResistanceRoutine",
-        kTaskStackSize, kMediumTaskPriority, kTaskMode);
-      int e2 = rt_task_set_periodic(&rtTask, TM_NOW, rt_timer_ns2ticks(kTaskPeriod));
-      int e3 = rt_task_start(&rtTask, &SetSubunitResistanceRoutine, NULL);
 
-      if(e1 | e2 | e3)
-      {
-        printf("Error launching periodic task SetSubunitResistanceRoutine. Exiting.\n");
-        return -1;
-      }
+      rtTaskHandler->mOneSecondTimer = rt_timer_read();
+      rtTaskHandler->SetSubunitResistance();
 
+      /* runs until ctrl+c termination signal is received */
       while(true)
       {}
-
-      // close card
     }
     else
     {
       printf("Error opening card, error %d\n", err);
       return -1;
     }
-
   }
   else
   {
