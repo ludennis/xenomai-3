@@ -5,6 +5,7 @@ RT_TASK RtTaskHandler::mRtTask;
 RTIME RtTaskHandler::mNow;
 RTIME RtTaskHandler::mOneSecondTimer;
 RTIME RtTaskHandler::mPrevious;
+RT_MUTEX RtTaskHandler::mMutex;
 
 DWORD RtTaskHandler::mBus;
 DWORD RtTaskHandler::mBuses[100];
@@ -21,6 +22,11 @@ DWORD RtTaskHandler::mSubunit;
 CHAR RtTaskHandler::mCardId[100];
 
 /* RtTaskHandler function definitions */
+RtTaskHandler::RtTaskHandler()
+{
+  rt_mutex_create(&mMutex, "RtTaskHandlerMutex");
+}
+
 void RtTaskHandler::OpenCard(DWORD cardNum)
 {
   PIL_CountFreeCards(&mNumOfFreeCards);

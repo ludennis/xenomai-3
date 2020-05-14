@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 
+#include <alchemy/mutex.h>
 #include <alchemy/task.h>
 
 #include <Pilpxi.h>
@@ -22,6 +23,7 @@ public:
   static RTIME mNow;
   static RTIME mPrevious;
   static RTIME mOneSecondTimer;
+  static RT_MUTEX mMutex;
 
   static DWORD mBus;
   static DWORD mBuses[100];
