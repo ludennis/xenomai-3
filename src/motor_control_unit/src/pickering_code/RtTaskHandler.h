@@ -35,8 +35,11 @@ public:
   static DWORD mResistance;
   static DWORD mSubunit;
 
+  static CHAR mCardId[100];
+
 public:
   RtTaskHandler();
+  void OpenCard(DWORD cardNum);
   int SetSubunitResistance();
   static void SetSubunitResistanceRoutine(void*);
 };

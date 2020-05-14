@@ -18,7 +18,24 @@ DWORD RtTaskHandler::mNumOutputSubunits;
 DWORD RtTaskHandler::mResistance;
 DWORD RtTaskHandler::mSubunit;
 
+CHAR RtTaskHandler::mCardId[100];
+
 /* RtTaskHandler function definitions */
+void RtTaskHandler::OpenCard(DWORD cardNum)
+{
+  PIL_CountFreeCards(&mNumOfFreeCards);
+  PIL_FindFreeCards(mNumOfFreeCards, mBuses, mDevices);
+  PIL_OpenSpecifiedCard(mBuses[cardNum-1], mDevices[cardNum-1], &mCardNum);
+  mBus = mBuses[mCardNum-1];
+  mDevice = mDevices[mCardNum-1];
+  PIL_CardId(mCardNum, mCardId);
+  PIL_EnumerateSubs(mCardNum, &mNumInputSubunits, &mNumOutputSubunits);
+
+  printf("Opening cardNum: %d, mCardNum: %d, bus: %d, device: %d, card id: %s, "
+    "# input subunits: %d, # output subunits: %d\n",
+    cardNum, mCardNum, mBus, mDevice, mCardId, mNumInputSubunits, mNumOutputSubunits);
+}
+
 int RtTaskHandler::SetSubunitResistance()
 {
    // TODO: check if cardNum, device, bus has been set
