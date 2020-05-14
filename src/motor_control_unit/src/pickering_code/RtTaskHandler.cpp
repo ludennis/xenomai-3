@@ -67,7 +67,7 @@ void RtTaskHandler::SetSubunitResistanceRoutine(void*)
   {
     for(auto i{0u}; i < mNumOutputSubunits; ++i)
     {
-      PIL_ReadSub(mCardNum, i, mData);
+      PIL_ViewSub(mCardNum, i, mData);
       auto previousResistance = mData[0];
       mData[0] = mResistance;
       PIL_WriteSub(mCardNum, mSubunit, mData);
