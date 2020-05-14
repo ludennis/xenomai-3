@@ -5,7 +5,6 @@ RT_TASK RtTaskHandler::mRtTask;
 RTIME RtTaskHandler::mNow;
 RTIME RtTaskHandler::mOneSecondTimer;
 RTIME RtTaskHandler::mPrevious;
-RT_MUTEX RtTaskHandler::mMutex;
 
 DWORD RtTaskHandler::mBus;
 DWORD RtTaskHandler::mBuses[100];
@@ -17,15 +16,16 @@ DWORD RtTaskHandler::mNumInputSubunits;
 DWORD RtTaskHandler::mNumOfFreeCards;
 DWORD RtTaskHandler::mNumOutputSubunits;
 DWORD RtTaskHandler::mResistance;
+DWORD RtTaskHandler::mResistances[100];
 DWORD RtTaskHandler::mSubunit;
 
 CHAR RtTaskHandler::mCardId[100];
 
+std::shared_ptr<SharedResistanceArray> RtTaskHandler::mSharedResistanceArray;
+
 /* RtTaskHandler function definitions */
 RtTaskHandler::RtTaskHandler()
-{
-  rt_mutex_create(&mMutex, "RtTaskHandlerMutex");
-}
+{}
 
 void RtTaskHandler::OpenCard(DWORD cardNum)
 {
@@ -42,7 +42,7 @@ void RtTaskHandler::OpenCard(DWORD cardNum)
     cardNum, mCardNum, mBus, mDevice, mCardId, mNumInputSubunits, mNumOutputSubunits);
 }
 
-int RtTaskHandler::SetSubunitResistance()
+int RtTaskHandler::StartSetSubunitResistanceRoutine()
 {
    // TODO: check if cardNum, device, bus has been set
    int e1 = rt_task_create(&mRtTask, "SetSubunitResistanceRoutine",
@@ -57,24 +57,39 @@ int RtTaskHandler::SetSubunitResistance()
    }
 }
 
+void RtTaskHandler::ViewAllSubunits(DWORD cardNum)
+{
+  PIL_EnumerateSubs(mCardNum, &mNumInputSubunits, &mNumOutputSubunits);
+  for(auto i{0u}; i < mNumOutputSubunits; ++i)
+  {
+    BOOL out;
+    CHAR subType[100];
+    DWORD data[100];
+    PIL_SubType(cardNum, i, out, subType);
+    PIL_ViewSub(cardNum, i, data);
+
+    printf("Subunit #%d (%s) = %d Ohm", i, subType, data[0]);
+  }
+}
+
 void RtTaskHandler::SetSubunitResistanceRoutine(void*)
 {
   printf("Accessing bus %d, device %d, target resistance %d\n", mBus, mDevice, mResistance);
-  // change the resistance
-  //RTIME now, previous;
   mPrevious = rt_timer_read();
-  while(mResistance > 0.0)
+  while(mResistance >= 0)
   {
     for(auto i{0u}; i < mNumOutputSubunits; ++i)
     {
       PIL_ViewSub(mCardNum, i, mData);
       auto previousResistance = mData[0];
-      mData[0] = mResistance;
-      PIL_WriteSub(mCardNum, mSubunit, mData);
-      //printf("Subunit #%d's resistance changed from %d -> %d\n",
-      //  i, previousResistance, mResistance);
+      mData[0] = mSharedResistanceArray->Get(i);
+      PIL_WriteSub(mCardNum, i, mData);
+
       rt_task_wait_period(NULL);
+
       mNow = rt_timer_read();
+
+
       if(static_cast<long>(mNow - mOneSecondTimer) / kNanosecondsToSeconds > 0)
       {
         printf("Time elapsed for task: %ld.%ld microseconds\n",
@@ -82,6 +97,7 @@ void RtTaskHandler::SetSubunitResistanceRoutine(void*)
           static_cast<long>(mNow - mPrevious) % kNanosecondsToMicroseconds);
         mOneSecondTimer = mNow;
       }
+
       mPrevious = mNow;
     }
   }

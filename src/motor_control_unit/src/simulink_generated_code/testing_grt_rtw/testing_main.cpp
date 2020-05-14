@@ -5,7 +5,11 @@
 
 #include <testing.h>
 
+#include <alchemy/mutex.h>
+
 #include <RtTaskHandler.h>
+
+static auto sharedResistanceArray = std::make_shared<SharedResistanceArray>();
 
 static auto rtTaskHandler = std::make_unique<RtTaskHandler>();
 
@@ -28,17 +32,36 @@ int main(int argc, char **argv)
 
   DWORD cardNum = 3;
   rtTaskHandler->OpenCard(cardNum);
+  rtTaskHandler->mSharedResistanceArray = sharedResistanceArray;
+
+  printf("test: %d", rtTaskHandler->mSharedResistanceArray->Get(1));
+
+  rtTaskHandler->StartSetSubunitResistanceRoutine();
+
 
   auto testingModel = testingModelClass();
   testingModel.initialize();
-  for(auto i{0u}; i < 10u; ++i)
+
+  std::vector<DWORD> resistances;
+  while(true)
   {
-    testingModel.step();
-    std::cout << "Out1 after step(): " << testingModel.testing_Y.Out1 << std::endl;
+    resistances.clear();
+
+    for(auto i{0u}; i < 10u; ++i)
+    {
+      testingModel.step();
+
+      DWORD subunit = i;
+      DWORD resistance = testingModel.testing_Y.Out1 * 2+ 10;
+
+      resistances.push_back(resistance);
+    }
+
+    sharedResistanceArray->SetArray(resistances);
+
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+    testingModel.terminate();
   }
-
-  testingModel.terminate();
-
   return 0;
 }
