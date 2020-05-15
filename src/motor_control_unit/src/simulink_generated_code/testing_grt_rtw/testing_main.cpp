@@ -9,40 +9,17 @@
 
 #include <RtTaskHandler.h>
 
+RT_TASK rtResistanceArrayTask;
+
 static auto sharedResistanceArray = std::make_shared<SharedResistanceArray>();
-
 static auto rtTaskHandler = std::make_unique<RtTaskHandler>();
+static auto testingModel = testingModelClass();
 
-void TerminationHandler(int s)
+void GenerateResistanceArrayRoutine(void*)
 {
-  printf("Caught ctrl + c signal. Closing Card and Exiting.\n");
-  PIL_ClearCard(rtTaskHandler->mCardNum);
-  PIL_CloseSpecifiedCard(rtTaskHandler->mCardNum);
-  exit(1);
-}
-
-int main(int argc, char **argv)
-{
-  // ctrl + c signal handler
-  struct sigaction signalHandler;
-  signalHandler.sa_handler = TerminationHandler;
-  sigemptyset(&signalHandler.sa_mask);
-  signalHandler.sa_flags = 0;
-  sigaction(SIGINT, &signalHandler, NULL);
-
-  DWORD cardNum = 3;
-  rtTaskHandler->OpenCard(cardNum);
-  rtTaskHandler->mSharedResistanceArray = sharedResistanceArray;
-
-  printf("test: %d", rtTaskHandler->mSharedResistanceArray->Get(1));
-
-  rtTaskHandler->StartSetSubunitResistanceRoutine();
-
-
-  auto testingModel = testingModelClass();
+  std::vector<DWORD> resistances;
   testingModel.initialize();
 
-  std::vector<DWORD> resistances;
   while(true)
   {
     resistances.clear();
@@ -59,9 +36,52 @@ int main(int argc, char **argv)
 
     sharedResistanceArray->SetArray(resistances);
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-
-    testingModel.terminate();
+    rt_task_wait_period(NULL);
   }
+}
+
+int StartGenerateResistanceArrayRoutine()
+{
+  int e1 = rt_task_create(&rtResistanceArrayTask, "GenerateResistanceArrayRoutine",
+    kTaskStackSize, kMediumTaskPriority, kTaskMode);
+  int e2 = rt_task_set_periodic(&rtResistanceArrayTask, TM_NOW, rt_timer_ns2ticks(1000000));
+  int e3 = rt_task_start(&rtResistanceArrayTask, &GenerateResistanceArrayRoutine, NULL);
+
+  if(e1 | e2 | e3)
+  {
+    printf("Error launching StartSetSubunitResistanceRoutine. Exiting.\n");
+    return -1;
+  }
+}
+
+void TerminationHandler(int s)
+{
+  printf("Caught ctrl + c signal. Closing Card and Exiting.\n");
+  PIL_ClearCard(rtTaskHandler->mCardNum);
+  PIL_CloseSpecifiedCard(rtTaskHandler->mCardNum);
+  testingModel.terminate();
+
+  exit(1);
+}
+
+int main(int argc, char **argv)
+{
+  // ctrl + c signal handler
+  struct sigaction signalHandler;
+  signalHandler.sa_handler = TerminationHandler;
+  sigemptyset(&signalHandler.sa_mask);
+  signalHandler.sa_flags = 0;
+  sigaction(SIGINT, &signalHandler, NULL);
+
+  StartGenerateResistanceArrayRoutine();
+
+  DWORD cardNum = 3;
+  rtTaskHandler->OpenCard(cardNum);
+  rtTaskHandler->mSharedResistanceArray = sharedResistanceArray;
+  rtTaskHandler->StartSetSubunitResistanceRoutine();
+
+  while(true) // original parent process will wait until ctrl+c signal
+  {}
+
   return 0;
 }

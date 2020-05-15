@@ -11,13 +11,14 @@
 #include <Pilpxi.h>
 
 constexpr auto kTaskStackSize = 0;
-constexpr auto kMediumTaskPriority = 80;
+constexpr auto kHighTaskPriority = 80;
+constexpr auto kMediumTaskPriority = 50;
 constexpr auto kTaskMode = 0;
-constexpr auto kTaskPeriod = 200000; // 200 us
+constexpr auto kTaskPeriod = 10000000; // 10 ms
 constexpr auto kNanosecondsToMicroseconds = 1000;
 constexpr auto kNanosecondsToMilliseconds = 1000000;
 constexpr auto kNanosecondsToSeconds = 1000000000;
-constexpr auto kMutexAcquireTimeout = 10000; // 10 us
+constexpr auto kMutexAcquireTimeout = 1000000; // 1 ms
 
 class SharedResistanceArray
 {
