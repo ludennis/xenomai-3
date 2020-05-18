@@ -7,7 +7,6 @@
 
 #include <RtTaskHandler.h>
 
-
 /* initialize rt task handler for rt tasks */
 auto rtTaskHandler = std::make_unique<RtTaskHandler>();
 
@@ -94,7 +93,7 @@ int main(int argc, char **argv)
       }
 
       rtTaskHandler->mOneSecondTimer = rt_timer_read();
-      rtTaskHandler->SetSubunitResistance();
+      rtTaskHandler->StartSetSubunitResistanceRoutine();
 
       /* runs until ctrl+c termination signal is received */
       while(true)

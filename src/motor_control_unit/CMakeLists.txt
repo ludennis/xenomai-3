@@ -219,6 +219,8 @@ add_executable(non_precision_resistor_controller
   ${PICKERING_DIR}/non_precision_resistor_controller_main.cpp
   ${PICKERING_DIR}/RtTaskHandler.cpp
   ${PICKERING_DIR}/RtTaskHandler.h
+  ${PICKERING_DIR}/RtSharedResistanceArray.cpp
+  ${PICKERING_DIR}/RtSharedResistanceArray.h
 )
 
 target_include_directories(non_precision_resistor_controller
