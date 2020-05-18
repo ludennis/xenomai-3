@@ -240,6 +240,8 @@ add_executable(simulink_generated
   ${SIMULINK_GENERATED_DIR}/testing_grt_rtw/testing_data.cpp
   ${PICKERING_DIR}/RtTaskHandler.cpp
   ${PICKERING_DIR}/RtTaskHandler.h
+  ${PICKERING_DIR}/RtSharedResistanceArray.cpp
+  ${PICKERING_DIR}/RtSharedResistanceArray.h
 #  ${MATLAB_DIR}/rtw/c/src/common/rt_cppclass_main.cpp
 )
 

@@ -9,6 +9,7 @@
 #include <alchemy/task.h>
 
 #include <Pilpxi.h>
+#include <RtSharedResistanceArray.h>
 
 constexpr auto kTaskStackSize = 0;
 constexpr auto kHighTaskPriority = 80;
@@ -19,42 +20,6 @@ constexpr auto kNanosecondsToMicroseconds = 1000;
 constexpr auto kNanosecondsToMilliseconds = 1000000;
 constexpr auto kNanosecondsToSeconds = 1000000000;
 constexpr auto kMutexAcquireTimeout = 1000000; // 1 ms
-
-class RtSharedResistanceArray
-{
-public:
-  DWORD mResistances[100];
-  RT_MUTEX mMutex;
-
-public:
-  RtSharedResistanceArray()
-  {
-    rt_mutex_create(&mMutex, "RtSharedResistanceArrayMutex");
-  }
-
-  void Set(unsigned int i, DWORD resistance)
-  {
-    rt_mutex_acquire_until(&mMutex, TM_INFINITE);
-    mResistances[i] = resistance;
-    rt_mutex_release(&mMutex);
-  }
-
-  void SetArray(const std::vector<DWORD> &resistances)
-  {
-    for(auto i{0u}; i < resistances.size(); ++i)
-    {
-      mResistances[i] = resistances[i];
-    }
-  }
-
-  DWORD Get(unsigned int i)
-  {
-    rt_mutex_acquire_until(&mMutex, TM_INFINITE);
-    auto returnResistance = mResistances[i];
-    rt_mutex_release(&mMutex);
-    return returnResistance;
-  }
-};
 
 class RtTaskHandler
 {
