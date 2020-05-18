@@ -234,10 +234,10 @@ target_link_libraries(non_precision_resistor_controller
 )
 
 # simulink generated code
-add_executable(simulink_generated
-  ${SIMULINK_GENERATED_DIR}/testing_grt_rtw/testing_main.cpp
-  ${SIMULINK_GENERATED_DIR}/testing_grt_rtw/testing.cpp
-  ${SIMULINK_GENERATED_DIR}/testing_grt_rtw/testing_data.cpp
+add_executable(resistance_testing
+  ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing_main.cpp
+  ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing.cpp
+  ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing_data.cpp
   ${PICKERING_DIR}/RtTaskHandler.cpp
   ${PICKERING_DIR}/RtTaskHandler.h
   ${PICKERING_DIR}/RtSharedResistanceArray.cpp
@@ -245,10 +245,10 @@ add_executable(simulink_generated
 #  ${MATLAB_DIR}/rtw/c/src/common/rt_cppclass_main.cpp
 )
 
-target_include_directories(simulink_generated
+target_include_directories(resistance_testing
   PUBLIC
   ${SIMULINK_GENERATED_DIR}
-  ${SIMULINK_GENERATED_DIR}/testing_grt_rtw
+  ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw
   ${MATLAB_DIR}/extern/include
   ${MATLAB_DIR}/simulink/include
   ${MATLAB_DIR}/rtw/c/src
@@ -262,7 +262,7 @@ target_include_directories(simulink_generated
 #  ${OpenSplice_INCLUDE_DIRS}
 )
 
-target_link_libraries(simulink_generated
+target_link_libraries(resistance_testing
   pilpxi64
   ${XENOMAI_LIBRARIES}
 )
