@@ -3,10 +3,11 @@
 #include <memory>
 #include <thread>
 
-#include <testing.h>
-
 #include <alchemy/mutex.h>
 
+#include <testing.h>
+
+#include <RtMacro.h>
 #include <RtResistanceTask.h>
 
 RT_TASK rtResistanceArrayTask;
@@ -43,7 +44,7 @@ void GenerateResistanceArrayRoutine(void*)
 int StartGenerateResistanceArrayRoutine()
 {
   int e1 = rt_task_create(&rtResistanceArrayTask, "GenerateResistanceArrayRoutine",
-    kTaskStackSize, kMediumTaskPriority, kTaskMode);
+    RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority, RtMacro::kTaskMode);
   int e2 = rt_task_set_periodic(&rtResistanceArrayTask, TM_NOW, rt_timer_ns2ticks(1000000));
   int e3 = rt_task_start(&rtResistanceArrayTask, &GenerateResistanceArrayRoutine, NULL);
 
