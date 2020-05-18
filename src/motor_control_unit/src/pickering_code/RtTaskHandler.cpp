@@ -1,24 +1,18 @@
 #include <RtTaskHandler.h>
 
-/* static definition for RtTaskHandler */
-RT_TASK RtTaskHandler::mRtTask;
-RTIME RtTaskHandler::mNow;
-RTIME RtTaskHandler::mOneSecondTimer;
-RTIME RtTaskHandler::mPrevious;
-
 std::shared_ptr<RtSharedResistanceArray> RtTaskHandler::mRtSharedResistanceArray;
 
 /* RtTaskHandler function definitions */
 RtTaskHandler::RtTaskHandler()
 {}
 
-int RtTaskHandler::StartSetSubunitResistanceRoutine()
+int RtTaskHandler::StartRoutine()
 {
    // TODO: check if cardNum, device, bus has been set
    int e1 = rt_task_create(&mRtTask, "SetSubunitResistanceRoutine",
      kTaskStackSize, kMediumTaskPriority, kTaskMode);
    int e2 = rt_task_set_periodic(&mRtTask, TM_NOW, rt_timer_ns2ticks(kTaskPeriod));
-   int e3 = rt_task_start(&mRtTask, &SetSubunitResistanceRoutine, NULL);
+   int e3 = rt_task_start(&mRtTask, &Routine, NULL);
 
    if(e1 | e2 | e3)
    {
@@ -27,7 +21,7 @@ int RtTaskHandler::StartSetSubunitResistanceRoutine()
    }
 }
 
-void RtTaskHandler::SetSubunitResistanceRoutine(void*)
+void RtTaskHandler::Routine(void*)
 {
   printf("Accessing bus %d, device %d, target resistance %d\n", mBus, mDevice, mResistance);
   mPrevious = rt_timer_read();

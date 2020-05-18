@@ -78,7 +78,7 @@ int main(int argc, char **argv)
   DWORD cardNum = 3;
   rtTaskHandler->OpenCard(cardNum);
   rtTaskHandler->mRtSharedResistanceArray = rtSharedResistanceArray;
-  rtTaskHandler->StartSetSubunitResistanceRoutine();
+  rtTaskHandler->StartRoutine();
 
   while(true) // original parent process will wait until ctrl+c signal
   {}

@@ -246,6 +246,8 @@ add_executable(resistance_testing
   ${PICKERING_DIR}/RtSharedResistanceArray.h
   ${PICKERING_DIR}/PxiCardTask.cpp
   ${PICKERING_DIR}/PxiCardTask.h
+  ${PICKERING_DIR}/RtPeriodicTask.cpp
+  ${PICKERING_DIR}/RtPeriodicTask.h
 #  ${MATLAB_DIR}/rtw/c/src/common/rt_cppclass_main.cpp
 )
 

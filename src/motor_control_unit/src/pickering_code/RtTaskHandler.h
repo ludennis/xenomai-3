@@ -2,12 +2,8 @@
 #define _RTTASKHANDLER_H_
 
 #include <memory>
-#include <stdio.h>
-#include <vector>
 
-#include <alchemy/mutex.h>
-#include <alchemy/task.h>
-
+#include <RtPeriodicTask.h>
 #include <PxiCardTask.h>
 #include <RtSharedResistanceArray.h>
 
@@ -21,20 +17,15 @@ constexpr auto kNanosecondsToMilliseconds = 1000000;
 constexpr auto kNanosecondsToSeconds = 1000000000;
 constexpr auto kMutexAcquireTimeout = 1000000; // 1 ms
 
-class RtTaskHandler : public PxiCardTask
+class RtTaskHandler : public RtPeriodicTask, public PxiCardTask
 {
 public:
-  static RT_TASK mRtTask;
-  static RTIME mNow;
-  static RTIME mPrevious;
-  static RTIME mOneSecondTimer;
-
   static std::shared_ptr<RtSharedResistanceArray> mRtSharedResistanceArray;
 
 public:
   RtTaskHandler();
-  int StartSetSubunitResistanceRoutine();
-  static void SetSubunitResistanceRoutine(void*);
+  int StartRoutine();
+  static void Routine(void*);
 };
 
 #endif // _RTTASKHANDLER_H_
