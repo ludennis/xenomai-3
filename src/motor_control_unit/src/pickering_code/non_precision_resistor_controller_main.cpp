@@ -5,10 +5,10 @@
 
 #include <Pilpxi.h>
 
-#include <RtTaskHandler.h>
+#include <RtResistanceTask.h>
 
 /* initialize rt task handler for rt tasks */
-auto rtTaskHandler = std::make_unique<RtTaskHandler>();
+auto rtResistanceTask = std::make_unique<RtResistanceTask>();
 
 static CHAR id[100];
 static DWORD err;
@@ -16,8 +16,8 @@ static DWORD err;
 void TerminationHandler(int s)
 {
   printf("Caught ctrl + c signal. Closing Card and Exiting.\n");
-  PIL_ClearCard(rtTaskHandler->mCardNum);
-  PIL_CloseSpecifiedCard(rtTaskHandler->mCardNum);
+  PIL_ClearCard(rtResistanceTask->mCardNum);
+  PIL_CloseSpecifiedCard(rtResistanceTask->mCardNum);
   exit(1);
 }
 
@@ -33,23 +33,23 @@ int main(int argc, char **argv)
   if(argc == 1)
   {
     // find free cards
-    PIL_CountFreeCards(&(rtTaskHandler->mNumOfFreeCards));
-    printf("Found %d free cards\n", rtTaskHandler->mNumOfFreeCards);
+    PIL_CountFreeCards(&(rtResistanceTask->mNumOfFreeCards));
+    printf("Found %d free cards\n", rtResistanceTask->mNumOfFreeCards);
     PIL_FindFreeCards(
-      rtTaskHandler->mNumOfFreeCards, rtTaskHandler->mBuses, rtTaskHandler->mDevices);
+      rtResistanceTask->mNumOfFreeCards, rtResistanceTask->mBuses, rtResistanceTask->mDevices);
     printf("Card addresses:\n");
-    for(auto i{0}; i < rtTaskHandler->mNumOfFreeCards; ++i)
+    for(auto i{0}; i < rtResistanceTask->mNumOfFreeCards; ++i)
     {
       printf("Opening card at bus %d, device %d\n",
-        rtTaskHandler->mBuses[i], rtTaskHandler->mDevices[i]);
+        rtResistanceTask->mBuses[i], rtResistanceTask->mDevices[i]);
       err = PIL_OpenSpecifiedCard(
-        rtTaskHandler->mBuses[i], rtTaskHandler->mDevices[i], &(rtTaskHandler->mCardNum));
+        rtResistanceTask->mBuses[i], rtResistanceTask->mDevices[i], &(rtResistanceTask->mCardNum));
       if(err == 0)
       {
-        printf("Card Number is %d\n", rtTaskHandler->mCardNum);
-        PIL_CardId(rtTaskHandler->mCardNum, id);
+        printf("Card Number is %d\n", rtResistanceTask->mCardNum);
+        PIL_CardId(rtResistanceTask->mCardNum, id);
         printf(" Card id is %s\n", id);
-        PIL_CloseSpecifiedCard(rtTaskHandler->mCardNum);
+        PIL_CloseSpecifiedCard(rtResistanceTask->mCardNum);
       }
       else
       {
@@ -59,24 +59,24 @@ int main(int argc, char **argv)
   }
   else if(argc == 5)
   {
-    rtTaskHandler->mBus = std::atoi(argv[1]);
-    rtTaskHandler->mDevice = std::atoi(argv[2]);
-    rtTaskHandler->mSubunit = std::atoi(argv[3]);
-    rtTaskHandler->mResistance = std::atoi(argv[4]);
+    rtResistanceTask->mBus = std::atoi(argv[1]);
+    rtResistanceTask->mDevice = std::atoi(argv[2]);
+    rtResistanceTask->mSubunit = std::atoi(argv[3]);
+    rtResistanceTask->mResistance = std::atoi(argv[4]);
 
     // open card
     err = PIL_OpenSpecifiedCard(
-      rtTaskHandler->mBus, rtTaskHandler->mDevice, &(rtTaskHandler->mCardNum));
+      rtResistanceTask->mBus, rtResistanceTask->mDevice, &(rtResistanceTask->mCardNum));
 
     if(err == 0)
     {
-      printf("Card Number is %d\n", rtTaskHandler->mCardNum);
+      printf("Card Number is %d\n", rtResistanceTask->mCardNum);
       PIL_EnumerateSubs(
-        rtTaskHandler->mCardNum, &(rtTaskHandler->mNumInputSubunits),
-        &(rtTaskHandler->mNumOutputSubunits));
-      PIL_CardId(rtTaskHandler->mCardNum, id);
+        rtResistanceTask->mCardNum, &(rtResistanceTask->mNumInputSubunits),
+        &(rtResistanceTask->mNumOutputSubunits));
+      PIL_CardId(rtResistanceTask->mCardNum, id);
       printf("Card id is %s, number of input subunits: %d, number of output subunits: %d\n",
-        id, rtTaskHandler->mNumInputSubunits, rtTaskHandler->mNumOutputSubunits);
+        id, rtResistanceTask->mNumInputSubunits, rtResistanceTask->mNumOutputSubunits);
 
       // check if the card is a resistor
       std::string cardId(id);
@@ -92,8 +92,8 @@ int main(int argc, char **argv)
         return -1;
       }
 
-      rtTaskHandler->mOneSecondTimer = rt_timer_read();
-      rtTaskHandler->StartSetSubunitResistanceRoutine();
+      rtResistanceTask->mOneSecondTimer = rt_timer_read();
+      rtResistanceTask->StartSetSubunitResistanceRoutine();
 
       /* runs until ctrl+c termination signal is received */
       while(true)

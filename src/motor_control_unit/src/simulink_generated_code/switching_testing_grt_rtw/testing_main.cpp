@@ -7,7 +7,7 @@
 
 #include <alchemy/mutex.h>
 
-#include <RtTaskHandler.h>
+#include <RtResistanceTask.h>
 
 class RtSharedState
 {

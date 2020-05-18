@@ -1,5 +1,5 @@
-#ifndef _RTTASKHANDLER_H_
-#define _RTTASKHANDLER_H_
+#ifndef _RTRESISTANCETASK_H_
+#define _RTRESISTANCETASK_H_
 
 #include <memory>
 
@@ -17,15 +17,15 @@ constexpr auto kNanosecondsToMilliseconds = 1000000;
 constexpr auto kNanosecondsToSeconds = 1000000000;
 constexpr auto kMutexAcquireTimeout = 1000000; // 1 ms
 
-class RtTaskHandler : public RtPeriodicTask, public PxiCardTask
+class RtResistanceTask: public RtPeriodicTask, public PxiCardTask
 {
 public:
   static std::shared_ptr<RtSharedResistanceArray> mRtSharedResistanceArray;
 
 public:
-  RtTaskHandler();
+  RtResistanceTask();
   int StartRoutine();
   static void Routine(void*);
 };
 
-#endif // _RTTASKHANDLER_H_
+#endif // _RTRESISTANCETASK_H_

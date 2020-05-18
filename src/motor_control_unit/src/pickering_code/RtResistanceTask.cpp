@@ -1,12 +1,12 @@
-#include <RtTaskHandler.h>
+#include <RtResistanceTask.h>
 
-std::shared_ptr<RtSharedResistanceArray> RtTaskHandler::mRtSharedResistanceArray;
+std::shared_ptr<RtSharedResistanceArray> RtResistanceTask::mRtSharedResistanceArray;
 
-/* RtTaskHandler function definitions */
-RtTaskHandler::RtTaskHandler()
+/* RtResistanceTask function definitions */
+RtResistanceTask::RtResistanceTask()
 {}
 
-int RtTaskHandler::StartRoutine()
+int RtResistanceTask::StartRoutine()
 {
    // TODO: check if cardNum, device, bus has been set
    int e1 = rt_task_create(&mRtTask, "SetSubunitResistanceRoutine",
@@ -21,7 +21,7 @@ int RtTaskHandler::StartRoutine()
    }
 }
 
-void RtTaskHandler::Routine(void*)
+void RtResistanceTask::Routine(void*)
 {
   printf("Accessing bus %d, device %d, target resistance %d\n", mBus, mDevice, mResistance);
   mPrevious = rt_timer_read();

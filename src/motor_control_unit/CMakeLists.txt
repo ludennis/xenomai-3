@@ -217,8 +217,8 @@ link_directories("/usr/local/lib")
 
 add_executable(non_precision_resistor_controller
   ${PICKERING_DIR}/non_precision_resistor_controller_main.cpp
-  ${PICKERING_DIR}/RtTaskHandler.cpp
-  ${PICKERING_DIR}/RtTaskHandler.h
+  ${PICKERING_DIR}/RtResistanceTask.cpp
+  ${PICKERING_DIR}/RtResistanceTask.h
   ${PICKERING_DIR}/RtSharedResistanceArray.cpp
   ${PICKERING_DIR}/RtSharedResistanceArray.h
 )
@@ -240,8 +240,8 @@ add_executable(resistance_testing
   ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing_main.cpp
   ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing.cpp
   ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing_data.cpp
-  ${PICKERING_DIR}/RtTaskHandler.cpp
-  ${PICKERING_DIR}/RtTaskHandler.h
+  ${PICKERING_DIR}/RtResistanceTask.cpp
+  ${PICKERING_DIR}/RtResistanceTask.h
   ${PICKERING_DIR}/RtSharedResistanceArray.cpp
   ${PICKERING_DIR}/RtSharedResistanceArray.h
   ${PICKERING_DIR}/PxiCardTask.cpp

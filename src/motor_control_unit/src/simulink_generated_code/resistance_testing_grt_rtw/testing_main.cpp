@@ -7,12 +7,12 @@
 
 #include <alchemy/mutex.h>
 
-#include <RtTaskHandler.h>
+#include <RtResistanceTask.h>
 
 RT_TASK rtResistanceArrayTask;
 
 static auto rtSharedResistanceArray = std::make_shared<RtSharedResistanceArray>();
-static auto rtTaskHandler = std::make_unique<RtTaskHandler>();
+static auto rtResistanceTask = std::make_unique<RtResistanceTask>();
 static auto testingModel = testingModelClass();
 
 void GenerateResistanceArrayRoutine(void*)
@@ -57,8 +57,8 @@ int StartGenerateResistanceArrayRoutine()
 void TerminationHandler(int s)
 {
   printf("Caught ctrl + c signal. Closing Card and Exiting.\n");
-  PIL_ClearCard(rtTaskHandler->mCardNum);
-  PIL_CloseSpecifiedCard(rtTaskHandler->mCardNum);
+  PIL_ClearCard(rtResistanceTask->mCardNum);
+  PIL_CloseSpecifiedCard(rtResistanceTask->mCardNum);
   testingModel.terminate();
 
   exit(1);
@@ -76,9 +76,9 @@ int main(int argc, char **argv)
   StartGenerateResistanceArrayRoutine();
 
   DWORD cardNum = 3;
-  rtTaskHandler->OpenCard(cardNum);
-  rtTaskHandler->mRtSharedResistanceArray = rtSharedResistanceArray;
-  rtTaskHandler->StartRoutine();
+  rtResistanceTask->OpenCard(cardNum);
+  rtResistanceTask->mRtSharedResistanceArray = rtSharedResistanceArray;
+  rtResistanceTask->StartRoutine();
 
   while(true) // original parent process will wait until ctrl+c signal
   {}
