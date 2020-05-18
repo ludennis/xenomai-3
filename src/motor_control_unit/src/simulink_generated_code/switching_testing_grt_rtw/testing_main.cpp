@@ -42,7 +42,7 @@ void GenerateSwitchStateRoutine(void*)
 int StartGenerateSwitchStateRoutine()
 {
   int e1 = rt_task_create(&rtSwitchStateTask, "GenerateSwitchStateRoutine",
-    kTaskStackSize, kMediumTaskPriority, kTaskMode);
+    RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority, RtMacro::kTaskMode);
   int e2 = rt_task_set_periodic(&rtSwitchStateTask, TM_NOW, rt_timer_ns2ticks(1000000));
   int e3 = rt_task_start(&rtSwitchStateTask, &GenerateSwitchStateRoutine, NULL);
 
