@@ -233,7 +233,7 @@ target_link_libraries(non_precision_resistor_controller
   ${XENOMAI_LIBRARIES}
 )
 
-# simulink generated code
+# simulink generated code for resistance card
 add_executable(resistance_testing
   ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing_main.cpp
   ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing.cpp
@@ -266,16 +266,31 @@ target_link_libraries(resistance_testing
   pilpxi64
   ${XENOMAI_LIBRARIES}
 )
-#
-#target_compile_options(simulink_generated
-#  PUBLIC
-#  -Wall
-#  -Wextra
-#  -Wpedantic
-#  -Werror
-#)
 
+# simulink generated code for switching card
+add_executable(switching_testing
+  ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing_main.cpp
+  ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing.cpp
+  ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing_data.cpp
+)
 
+target_include_directories(switching_testing
+  PUBLIC
+  ${SIMULINK_GENERATED_DIR}
+  ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw
+  ${MATLAB_DIR}/extern/include
+  ${MATLAB_DIR}/simulink/include
+  ${MATLAB_DIR}/rtw/c/src
+  ${MATLAB_DIR}/rtw/c/src/ext_mode/common
+  ${PICKERING_DIR}
+  ${PICKERING_INCLUDE_DIRS}
+  ${XENOMAI_INCLUDE_DIRS}
+)
+
+target_link_libraries(switching_testing
+  pilpxi64
+  ${XENOMAI_LIBRARIES}
+)
 
 # install
 install(TARGETS
