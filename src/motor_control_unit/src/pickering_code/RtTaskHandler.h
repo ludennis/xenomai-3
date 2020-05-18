@@ -20,16 +20,16 @@ constexpr auto kNanosecondsToMilliseconds = 1000000;
 constexpr auto kNanosecondsToSeconds = 1000000000;
 constexpr auto kMutexAcquireTimeout = 1000000; // 1 ms
 
-class SharedResistanceArray
+class RtSharedResistanceArray
 {
 public:
   DWORD mResistances[100];
   RT_MUTEX mMutex;
 
 public:
-  SharedResistanceArray()
+  RtSharedResistanceArray()
   {
-    rt_mutex_create(&mMutex, "SharedResistanceArrayMutex");
+    rt_mutex_create(&mMutex, "RtSharedResistanceArrayMutex");
   }
 
   void Set(unsigned int i, DWORD resistance)
@@ -79,7 +79,7 @@ public:
 
   static CHAR mCardId[100];
 
-  static std::shared_ptr<SharedResistanceArray> mSharedResistanceArray;
+  static std::shared_ptr<RtSharedResistanceArray> mRtSharedResistanceArray;
 
 public:
   RtTaskHandler();

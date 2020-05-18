@@ -11,7 +11,7 @@
 
 RT_TASK rtResistanceArrayTask;
 
-static auto sharedResistanceArray = std::make_shared<SharedResistanceArray>();
+static auto rtSharedResistanceArray = std::make_shared<RtSharedResistanceArray>();
 static auto rtTaskHandler = std::make_unique<RtTaskHandler>();
 static auto testingModel = testingModelClass();
 
@@ -34,7 +34,7 @@ void GenerateResistanceArrayRoutine(void*)
       resistances.push_back(resistance);
     }
 
-    sharedResistanceArray->SetArray(resistances);
+    rtSharedResistanceArray->SetArray(resistances);
 
     rt_task_wait_period(NULL);
   }
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
 
   DWORD cardNum = 3;
   rtTaskHandler->OpenCard(cardNum);
-  rtTaskHandler->mSharedResistanceArray = sharedResistanceArray;
+  rtTaskHandler->mRtSharedResistanceArray = rtSharedResistanceArray;
   rtTaskHandler->StartSetSubunitResistanceRoutine();
 
   while(true) // original parent process will wait until ctrl+c signal

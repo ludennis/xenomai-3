@@ -21,7 +21,7 @@ DWORD RtTaskHandler::mSubunit;
 
 CHAR RtTaskHandler::mCardId[100];
 
-std::shared_ptr<SharedResistanceArray> RtTaskHandler::mSharedResistanceArray;
+std::shared_ptr<RtSharedResistanceArray> RtTaskHandler::mRtSharedResistanceArray;
 
 /* RtTaskHandler function definitions */
 RtTaskHandler::RtTaskHandler()
@@ -82,7 +82,7 @@ void RtTaskHandler::SetSubunitResistanceRoutine(void*)
     {
       PIL_ViewSub(mCardNum, i, mData);
       auto previousResistance = mData[0];
-      mData[0] = mSharedResistanceArray->Get(i);
+      mData[0] = mRtSharedResistanceArray->Get(i);
       PIL_WriteSub(mCardNum, i, mData);
 
       rt_task_wait_period(NULL);
