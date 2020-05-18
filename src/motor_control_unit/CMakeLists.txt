@@ -278,6 +278,10 @@ add_executable(switching_testing
   ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing_main.cpp
   ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing.cpp
   ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing_data.cpp
+  ${PICKERING_DIR}/RtSharedState.cpp
+  ${PICKERING_DIR}/RtSwitchTask.cpp
+  ${PICKERING_DIR}/RtPeriodicTask.cpp
+  ${PICKERING_DIR}/PxiCardTask.cpp
 )
 
 target_include_directories(switching_testing

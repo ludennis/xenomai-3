@@ -7,45 +7,20 @@
 
 #include <alchemy/mutex.h>
 
-#include <RtResistanceTask.h>
+#include <RtSharedState.h>
+#include <RtSwitchTask.h>
 
-class RtSharedState
-{
-public:
-  BOOL mState;
-  RT_MUTEX mMutex;
-
-public:
-  RtSharedState()
-  {
-    rt_mutex_create(&mMutex, "RtSharedStateMutex");
-  }
-
-  void Set(bool b)
-  {
-    rt_mutex_acquire_until(&mMutex, TM_INFINITE);
-    mState = b;
-    rt_mutex_release(&mMutex);
-  }
-
-  BOOL Get()
-  {
-    rt_mutex_acquire_until(&mMutex, TM_INFINITE);
-    auto currentState = mState;
-    rt_mutex_release(&mMutex);
-    return currentState;
-  }
-};
-
+//#include <RtResistanceTask.h>
 
 RT_TASK rtSwitchStateTask;
+static auto rtSwitchTask = std::make_unique<RtSwitchTask>();
+static auto rtSharedState = std::make_shared<RtSharedState>();
 
 //RT_TASK rtResistanceArrayTask;
 //
 //static auto rtSharedResistanceArray = std::make_shared<RtSharedResistanceArray>();
 //static auto rtTaskHandler = std::make_unique<RtTaskHandler>();
 static auto testingModel = testingModelClass();
-static RtSharedState rtSharedState;
 
 
 void GenerateSwitchStateRoutine(void*)
@@ -56,11 +31,11 @@ void GenerateSwitchStateRoutine(void*)
   {
     testingModel.step();
 
-    rtSharedState.Set(!rtSharedState.Get());
+    rtSharedState->Set(!rtSharedState->Get());
 
     rt_task_wait_period(NULL);
 
-    printf("state is: %s\n", rtSharedState.Get() ? "true" : "false");
+//    printf("state is: %s\n", rtSharedState->Get() ? "true" : "false");
   }
 }
 
@@ -97,6 +72,8 @@ int main(int argc, char **argv)
   sigaction(SIGINT, &signalHandler, NULL);
 
   StartGenerateSwitchStateRoutine();
+
+  DWORD cardNum = 1;
 //
 //  DWORD cardNum = 3;
 //  rtTaskHandler->OpenCard(cardNum);
