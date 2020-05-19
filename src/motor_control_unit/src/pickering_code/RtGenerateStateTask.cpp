@@ -3,9 +3,6 @@
 std::shared_ptr<RtSharedState> RtGenerateStateTask::mRtSharedState;
 testingModelClass RtGenerateStateTask::mModel;
 
-RtGenerateStateTask::RtGenerateStateTask()
-{}
-
 RtGenerateStateTask::RtGenerateStateTask(
   const char* name, const int stackSize, const int priority, const int mode, const int period)
   : RtPeriodicTask(name, stackSize, priority, mode, period)

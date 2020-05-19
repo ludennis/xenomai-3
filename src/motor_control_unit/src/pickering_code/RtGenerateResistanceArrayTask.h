@@ -17,7 +17,7 @@ public:
   static std::shared_ptr<RtSharedResistanceArray> mRtSharedResistanceArray;
   static testingModelClass mModel;
 public:
-  RtGenerateResistanceArrayTask();
+  RtGenerateResistanceArrayTask() = delete;
   RtGenerateResistanceArrayTask(
     const char* name, const int stackSize, const int priority, const int mode, const int period);
   int StartRoutine();

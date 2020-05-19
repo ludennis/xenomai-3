@@ -17,7 +17,7 @@ public:
   static testingModelClass mModel;
 
 public:
-  RtGenerateStateTask();
+  RtGenerateStateTask() = delete;
   RtGenerateStateTask(
     const char* name, const int stackSize, const int priority, const int mode, const int period);
   int StartRoutine();

@@ -15,6 +15,7 @@ public:
   static std::shared_ptr<RtSharedResistanceArray> mRtSharedResistanceArray;
 
 public:
+  RtResistanceTask() = delete;
   RtResistanceTask(
     const char* name, const int stackSize, const int priority, const int mode, const int period);
   int StartRoutine();

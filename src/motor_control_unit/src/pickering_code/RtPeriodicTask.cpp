@@ -4,9 +4,6 @@ RTIME RtPeriodicTask::mNow;
 RTIME RtPeriodicTask::mOneSecondTimer;
 RTIME RtPeriodicTask::mPrevious;
 
-RtPeriodicTask::RtPeriodicTask()
-{}
-
 RtPeriodicTask::RtPeriodicTask(
   const char* name, const int stackSize, const int priority, const int mode, const int period)
 {

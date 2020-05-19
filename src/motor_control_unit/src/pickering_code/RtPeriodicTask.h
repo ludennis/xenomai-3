@@ -20,7 +20,7 @@ public:
   int mStackSize;
 
 public:
-  RtPeriodicTask();
+  RtPeriodicTask() = delete;
   RtPeriodicTask(
     const char* name, const int stackSize, const int priority, const int mode, const int period);
   int StartRoutine() = delete;

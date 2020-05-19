@@ -4,18 +4,10 @@
 std::shared_ptr<RtSharedResistanceArray> RtGenerateResistanceArrayTask::mRtSharedResistanceArray;
 testingModelClass RtGenerateResistanceArrayTask::mModel;
 
-RtGenerateResistanceArrayTask::RtGenerateResistanceArrayTask()
-{}
-
 RtGenerateResistanceArrayTask::RtGenerateResistanceArrayTask(
   const char* name, const int stackSize, const int priority, const int mode, const int period)
-{
-  mName = name;
-  mStackSize = stackSize;
-  mPriority = priority;
-  mMode = mode;
-  mPeriod = period;
-}
+  : RtPeriodicTask(name, stackSize, priority, mode, period)
+{}
 
 int RtGenerateResistanceArrayTask::StartRoutine()
 {

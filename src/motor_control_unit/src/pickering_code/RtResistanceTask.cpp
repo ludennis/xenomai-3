@@ -4,13 +4,8 @@ std::shared_ptr<RtSharedResistanceArray> RtResistanceTask::mRtSharedResistanceAr
 
 RtResistanceTask::RtResistanceTask(
   const char* name, const int stackSize, const int priority, const int mode, const int period)
-{
-  mName = name;
-  mStackSize = stackSize;
-  mPriority = priority;
-  mMode = mode;
-  mPeriod = period;
-}
+  : RtPeriodicTask(name, stackSize, priority, mode, period)
+{}
 
 int RtResistanceTask::StartRoutine()
 {
