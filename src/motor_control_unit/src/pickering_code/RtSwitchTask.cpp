@@ -53,3 +53,14 @@ void RtSwitchTask::Routine(void*)
     mPrevious = mNow;
   }
 }
+
+RtSwitchTask::~RtSwitchTask()
+{
+  int e = rt_task_delete(&mRtTask);
+  if(e)
+  {
+    printf("Error deleting RtSwitchTask::mRtTask. Exiting.\n");
+    exit(-1);
+  }
+  printf("RtSwitchTask::mRtTask deleted.\n");
+}

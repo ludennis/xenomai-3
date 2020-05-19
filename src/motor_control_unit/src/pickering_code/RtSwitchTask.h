@@ -19,6 +19,7 @@ public:
     const char* name, const int stackSize, const int priority, const int mode, const int period);
   int StartRoutine();
   static void Routine(void*);
+  ~RtSwitchTask();
 };
 
 #endif // _RTSWITCHTASK_H_
