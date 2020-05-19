@@ -19,7 +19,6 @@ void TerminationHandler(int s)
 {
   printf("Caught ctrl + c signal. Closing Card and Exiting.\n");
 
-  // TODO: make close card a destructor for PxiCardTask
   PIL_ClearCard(rtSwitchTask->mCardNum);
   PIL_CloseSpecifiedCard(rtSwitchTask->mCardNum);
 

@@ -8,6 +8,7 @@
 class PxiCardTask
 {
 public:
+  static DWORD mBit;
   static DWORD mBus;
   static DWORD mBuses[100];
   static DWORD mCardNum;
@@ -20,7 +21,6 @@ public:
   static DWORD mResistance;
   static DWORD mResistances[100];
   static DWORD mSubunit;
-  static DWORD mBit;
 
   static CHAR mCardId[100];
 

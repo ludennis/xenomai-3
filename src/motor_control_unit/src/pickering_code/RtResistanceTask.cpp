@@ -2,7 +2,6 @@
 
 std::shared_ptr<RtSharedResistanceArray> RtResistanceTask::mRtSharedResistanceArray;
 
-/* RtResistanceTask function definitions */
 RtResistanceTask::RtResistanceTask()
 {}
 

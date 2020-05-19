@@ -1,5 +1,6 @@
 #include <PxiCardTask.h>
 
+DWORD PxiCardTask::mBit;
 DWORD PxiCardTask::mBus;
 DWORD PxiCardTask::mBuses[100];
 DWORD PxiCardTask::mCardNum;
@@ -12,7 +13,6 @@ DWORD PxiCardTask::mNumOutputSubunits;
 DWORD PxiCardTask::mResistance;
 DWORD PxiCardTask::mResistances[100];
 DWORD PxiCardTask::mSubunit;
-DWORD PxiCardTask::mBit;
 
 CHAR PxiCardTask::mCardId[100];
 

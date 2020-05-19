@@ -5,8 +5,9 @@
 
 #include <testing.h>
 
-#include <RtSharedState.h>
 #include <RtPeriodicTask.h>
+#include <RtSharedState.h>
+
 #include <PxiCardTask.h>
 
 class RtGenerateStateTask: public RtPeriodicTask

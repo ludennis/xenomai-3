@@ -14,6 +14,7 @@ RT_TASK rtResistanceArrayTask;
 
 static auto rtSharedResistanceArray = std::make_shared<RtSharedResistanceArray>();
 static auto rtResistanceTask = std::make_unique<RtResistanceTask>();
+// TODO: move this into an RT task
 static auto testingModel = testingModelClass();
 
 void GenerateResistanceArrayRoutine(void*)

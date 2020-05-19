@@ -4,8 +4,9 @@
 #include <memory>
 
 #include <RtMacro.h>
-#include <RtSharedState.h>
 #include <RtPeriodicTask.h>
+#include <RtSharedState.h>
+
 #include <PxiCardTask.h>
 
 class RtSwitchTask: public RtPeriodicTask, public PxiCardTask

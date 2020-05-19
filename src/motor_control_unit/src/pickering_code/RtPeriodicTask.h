@@ -7,14 +7,17 @@ class RtPeriodicTask
 {
 public:
   static RT_TASK mRtTask;
+
   static RTIME mNow;
-  static RTIME mPrevious;
   static RTIME mOneSecondTimer;
+  static RTIME mPrevious;
+
   static const char* mName;
-  static int mStackSize;
-  static int mPriority;
+
   static int mMode;
   static int mPeriod;
+  static int mPriority;
+  static int mStackSize;
 
 public:
   RtPeriodicTask();
