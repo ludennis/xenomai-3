@@ -1,6 +1,6 @@
 #include <RtResistanceTask.h>
 
-std::shared_ptr<RtSharedResistanceArray> RtResistanceTask::mRtSharedResistanceArray;
+std::shared_ptr<RtSharedArray> RtResistanceTask::mRtSharedArray;
 
 RtResistanceTask::RtResistanceTask(
   const char* name, const int stackSize, const int priority, const int mode, const int period)
@@ -30,7 +30,7 @@ void RtResistanceTask::Routine(void*)
     {
       PIL_ViewSub(mCardNum, i, mData);
       auto previousResistance = mData[0];
-      mData[0] = mRtSharedResistanceArray->Get(i);
+      mData[0] = mRtSharedArray->Get(i);
       PIL_WriteSub(mCardNum, i, mData);
 
       rt_task_wait_period(NULL);

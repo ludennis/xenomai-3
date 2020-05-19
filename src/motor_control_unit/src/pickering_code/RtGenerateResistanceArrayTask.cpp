@@ -1,7 +1,7 @@
 #include <RtGenerateResistanceArrayTask.h>
 
 // TODO: change name of RtsharedResistanceArray to something more generic
-std::shared_ptr<RtSharedResistanceArray> RtGenerateResistanceArrayTask::mRtSharedResistanceArray;
+std::shared_ptr<RtSharedArray> RtGenerateResistanceArrayTask::mRtSharedArray;
 testingModelClass RtGenerateResistanceArrayTask::mModel;
 
 RtGenerateResistanceArrayTask::RtGenerateResistanceArrayTask(
@@ -41,7 +41,7 @@ void RtGenerateResistanceArrayTask::Routine(void*)
 
       resistances.push_back(resistance);
     }
-    mRtSharedResistanceArray->SetArray(resistances);
+    mRtSharedArray->SetArray(resistances);
 
     rt_task_wait_period(NULL);
   }

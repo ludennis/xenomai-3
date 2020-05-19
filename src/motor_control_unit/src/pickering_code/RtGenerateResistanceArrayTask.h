@@ -7,14 +7,14 @@
 #include <alchemy/task.h>
 
 #include <RtPeriodicTask.h>
-#include <RtSharedResistanceArray.h>
+#include <RtSharedArray.h>
 
 #include <testing.h>
 
 class RtGenerateResistanceArrayTask : public RtPeriodicTask
 {
 public:
-  static std::shared_ptr<RtSharedResistanceArray> mRtSharedResistanceArray;
+  static std::shared_ptr<RtSharedArray> mRtSharedArray;
   static testingModelClass mModel;
 public:
   RtGenerateResistanceArrayTask() = delete;

@@ -5,14 +5,14 @@
 
 #include <RtMacro.h>
 #include <RtPeriodicTask.h>
-#include <RtSharedResistanceArray.h>
+#include <RtSharedArray.h>
 
 #include <PxiCardTask.h>
 
 class RtResistanceTask: public RtPeriodicTask, public PxiCardTask
 {
 public:
-  static std::shared_ptr<RtSharedResistanceArray> mRtSharedResistanceArray;
+  static std::shared_ptr<RtSharedArray> mRtSharedArray;
 
 public:
   RtResistanceTask() = delete;

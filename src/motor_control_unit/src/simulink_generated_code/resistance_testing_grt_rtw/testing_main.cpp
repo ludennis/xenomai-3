@@ -11,9 +11,10 @@
 #include <RtMacro.h>
 #include <RtResistanceTask.h>
 
+// TODO: delete this
 RT_TASK rtResistanceArrayTask;
 
-static auto rtSharedResistanceArray = std::make_shared<RtSharedResistanceArray>();
+static auto rtSharedArray = std::make_shared<RtSharedArray>();
 static std::unique_ptr<RtResistanceTask> rtResistanceTask;
 static std::unique_ptr<RtGenerateResistanceArrayTask> rtGenerateResistanceArrayTask;
 
@@ -37,7 +38,7 @@ int main(int argc, char **argv)
   rtGenerateResistanceArrayTask = std::make_unique<RtGenerateResistanceArrayTask>(
     "GenerateResistanceArrayRoutine", RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority,
     RtMacro::kTaskMode, RtMacro::kTenMsTaskPeriod);
-  rtGenerateResistanceArrayTask->mRtSharedResistanceArray = rtSharedResistanceArray;
+  rtGenerateResistanceArrayTask->mRtSharedArray = rtSharedArray;
   rtGenerateResistanceArrayTask->StartRoutine();
 
   DWORD cardNum = 3;
@@ -45,7 +46,7 @@ int main(int argc, char **argv)
     "SetSubunitResistanceRoutine", RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority,
     RtMacro::kTaskMode, RtMacro::kTenMsTaskPeriod);
   rtResistanceTask->OpenCard(cardNum);
-  rtResistanceTask->mRtSharedResistanceArray = rtSharedResistanceArray;
+  rtResistanceTask->mRtSharedArray = rtSharedArray;
   rtResistanceTask->StartRoutine();
 
   while(true) // original parent process will wait until ctrl+c signal
