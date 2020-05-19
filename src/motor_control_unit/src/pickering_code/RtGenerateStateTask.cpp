@@ -43,4 +43,13 @@ void RtGenerateStateTask::Routine(void*)
 RtGenerateStateTask::~RtGenerateStateTask()
 {
   mModel.terminate();
+  printf("RtGenerateStateTask::mModel terminated\n");
+
+  int e = rt_task_delete(&mRtTask);
+  if(e)
+  {
+    printf("Error deleting RtGenerateStateTask::mRtTask. Exiting.\n");
+    exit(-1);
+  }
+  printf("RtGenerateStateTask::mRtTask deleted\n");
 }
