@@ -10,11 +10,17 @@ RtGenerateStateTask::RtGenerateStateTask(
 
 int RtGenerateStateTask::StartRoutine()
 {
+  auto core_id = 6;
+  cpu_set_t cpuset;
+  CPU_ZERO(&cpuset);
+  CPU_SET(core_id, &cpuset);
+
+  int e3 = rt_task_set_affinity(&mRtTask, &cpuset);
   int e1 = rt_task_create(&mRtTask, mName, mStackSize, mPriority, mMode);
   int e2 = rt_task_set_periodic(&mRtTask, TM_NOW, rt_timer_ns2ticks(mPeriod));
-  int e3 = rt_task_start(&mRtTask, &Routine, NULL);
+  int e4 = rt_task_start(&mRtTask, &Routine, NULL);
 
-  if(e1 | e2 | e3)
+  if(e1 | e2 | e3 | e4)
   {
     printf("Error launching RtGenerateStateTask::StartRoutine(). Exiting.\n");
     return -1;
