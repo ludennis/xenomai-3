@@ -10,19 +10,13 @@
 #include <RtSharedState.h>
 #include <RtSwitchTask.h>
 
-//#include <RtResistanceTask.h>
-
 RT_TASK rtSwitchStateTask;
 static auto rtSwitchTask = std::make_unique<RtSwitchTask>();
 static auto rtSharedState = std::make_shared<RtSharedState>();
 
-//RT_TASK rtResistanceArrayTask;
-//
-//static auto rtSharedResistanceArray = std::make_shared<RtSharedResistanceArray>();
-//static auto rtTaskHandler = std::make_unique<RtTaskHandler>();
 static auto testingModel = testingModelClass();
 
-
+// TODO: make this another task inherited from RtPeriodicTask
 void GenerateSwitchStateRoutine(void*)
 {
   testingModel.initialize();
@@ -33,9 +27,9 @@ void GenerateSwitchStateRoutine(void*)
 
     rtSharedState->Set(!rtSharedState->Get());
 
-    rt_task_wait_period(NULL);
+    printf("Generated state: %s\n", rtSharedState->Get() ? "true" : "false");
 
-//    printf("state is: %s\n", rtSharedState->Get() ? "true" : "false");
+    rt_task_wait_period(NULL);
   }
 }
 
@@ -43,7 +37,8 @@ int StartGenerateSwitchStateRoutine()
 {
   int e1 = rt_task_create(&rtSwitchStateTask, "GenerateSwitchStateRoutine",
     RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority, RtMacro::kTaskMode);
-  int e2 = rt_task_set_periodic(&rtSwitchStateTask, TM_NOW, rt_timer_ns2ticks(1000000));
+  int e2 = rt_task_set_periodic(
+    &rtSwitchStateTask, TM_NOW, rt_timer_ns2ticks(RtMacro::kHundredMsTaskPeriod));
   int e3 = rt_task_start(&rtSwitchStateTask, &GenerateSwitchStateRoutine, NULL);
 
   if(e1 | e2 | e3)
@@ -55,9 +50,11 @@ int StartGenerateSwitchStateRoutine()
 void TerminationHandler(int s)
 {
   printf("Caught ctrl + c signal. Closing Card and Exiting.\n");
-//  PIL_ClearCard(rtTaskHandler->mCardNum);
-//  PIL_CloseSpecifiedCard(rtTaskHandler->mCardNum);
-//  testingModel.terminate();
+
+// TODO: make close card a destructor for PxiCardTask
+  PIL_ClearCard(rtSwitchTask->mCardNum);
+  PIL_CloseSpecifiedCard(rtSwitchTask->mCardNum);
+  testingModel.terminate();
 
   exit(1);
 }
@@ -74,11 +71,13 @@ int main(int argc, char **argv)
   StartGenerateSwitchStateRoutine();
 
   DWORD cardNum = 1;
-//
-//  DWORD cardNum = 3;
-//  rtTaskHandler->OpenCard(cardNum);
-//  rtTaskHandler->mRtSharedResistanceArray = rtSharedResistanceArray;
-//  rtTaskHandler->StartSetSubunitResistanceRoutine();
+  DWORD subunit = 1;
+  DWORD bit = 1;
+  rtSwitchTask->OpenCard(cardNum);
+  rtSwitchTask->mSubunit = subunit;
+  rtSwitchTask->mBit = bit;
+  rtSwitchTask->mRtSharedState = rtSharedState;
+  rtSwitchTask->StartRoutine();
 
   while(true) // original parent process will wait until ctrl+c signal
   {}

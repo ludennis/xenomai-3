@@ -12,7 +12,11 @@ DWORD PxiCardTask::mNumOutputSubunits;
 DWORD PxiCardTask::mResistance;
 DWORD PxiCardTask::mResistances[100];
 DWORD PxiCardTask::mSubunit;
+DWORD PxiCardTask::mBit;
+
 CHAR PxiCardTask::mCardId[100];
+
+BOOL PxiCardTask::mState;
 
 PxiCardTask::PxiCardTask()
 {}

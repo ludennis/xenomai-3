@@ -11,7 +11,8 @@ int RtResistanceTask::StartRoutine()
    // TODO: check if cardNum, device, bus has been set
    int e1 = rt_task_create(&mRtTask, "SetSubunitResistanceRoutine",
      RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority, RtMacro::kTaskMode);
-   int e2 = rt_task_set_periodic(&mRtTask, TM_NOW, rt_timer_ns2ticks(RtMacro::kTaskPeriod));
+   int e2 = rt_task_set_periodic(
+      &mRtTask, TM_NOW, rt_timer_ns2ticks(RtMacro::kTenMsTaskPeriod));
    int e3 = rt_task_start(&mRtTask, &Routine, NULL);
 
    if(e1 | e2 | e3)

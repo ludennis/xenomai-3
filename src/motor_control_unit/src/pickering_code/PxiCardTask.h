@@ -20,8 +20,11 @@ public:
   static DWORD mResistance;
   static DWORD mResistances[100];
   static DWORD mSubunit;
+  static DWORD mBit;
 
   static CHAR mCardId[100];
+
+  static BOOL mState;
 
 public:
   PxiCardTask();
