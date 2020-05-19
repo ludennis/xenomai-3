@@ -12,9 +12,12 @@ class RtSharedArray
 public:
   DWORD mArray[100];
   RT_MUTEX mMutex;
+  RTIME mTimeout;
+  const char* mName;
 
 public:
-  RtSharedArray();
+  RtSharedArray() = delete;
+  RtSharedArray(const char* name, const RTIME &timeout=TM_INFINITE);
   void Set(unsigned int index, DWORD element);
   void SetArray(const std::vector<DWORD> &elements);
   DWORD Get(unsigned int index);

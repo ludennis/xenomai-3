@@ -14,7 +14,7 @@
 // TODO: delete this
 RT_TASK rtResistanceArrayTask;
 
-static auto rtSharedArray = std::make_shared<RtSharedArray>();
+static std::shared_ptr<RtSharedArray> rtSharedArray;
 static std::unique_ptr<RtResistanceTask> rtResistanceTask;
 static std::unique_ptr<RtGenerateResistanceArrayTask> rtGenerateResistanceArrayTask;
 
@@ -34,6 +34,8 @@ int main(int argc, char **argv)
   sigemptyset(&signalHandler.sa_mask);
   signalHandler.sa_flags = 0;
   sigaction(SIGINT, &signalHandler, NULL);
+
+  rtSharedArray = std::make_shared<RtSharedArray>("RtSharedArray");
 
   rtGenerateResistanceArrayTask = std::make_unique<RtGenerateResistanceArrayTask>(
     "GenerateResistanceArrayRoutine", RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority,
