@@ -5,14 +5,22 @@ std::shared_ptr<RtSharedResistanceArray> RtResistanceTask::mRtSharedResistanceAr
 RtResistanceTask::RtResistanceTask()
 {}
 
+RtResistanceTask::RtResistanceTask(
+  const char* name, const int stackSize, const int priority, const int mode, const int period)
+{
+  mName = name;
+  mStackSize = stackSize;
+  mPriority = priority;
+  mMode = mode;
+  mPeriod = period;
+}
+
 int RtResistanceTask::StartRoutine()
 {
    // TODO: check if cardNum, device, bus has been set
-   int e1 = rt_task_create(&mRtTask, "SetSubunitResistanceRoutine",
-     RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority, RtMacro::kTaskMode);
-   int e2 = rt_task_set_periodic(
-      &mRtTask, TM_NOW, rt_timer_ns2ticks(RtMacro::kTenMsTaskPeriod));
-   int e3 = rt_task_start(&mRtTask, &Routine, NULL);
+  int e1 = rt_task_create(&mRtTask, mName, mStackSize, mPriority, mMode);
+  int e2 = rt_task_set_periodic(&mRtTask, TM_NOW, rt_timer_ns2ticks(mPeriod));
+  int e3 = rt_task_start(&mRtTask, &Routine, NULL);
 
    if(e1 | e2 | e3)
    {

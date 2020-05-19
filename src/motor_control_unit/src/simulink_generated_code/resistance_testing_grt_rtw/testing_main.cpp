@@ -13,7 +13,8 @@
 RT_TASK rtResistanceArrayTask;
 
 static auto rtSharedResistanceArray = std::make_shared<RtSharedResistanceArray>();
-static auto rtResistanceTask = std::make_unique<RtResistanceTask>();
+static std::unique_ptr<RtResistanceTask> rtResistanceTask;
+
 // TODO: move this into an RT task
 static auto testingModel = testingModelClass();
 
@@ -78,6 +79,9 @@ int main(int argc, char **argv)
   StartGenerateResistanceArrayRoutine();
 
   DWORD cardNum = 3;
+  rtResistanceTask = std::make_unique<RtResistanceTask>(
+    "SetSubunitResistanceRoutine", RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority,
+    RtMacro::kTaskMode, RtMacro::kTenMsTaskPeriod);
   rtResistanceTask->OpenCard(cardNum);
   rtResistanceTask->mRtSharedResistanceArray = rtSharedResistanceArray;
   rtResistanceTask->StartRoutine();
