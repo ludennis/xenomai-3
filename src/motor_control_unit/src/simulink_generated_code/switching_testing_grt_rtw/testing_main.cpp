@@ -7,52 +7,21 @@
 
 #include <alchemy/mutex.h>
 
+#include <RtGenerateStateTask.h>
 #include <RtSharedState.h>
 #include <RtSwitchTask.h>
 
-RT_TASK rtSwitchStateTask;
 static auto rtSwitchTask = std::make_unique<RtSwitchTask>();
+static auto rtGenerateStateTask = std::make_unique<RtGenerateStateTask>();
 static auto rtSharedState = std::make_shared<RtSharedState>();
-
-static auto testingModel = testingModelClass();
-
-// TODO: make this another task inherited from RtPeriodicTask
-void GenerateSwitchStateRoutine(void*)
-{
-  testingModel.initialize();
-
-  while(true)
-  {
-    testingModel.step();
-
-    rtSharedState->Set(!rtSharedState->Get());
-
-    rt_task_wait_period(NULL);
-  }
-}
-
-int StartGenerateSwitchStateRoutine()
-{
-  int e1 = rt_task_create(&rtSwitchStateTask, "GenerateSwitchStateRoutine",
-    RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority, RtMacro::kTaskMode);
-  int e2 = rt_task_set_periodic(
-    &rtSwitchStateTask, TM_NOW, rt_timer_ns2ticks(RtMacro::kTenMsTaskPeriod));
-  int e3 = rt_task_start(&rtSwitchStateTask, &GenerateSwitchStateRoutine, NULL);
-
-  if(e1 | e2 | e3)
-  {
-    printf("Error launching StartGenerateSwitchStateRoutine(). Exiting.\n");
-  }
-}
 
 void TerminationHandler(int s)
 {
   printf("Caught ctrl + c signal. Closing Card and Exiting.\n");
 
-// TODO: make close card a destructor for PxiCardTask
+  // TODO: make close card a destructor for PxiCardTask
   PIL_ClearCard(rtSwitchTask->mCardNum);
   PIL_CloseSpecifiedCard(rtSwitchTask->mCardNum);
-  testingModel.terminate();
 
   exit(1);
 }
@@ -66,7 +35,11 @@ int main(int argc, char **argv)
   signalHandler.sa_flags = 0;
   sigaction(SIGINT, &signalHandler, NULL);
 
-  StartGenerateSwitchStateRoutine();
+  rtGenerateStateTask = std::make_unique<RtGenerateStateTask>(
+    "GenerateStateTask", RtMacro::kTaskStackSize, RtMacro::kHighTaskPriority,
+    RtMacro::kTaskMode, RtMacro::kTenMsTaskPeriod);
+  rtGenerateStateTask->mRtSharedState = rtSharedState;
+  rtGenerateStateTask->StartRoutine();
 
   DWORD cardNum = 2;
   DWORD subunit = 1;

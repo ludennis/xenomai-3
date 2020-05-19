@@ -1,3 +1,6 @@
+#ifndef _RTPERIODICTASK_H_
+#define _RTPERIODICTASK_H_
+
 #include <alchemy/task.h>
 
 class RtPeriodicTask
@@ -20,3 +23,5 @@ public:
   int StartRoutine() = delete;
   static void Routine(void*) = delete;
 };
+
+#endif // _RTPERIODICTASK_H_

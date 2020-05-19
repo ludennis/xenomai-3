@@ -282,6 +282,7 @@ add_executable(switching_testing
   ${PICKERING_DIR}/RtSwitchTask.cpp
   ${PICKERING_DIR}/RtPeriodicTask.cpp
   ${PICKERING_DIR}/PxiCardTask.cpp
+  ${PICKERING_DIR}/RtGenerateStateTask.cpp
 )
 
 target_include_directories(switching_testing
