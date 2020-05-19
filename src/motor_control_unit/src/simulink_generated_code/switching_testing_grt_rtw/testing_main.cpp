@@ -27,8 +27,6 @@ void GenerateSwitchStateRoutine(void*)
 
     rtSharedState->Set(!rtSharedState->Get());
 
-    printf("Generated state: %s\n", rtSharedState->Get() ? "true" : "false");
-
     rt_task_wait_period(NULL);
   }
 }
@@ -38,7 +36,7 @@ int StartGenerateSwitchStateRoutine()
   int e1 = rt_task_create(&rtSwitchStateTask, "GenerateSwitchStateRoutine",
     RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority, RtMacro::kTaskMode);
   int e2 = rt_task_set_periodic(
-    &rtSwitchStateTask, TM_NOW, rt_timer_ns2ticks(RtMacro::kHundredMsTaskPeriod));
+    &rtSwitchStateTask, TM_NOW, rt_timer_ns2ticks(RtMacro::kTenMsTaskPeriod));
   int e3 = rt_task_start(&rtSwitchStateTask, &GenerateSwitchStateRoutine, NULL);
 
   if(e1 | e2 | e3)
@@ -70,13 +68,14 @@ int main(int argc, char **argv)
 
   StartGenerateSwitchStateRoutine();
 
-  DWORD cardNum = 1;
+  DWORD cardNum = 2;
   DWORD subunit = 1;
   DWORD bit = 1;
   rtSwitchTask->OpenCard(cardNum);
   rtSwitchTask->mSubunit = subunit;
   rtSwitchTask->mBit = bit;
   rtSwitchTask->mRtSharedState = rtSharedState;
+  rtSwitchTask->mOneSecondTimer = rt_timer_read();
   rtSwitchTask->StartRoutine();
 
   while(true) // original parent process will wait until ctrl+c signal

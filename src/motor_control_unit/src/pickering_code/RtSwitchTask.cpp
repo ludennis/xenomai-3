@@ -23,9 +23,7 @@ int RtSwitchTask::StartRoutine()
 void RtSwitchTask::Routine(void*)
 {
   printf("Accessing bus %d, device %d, target resistance %d\n", mBus, mDevice, mResistance);
-
   mPrevious = rt_timer_read();
-
   BOOL prevState;
   while(true)
   {
@@ -35,12 +33,23 @@ void RtSwitchTask::Routine(void*)
     auto setState = mRtSharedState->Get();
 
     PIL_OpBit(mCardNum, mSubunit, mBit, setState);
-
     PIL_ViewBit(mCardNum, mSubunit, mBit, &mState);
 
-    printf("State changed from %s -> %s (setState = %s)\n",
-      prevState ? "true" : "false", mState ? "true" : "false", setState ? "true" : "false");
-
     rt_task_wait_period(NULL);
+
+    mNow = rt_timer_read();
+
+    if(static_cast<long>(mNow - mOneSecondTimer) / RtMacro::kNanosecondsToSeconds > 0)
+    {
+      printf("Time elapsed for task: %ld.%ld microseconds\n",
+        static_cast<long>(mNow - mPrevious) / RtMacro::kNanosecondsToMicroseconds,
+        static_cast<long>(mNow - mPrevious) % RtMacro::kNanosecondsToMicroseconds);
+
+      printf("State changed from %s -> %s (setState = %s)\n",
+        prevState ? "true" : "false", mState ? "true" : "false", setState ? "true" : "false");
+
+      mOneSecondTimer = mNow;
+    }
+    mPrevious = mNow;
   }
 }
