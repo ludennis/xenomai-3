@@ -241,13 +241,10 @@ add_executable(resistance_testing
   ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing.cpp
   ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing_data.cpp
   ${PICKERING_DIR}/RtResistanceTask.cpp
-  ${PICKERING_DIR}/RtResistanceTask.h
   ${PICKERING_DIR}/RtSharedResistanceArray.cpp
-  ${PICKERING_DIR}/RtSharedResistanceArray.h
   ${PICKERING_DIR}/PxiCardTask.cpp
-  ${PICKERING_DIR}/PxiCardTask.h
   ${PICKERING_DIR}/RtPeriodicTask.cpp
-  ${PICKERING_DIR}/RtPeriodicTask.h
+  ${PICKERING_DIR}/RtGenerateResistanceArrayTask.cpp
 #  ${MATLAB_DIR}/rtw/c/src/common/rt_cppclass_main.cpp
 )
 

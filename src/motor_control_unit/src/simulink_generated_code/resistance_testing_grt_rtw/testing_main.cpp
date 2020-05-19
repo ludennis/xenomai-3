@@ -7,6 +7,7 @@
 
 #include <testing.h>
 
+#include <RtGenerateResistanceArrayTask.h>
 #include <RtMacro.h>
 #include <RtResistanceTask.h>
 
@@ -14,56 +15,16 @@ RT_TASK rtResistanceArrayTask;
 
 static auto rtSharedResistanceArray = std::make_shared<RtSharedResistanceArray>();
 static std::unique_ptr<RtResistanceTask> rtResistanceTask;
-
-// TODO: move this into an RT task
-static auto testingModel = testingModelClass();
-
-void GenerateResistanceArrayRoutine(void*)
-{
-  std::vector<DWORD> resistances;
-  testingModel.initialize();
-
-  while(true)
-  {
-    resistances.clear();
-
-    for(auto i{0u}; i < 10u; ++i)
-    {
-      testingModel.step();
-
-      DWORD subunit = i;
-      DWORD resistance = testingModel.testing_Y.Out1 * 2+ 10;
-
-      resistances.push_back(resistance);
-    }
-
-    rtSharedResistanceArray->SetArray(resistances);
-
-    rt_task_wait_period(NULL);
-  }
-}
-
-int StartGenerateResistanceArrayRoutine()
-{
-  int e1 = rt_task_create(&rtResistanceArrayTask, "GenerateResistanceArrayRoutine",
-    RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority, RtMacro::kTaskMode);
-  int e2 = rt_task_set_periodic(&rtResistanceArrayTask, TM_NOW, rt_timer_ns2ticks(1000000));
-  int e3 = rt_task_start(&rtResistanceArrayTask, &GenerateResistanceArrayRoutine, NULL);
-
-  if(e1 | e2 | e3)
-  {
-    printf("Error launching StartSetSubunitResistanceRoutine. Exiting.\n");
-    return -1;
-  }
-}
+static std::unique_ptr<RtGenerateResistanceArrayTask> rtGenerateResistanceArrayTask;
 
 void TerminationHandler(int s)
 {
   printf("Caught ctrl + c signal. Closing Card and Exiting.\n");
   PIL_ClearCard(rtResistanceTask->mCardNum);
   PIL_CloseSpecifiedCard(rtResistanceTask->mCardNum);
-  testingModel.terminate();
+  // TODO: add task delete
 
+  rtGenerateResistanceArrayTask->~RtGenerateResistanceArrayTask();
   exit(1);
 }
 
@@ -76,7 +37,11 @@ int main(int argc, char **argv)
   signalHandler.sa_flags = 0;
   sigaction(SIGINT, &signalHandler, NULL);
 
-  StartGenerateResistanceArrayRoutine();
+  rtGenerateResistanceArrayTask = std::make_unique<RtGenerateResistanceArrayTask>(
+    "GenerateResistanceArrayRoutine", RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority,
+    RtMacro::kTaskMode, RtMacro::kTenMsTaskPeriod);
+  rtGenerateResistanceArrayTask->mRtSharedResistanceArray = rtSharedResistanceArray;
+  rtGenerateResistanceArrayTask->StartRoutine();
 
   DWORD cardNum = 3;
   rtResistanceTask = std::make_unique<RtResistanceTask>(
