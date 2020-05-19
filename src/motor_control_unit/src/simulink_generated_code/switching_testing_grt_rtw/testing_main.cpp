@@ -71,6 +71,11 @@ int main(int argc, char **argv)
   DWORD cardNum = 2;
   DWORD subunit = 1;
   DWORD bit = 1;
+
+  rtSwitchTask = std::make_unique<RtSwitchTask>(
+    "SetSubunitSwitchState", RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority,
+    RtMacro::kTaskMode, RtMacro::kTenMsTaskPeriod);
+
   rtSwitchTask->OpenCard(cardNum);
   rtSwitchTask->mSubunit = subunit;
   rtSwitchTask->mBit = bit;
