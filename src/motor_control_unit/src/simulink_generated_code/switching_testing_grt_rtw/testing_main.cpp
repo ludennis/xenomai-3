@@ -11,8 +11,8 @@
 #include <RtSharedState.h>
 #include <RtSwitchTask.h>
 
-static auto rtSwitchTask = std::make_unique<RtSwitchTask>();
-static auto rtGenerateStateTask = std::make_unique<RtGenerateStateTask>();
+static std::unique_ptr<RtSwitchTask> rtSwitchTask;
+static std::unique_ptr<RtGenerateStateTask> rtGenerateStateTask;
 static auto rtSharedState = std::make_shared<RtSharedState>();
 
 void TerminationHandler(int s)

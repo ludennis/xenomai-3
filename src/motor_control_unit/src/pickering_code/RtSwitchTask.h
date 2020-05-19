@@ -15,7 +15,6 @@ public:
   static std::shared_ptr<RtSharedState> mRtSharedState;
 
 public:
-  RtSwitchTask();
   RtSwitchTask(
     const char* name, const int stackSize, const int priority, const int mode, const int period);
   int StartRoutine();

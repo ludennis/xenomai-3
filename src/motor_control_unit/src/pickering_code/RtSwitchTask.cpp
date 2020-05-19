@@ -2,9 +2,6 @@
 
 std::shared_ptr<RtSharedState> RtSwitchTask::mRtSharedState;
 
-RtSwitchTask::RtSwitchTask()
-{}
-
 RtSwitchTask::RtSwitchTask(
   const char* name, const int stackSize, const int priority, const int mode, const int period)
   : RtPeriodicTask(name, stackSize, priority, mode, period)
@@ -12,7 +9,6 @@ RtSwitchTask::RtSwitchTask(
 
 int RtSwitchTask::StartRoutine()
 {
-  // TODO check if required member variables have been set already
   int e1 = rt_task_create(&mRtTask, mName, mStackSize, mPriority, mMode);
   int e2 = rt_task_set_periodic(&mRtTask, TM_NOW, rt_timer_ns2ticks(mPeriod));
   int e3 = rt_task_start(&mRtTask, &Routine, NULL);
