@@ -22,9 +22,6 @@ void TerminationHandler(int s)
   printf("Caught ctrl + c signal. Closing Card and Exiting.\n");
   PIL_ClearCard(rtResistanceTask->mCardNum);
   PIL_CloseSpecifiedCard(rtResistanceTask->mCardNum);
-  // TODO: add task delete
-
-  rtGenerateResistanceArrayTask->~RtGenerateResistanceArrayTask();
   exit(1);
 }
 

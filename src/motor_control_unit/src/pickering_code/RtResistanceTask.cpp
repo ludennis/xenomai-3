@@ -2,9 +2,6 @@
 
 std::shared_ptr<RtSharedResistanceArray> RtResistanceTask::mRtSharedResistanceArray;
 
-RtResistanceTask::RtResistanceTask()
-{}
-
 RtResistanceTask::RtResistanceTask(
   const char* name, const int stackSize, const int priority, const int mode, const int period)
 {
@@ -17,7 +14,6 @@ RtResistanceTask::RtResistanceTask(
 
 int RtResistanceTask::StartRoutine()
 {
-   // TODO: check if cardNum, device, bus has been set
   int e1 = rt_task_create(&mRtTask, mName, mStackSize, mPriority, mMode);
   int e2 = rt_task_set_periodic(&mRtTask, TM_NOW, rt_timer_ns2ticks(mPeriod));
   int e3 = rt_task_start(&mRtTask, &Routine, NULL);
@@ -70,4 +66,15 @@ void RtResistanceTask::Routine(void*)
       mPrevious = mNow;
     }
   }
+}
+
+RtResistanceTask::~RtResistanceTask()
+{
+  int e = rt_task_delete(&mRtTask);
+  if(e)
+  {
+    printf("Error deleting task RtResistanceTask::mRtTask. Exiting.\n");
+    exit(-1);
+  }
+  printf("RtResistanceTask::mRtTask deleted\n");
 }

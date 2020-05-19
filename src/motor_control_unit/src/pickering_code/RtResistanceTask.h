@@ -15,12 +15,11 @@ public:
   static std::shared_ptr<RtSharedResistanceArray> mRtSharedResistanceArray;
 
 public:
-  // TODO: make a constructor with argument
-  RtResistanceTask();
   RtResistanceTask(
     const char* name, const int stackSize, const int priority, const int mode, const int period);
   int StartRoutine();
   static void Routine(void*);
+  ~RtResistanceTask();
 };
 
 #endif // _RTRESISTANCETASK_H_

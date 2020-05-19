@@ -57,6 +57,6 @@ void RtGenerateResistanceArrayTask::Routine(void*)
 
 RtGenerateResistanceArrayTask::~RtGenerateResistanceArrayTask()
 {
-  // TODO: check if it's actually called
   mModel.terminate();
+  printf("RtGenerateResistanceArrayTask::mModel terminated\n");
 }
