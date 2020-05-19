@@ -1,23 +1,22 @@
 #include <RtSharedState.h>
 
-RtSharedState::RtSharedState()
+RtSharedState::RtSharedState(const char* name, const RTIME &timeout)
+  : mName(name)
+  , mTimeout(timeout)
 {
-  // TODO: make name a memeber variable
-  rt_mutex_create(&mMutex, "RtSharedStateMutex");
+  rt_mutex_create(&mMutex, mName);
 }
 
 void RtSharedState::Set(bool b)
 {
-  // TODO: make time a member variable
-  rt_mutex_acquire_until(&mMutex, TM_INFINITE);
+  rt_mutex_acquire_until(&mMutex, mTimeout);
   mState = b;
   rt_mutex_release(&mMutex);
 }
 
 BOOL RtSharedState::Get()
 {
-  // TODO: make time a member variable
-  rt_mutex_acquire_until(&mMutex, TM_INFINITE);
+  rt_mutex_acquire_until(&mMutex, mTimeout);
   auto currentState = mState;
   rt_mutex_release(&mMutex);
   return currentState;

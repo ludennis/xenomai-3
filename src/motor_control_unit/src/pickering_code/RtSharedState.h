@@ -10,9 +10,12 @@ class RtSharedState
 private:
   BOOL mState;
   RT_MUTEX mMutex;
+  RTIME mTimeout;
+  const char* mName;
 
 public:
-  RtSharedState();
+  RtSharedState() = delete;
+  RtSharedState(const char* name, const RTIME &timeout=TM_INFINITE);
   void Set(bool b);
   BOOL Get();
 };

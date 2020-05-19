@@ -13,7 +13,7 @@
 
 static std::unique_ptr<RtSwitchTask> rtSwitchTask;
 static std::unique_ptr<RtGenerateStateTask> rtGenerateStateTask;
-static auto rtSharedState = std::make_shared<RtSharedState>();
+static std::shared_ptr<RtSharedState> rtSharedState;
 
 void TerminationHandler(int s)
 {
@@ -34,6 +34,9 @@ int main(int argc, char **argv)
   signalHandler.sa_flags = 0;
   sigaction(SIGINT, &signalHandler, NULL);
 
+  rtSharedState = std::make_shared<RtSharedState>("RtSharedState");
+
+  // TODO: specify which cpu to run task on
   rtGenerateStateTask = std::make_unique<RtGenerateStateTask>(
     "GenerateStateTask", RtMacro::kTaskStackSize, RtMacro::kHighTaskPriority,
     RtMacro::kTaskMode, RtMacro::kTenMsTaskPeriod);
