@@ -1,6 +1,8 @@
 #ifndef _RTGENERATESTATETASK_H_
 #define _RTGENERATESTATETASK_H_
 
+#include <sys/mman.h>
+
 #include <memory>
 
 #include <testing.h>

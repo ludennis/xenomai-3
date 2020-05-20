@@ -1,6 +1,8 @@
 #ifndef _RTGENERATERESISTANCEARRAYTASK_H_
 #define _RTGENERATERESISTANCEARRAYTASK_H_
 
+#include <sys/mman.h>
+
 #include <memory>
 #include <vector>
 

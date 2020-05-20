@@ -12,6 +12,8 @@ RtGenerateResistanceArrayTask::RtGenerateResistanceArrayTask(
 
 int RtGenerateResistanceArrayTask::StartRoutine()
 {
+  mlockall(MCL_CURRENT|MCL_FUTURE);
+
   int e1 = rt_task_create(&mRtTask, mName, mStackSize, mPriority, mMode);
   int e2 = rt_task_set_periodic(&mRtTask, TM_NOW, rt_timer_ns2ticks(mPeriod));
   int e3 = (mCoreId > 0) ? rt_task_set_affinity(&mRtTask, &mCpuSet) : 0;

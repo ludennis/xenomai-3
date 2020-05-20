@@ -1,6 +1,8 @@
 #ifndef _RTRESISTANCETASK_H_
 #define _RTRESISTANCETASK_H_
 
+#include <sys/mman.h>
+
 #include <memory>
 
 #include <RtMacro.h>

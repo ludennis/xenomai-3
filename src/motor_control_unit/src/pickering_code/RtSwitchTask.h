@@ -1,6 +1,8 @@
 #ifndef _RTSWITCHTASK_H_
 #define _RTSWITCHTASK_H_
 
+#include <sys/mman.h>
+
 #include <memory>
 
 #include <RtMacro.h>
