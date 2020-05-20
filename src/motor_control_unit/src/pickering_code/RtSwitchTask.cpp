@@ -3,20 +3,16 @@
 std::shared_ptr<RtSharedState> RtSwitchTask::mRtSharedState;
 
 RtSwitchTask::RtSwitchTask(
-  const char* name, const int stackSize, const int priority, const int mode, const int period)
-  : RtPeriodicTask(name, stackSize, priority, mode, period)
+  const char* name, const int stackSize, const int priority, const int mode,
+  const int period, const int coreId)
+  : RtPeriodicTask(name, stackSize, priority, mode, period, coreId)
 {}
 
 int RtSwitchTask::StartRoutine()
 {
-  auto core_id = 5;
-  cpu_set_t cpuset;
-  CPU_ZERO(&cpuset);
-  CPU_SET(core_id, &cpuset);
-
-  int e3 = rt_task_set_affinity(&mRtTask, &cpuset);
   int e1 = rt_task_create(&mRtTask, mName, mStackSize, mPriority, mMode);
   int e2 = rt_task_set_periodic(&mRtTask, TM_NOW, rt_timer_ns2ticks(mPeriod));
+  int e3 = (mCoreId > 0) ? rt_task_set_affinity(&mRtTask, &mCpuSet) : 0;
   int e4 = rt_task_start(&mRtTask, &Routine, NULL);
 
   if(e1 | e2 | e3 | e4)
@@ -24,6 +20,7 @@ int RtSwitchTask::StartRoutine()
     printf("Error launching periodic task SetSubunitSwitchState. Exiting.\n");
     return -1;
   }
+  printf("RtSwitchTask running on CoreId: %d\n", mCoreId);
 }
 
 void RtSwitchTask::Routine(void*)

@@ -15,6 +15,11 @@ constexpr auto kNanosecondsToMilliseconds = 1000000;
 constexpr auto kNanosecondsToSeconds = 1000000000;
 constexpr auto kMutexAcquireTimeout = 1000000; // 1 ms
 
+constexpr auto kCoreId5 = 5;
+constexpr auto kCoreId6 = 6;
+constexpr auto kCoreId7 = 7;
+constexpr auto kCoreId8 = 8;
+
 } // namespace RtMacro
 
 #endif // _RTMACRO_H_

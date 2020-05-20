@@ -39,14 +39,14 @@ int main(int argc, char **argv)
 
   rtGenerateResistanceArrayTask = std::make_unique<RtGenerateResistanceArrayTask>(
     "GenerateResistanceArrayRoutine", RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority,
-    RtMacro::kTaskMode, RtMacro::kTenMsTaskPeriod);
+    RtMacro::kTaskMode, RtMacro::kTenMsTaskPeriod, RtMacro::kCoreId6);
   rtGenerateResistanceArrayTask->mRtSharedArray = rtSharedArray;
   rtGenerateResistanceArrayTask->StartRoutine();
 
   DWORD cardNum = 3;
   rtResistanceTask = std::make_unique<RtResistanceTask>(
     "SetSubunitResistanceRoutine", RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority,
-    RtMacro::kTaskMode, RtMacro::kTenMsTaskPeriod);
+    RtMacro::kTaskMode, RtMacro::kTenMsTaskPeriod, RtMacro::kCoreId7);
   rtResistanceTask->OpenCard(cardNum);
   rtResistanceTask->mRtSharedArray = rtSharedArray;
   rtResistanceTask->StartRoutine();

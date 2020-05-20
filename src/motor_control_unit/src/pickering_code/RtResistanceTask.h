@@ -17,7 +17,8 @@ public:
 public:
   RtResistanceTask() = delete;
   RtResistanceTask(
-    const char* name, const int stackSize, const int priority, const int mode, const int period);
+    const char* name, const int stackSize, const int priority, const int mode,
+    const int period, const int coreId=0);
   int StartRoutine();
   static void Routine(void*);
   ~RtResistanceTask();
