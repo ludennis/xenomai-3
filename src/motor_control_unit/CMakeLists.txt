@@ -142,6 +142,7 @@ set(CONTROLLER_DIR "${PROJECT_SOURCE_DIR}/src/controller_code")
 set(XENOMAI_DIR "${PROJECT_SOURCE_DIR}/src/xenomai_code")
 set(PICKERING_DIR "${PROJECT_SOURCE_DIR}/src/pickering_code")
 set(SIMULINK_GENERATED_DIR "${PROJECT_SOURCE_DIR}/src/simulink_generated_code")
+set(PEAK_CAN_DIR "${PROJECT_SOURCE_DIR}/src/peak_can_code")
 
 set(PICKERING_INCLUDE_DIR "/usr/local/lib")
 
@@ -298,6 +299,16 @@ target_include_directories(switching_testing
 target_link_libraries(switching_testing
   pilpxi64
   ${XENOMAI_LIBRARIES}
+)
+
+# peak can
+add_executable(peak_can_transmit
+  ${PEAK_CAN_DIR}/peak_can_transmit.cpp
+)
+
+target_include_directories(peak_can_transmit
+  PUBLIC
+  ${PEAK_CAN_DIR}
 )
 
 # install
