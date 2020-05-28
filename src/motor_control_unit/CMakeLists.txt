@@ -145,6 +145,8 @@ set(SIMULINK_GENERATED_DIR "${PROJECT_SOURCE_DIR}/src/simulink_generated_code")
 set(PEAK_CAN_DIR "${PROJECT_SOURCE_DIR}/src/peak_can_code")
 
 set(PICKERING_INCLUDE_DIR "/usr/local/lib")
+set(PEAK_CAN_INCLUDE_DIR "/usr/local/include")
+set(PEAK_CAN_LIB_DIR "/usr/local/lib")
 
 # motor_model_v2
 add_executable(motor
@@ -309,6 +311,27 @@ add_executable(peak_can_transmit
 target_include_directories(peak_can_transmit
   PUBLIC
   ${PEAK_CAN_DIR}
+  ${PEAK_CAN_INCLUDE_DIR}
+)
+
+target_link_libraries(peak_can_transmit
+  -lpcan
+  -lpcanfd
+)
+
+add_executable(peak_can_receive
+  ${PEAK_CAN_DIR}/peak_can_receive.cpp
+)
+
+target_include_directories(peak_can_receive
+  PUBLIC
+  ${PEAK_CAN_DIR}
+  ${PEAK_CAN_INCLUDE_DIR}
+)
+
+target_link_libraries(peak_can_receive
+  -lpcan
+  -lpcanfd
 )
 
 # install
