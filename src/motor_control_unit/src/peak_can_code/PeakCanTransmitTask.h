@@ -1,25 +1,15 @@
 #ifndef _PEAKCANTRANSMITTASK_H_
 #define _PEAKCANTRANSMITTASK_H_
 
-#include <errno.h>
-#include <stdio.h>
+#include <PeakCanTask.h>
 
-#include <libpcan.h>
-
-class PeakCanTransmitTask
+class PeakCanTransmitTask : public PeakCanTask
 {
-private:
-  HANDLE mHandle;
-  unsigned int mBaudRate;
-
 public:
   PeakCanTransmitTask() = delete;
   PeakCanTransmitTask(const char *deviceName, const unsigned int baudRate);
 
-  int Init();
   int Write(TPCANMsg &writeMessage);
-
-  ~PeakCanTransmitTask();
 };
 
 #endif // _PEAKCANTRANSMITTASK_H_

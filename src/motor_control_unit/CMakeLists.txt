@@ -307,6 +307,7 @@ target_link_libraries(switching_testing
 add_executable(peak_can_transmit
   ${PEAK_CAN_DIR}/peak_can_transmit.cpp
   ${PEAK_CAN_DIR}/PeakCanTransmitTask.cpp
+  ${PEAK_CAN_DIR}/PeakCanTask.cpp
 )
 
 target_include_directories(peak_can_transmit
@@ -323,6 +324,7 @@ target_link_libraries(peak_can_transmit
 add_executable(peak_can_receive
   ${PEAK_CAN_DIR}/peak_can_receive.cpp
   ${PEAK_CAN_DIR}/PeakCanReceiveTask.cpp
+  ${PEAK_CAN_DIR}/PeakCanTask.cpp
 )
 
 target_include_directories(peak_can_receive
