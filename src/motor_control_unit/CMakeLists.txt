@@ -306,6 +306,7 @@ target_link_libraries(switching_testing
 # peak can
 add_executable(peak_can_transmit
   ${PEAK_CAN_DIR}/peak_can_transmit.cpp
+  ${PEAK_CAN_DIR}/PeakCanTransmitTask.cpp
 )
 
 target_include_directories(peak_can_transmit

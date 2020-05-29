@@ -1,24 +1,19 @@
-#include <stdio.h>
-
-#include <libpcan.h>
+#include <PeakCanTransmitTask.h>
 
 int main(int argc, char **argv)
 {
-  HANDLE canHandle = LINUX_CAN_Open("/dev/pcanpcifd1", 0);
-  CAN_Init(canHandle, CAN_BAUD_100K, CAN_INIT_TYPE_EX);
-  printf("Status = %i\n", CAN_Status(canHandle));
+  auto peakCanTransmitTask = PeakCanTransmitTask("/dev/pcanpcifd1", CAN_BAUD_500K);
+  peakCanTransmitTask.Init();
 
   TPCANMsg writeMsg;
   writeMsg.ID = 0x123;
   writeMsg.MSGTYPE = MSGTYPE_STANDARD;
   writeMsg.LEN = 3;
-  writeMsg.DATA[0] = 0x1;
-  writeMsg.DATA[1] = 0x2;
-  writeMsg.DATA[2] = 0x3;
+  writeMsg.DATA[0] = 0x1f;
+  writeMsg.DATA[1] = 0x2a;
+  writeMsg.DATA[2] = 0x3e;
 
-  CAN_Write(canHandle, &writeMsg);
-
-  CAN_Close(canHandle);
+  peakCanTransmitTask.Write(writeMsg);
 
   return 0;
 }
