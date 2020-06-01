@@ -14,6 +14,14 @@ void TerminationHandler(int s)
 
 int main(int argc, char **argv)
 {
+  if(argc < 3)
+  {
+    printf("Usage: peak_can_receive [device name] [baud rate (Kbits/s)]\n");
+    return -1;
+  }
+  const char *deviceName = argv[1];
+  const unsigned int baudRate = atol(argv[2]);
+
   // ctrl + c signal handler
   struct sigaction signalHandler;
   signalHandler.sa_handler = TerminationHandler;
@@ -22,7 +30,7 @@ int main(int argc, char **argv)
   sigaction(SIGINT, &signalHandler, NULL);
 
   auto rtPeakCanReceiveTask = std::make_unique<RtPeakCanReceiveTask>(
-    "/dev/pcanusb32", CAN_BAUD_500K, "RtPeakCanReceiveTask", RtMacro::kTaskStackSize,
+    deviceName, baudRate, "RtPeakCanReceiveTask", RtMacro::kTaskStackSize,
     RtMacro::kMediumTaskPriority, RtMacro::kTaskMode, RtMacro::kHundredMsTaskPeriod,
     RtMacro::kCoreId6);
 
