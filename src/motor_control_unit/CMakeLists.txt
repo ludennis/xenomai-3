@@ -136,13 +136,13 @@ add_definitions(-DHAVESTDIO)
 add_definitions(-DMODEL_HAS_DYNAMICALLY_LOADED_SFCNS=0)
 
 # Set path
-set(MATLAB_DIR "${PROJECT_SOURCE_DIR}/src/matlab_code")
-set(MODEL_DIR "${PROJECT_SOURCE_DIR}/src/model_code")
-set(CONTROLLER_DIR "${PROJECT_SOURCE_DIR}/src/controller_code")
-set(XENOMAI_DIR "${PROJECT_SOURCE_DIR}/src/xenomai_code")
-set(PICKERING_DIR "${PROJECT_SOURCE_DIR}/src/pickering_code")
-set(SIMULINK_GENERATED_DIR "${PROJECT_SOURCE_DIR}/src/simulink_generated_code")
-set(PEAK_CAN_DIR "${PROJECT_SOURCE_DIR}/src/peak_can_code")
+set(MATLAB_CODE_DIR "${PROJECT_SOURCE_DIR}/src/matlab_code")
+set(MODEL_CODE_DIR "${PROJECT_SOURCE_DIR}/src/model_code")
+set(CONTROLLER_CODE_DIR "${PROJECT_SOURCE_DIR}/src/controller_code")
+set(XENOMAI_CODE_DIR "${PROJECT_SOURCE_DIR}/src/xenomai_code")
+set(PICKERING_CODE_DIR "${PROJECT_SOURCE_DIR}/src/pickering_code")
+set(SIMULINK_GENERATED_CODE_DIR "${PROJECT_SOURCE_DIR}/src/simulink_generated_code")
+set(PEAK_CAN_CODE_DIR "${PROJECT_SOURCE_DIR}/src/peak_can_code")
 
 set(PICKERING_INCLUDE_DIR "/usr/local/lib")
 set(PEAK_CAN_INCLUDE_DIR "/usr/local/include")
@@ -150,39 +150,39 @@ set(PEAK_CAN_LIB_DIR "/usr/local/lib")
 
 # motor_model_v2
 add_executable(motor
-  ${MODEL_DIR}/generated_model.cpp
-  ${MODEL_DIR}/rtGetInf.cpp
-  ${MODEL_DIR}/rtGetNaN.cpp
-  ${MODEL_DIR}/rt_nonfinite.cpp
-  ${MODEL_DIR}/ert_main.cpp
-  ${MODEL_DIR}/input_interface.cpp
-  ${MODEL_DIR}/output_interface.cpp
+  ${MODEL_CODE_DIR}/ert_main.cpp
+  ${MODEL_CODE_DIR}/generated_model.cpp
+  ${MODEL_CODE_DIR}/input_interface.cpp
+  ${MODEL_CODE_DIR}/output_interface.cpp
+  ${MODEL_CODE_DIR}/rtGetInf.cpp
+  ${MODEL_CODE_DIR}/rtGetNaN.cpp
+  ${MODEL_CODE_DIR}/rt_nonfinite.cpp
 )
 
 target_include_directories(motor
   PUBLIC
-  ${MODEL_DIR}
-  ${MATLAB_DIR}/extern/include
-  ${MATLAB_DIR}/simulink/include
-  ${MATLAB_DIR}/rtw/c/src
-  ${MATLAB_DIR}/rtw/c/src/ext_mode/common
-  ${MATLAB_DIR}/rtw/c/ert
+  ${MATLAB_CODE_DIR}/extern/include
+  ${MATLAB_CODE_DIR}/rtw/c/ert
+  ${MATLAB_CODE_DIR}/rtw/c/src
+  ${MATLAB_CODE_DIR}/rtw/c/src/ext_mode/common
+  ${MATLAB_CODE_DIR}/simulink/include
+  ${MODEL_CODE_DIR}
   ${PROJECT_SOURCE_DIR}/src
   SYSTEM PUBLIC
   ${OpenSplice_INCLUDE_DIRS}
 )
 
 target_link_libraries(motor
-  ${OpenSplice_LIBRARIES}
   ${DATAMODEL}
+  ${OpenSplice_LIBRARIES}
 )
 
 target_compile_options(motor
   PUBLIC
   -Wall
+  -Werror
   -Wextra
   -Wpedantic
-  -Werror
 )
 
 # controller
@@ -190,47 +190,47 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 add_executable(controller
-  ${CONTROLLER_DIR}/controller_main.cpp
+  ${CONTROLLER_CODE_DIR}/controller_main.cpp
 )
 
 target_link_libraries(controller
-  ${OpenSplice_LIBRARIES}
   ${DATAMODEL}
-  Threads::Threads
+  ${OpenSplice_LIBRARIES}
   ${XENOMAI_LIBRARIES}
+  Threads::Threads
 )
 
 target_include_directories(controller
   SYSTEM PUBLIC
-  ${PROJECT_SOURCE_DIR}/src
   ${OpenSplice_INCLUDE_DIRS}
+  ${PROJECT_SOURCE_DIR}/src
   ${XENOMAI_INCLUDE_DIRS}
 )
 
 target_compile_options(controller
   PUBLIC
   -Wall
+  -Werror
   -Wextra
   -Wpedantic
-  -Werror
 )
 
 # pickering rt task
 link_directories("/usr/local/lib")
 
 add_executable(non_precision_resistor_controller
-  ${PICKERING_DIR}/non_precision_resistor_controller_main.cpp
-  ${PICKERING_DIR}/RtResistanceTask.cpp
-  ${PICKERING_DIR}/RtResistanceTask.h
-  ${PICKERING_DIR}/RtSharedArray.cpp
-  ${PICKERING_DIR}/RtSharedArray.h
+  ${PICKERING_CODE_DIR}/non_precision_resistor_controller_main.cpp
+  ${PICKERING_CODE_DIR}/RtResistanceTask.cpp
+  ${PICKERING_CODE_DIR}/RtResistanceTask.h
+  ${PICKERING_CODE_DIR}/RtSharedArray.cpp
+  ${PICKERING_CODE_DIR}/RtSharedArray.h
 )
 
 target_include_directories(non_precision_resistor_controller
   SYSTEM PUBLIC
-  ${XENOMAI_INCLUDE_DIRS}
+  ${PICKERING_CODE_DIR}
   ${PICKERING_INCLUDE_DIRS}
-  ${PICKERING_DIR}
+  ${XENOMAI_INCLUDE_DIRS}
 )
 
 target_link_libraries(non_precision_resistor_controller
@@ -240,33 +240,28 @@ target_link_libraries(non_precision_resistor_controller
 
 # simulink generated code for resistance card
 add_executable(resistance_testing
-  ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing_main.cpp
-  ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing.cpp
-  ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing_data.cpp
-  ${PICKERING_DIR}/RtResistanceTask.cpp
-  ${PICKERING_DIR}/RtSharedArray.cpp
-  ${PICKERING_DIR}/PxiCardTask.cpp
-  ${PICKERING_DIR}/RtGenerateResistanceArrayTask.cpp
-  ${XENOMAI_DIR}/RtPeriodicTask.cpp
-#  ${MATLAB_DIR}/rtw/c/src/common/rt_cppclass_main.cpp
+  ${PICKERING_CODE_DIR}/PxiCardTask.cpp
+  ${PICKERING_CODE_DIR}/RtGenerateResistanceArrayTask.cpp
+  ${PICKERING_CODE_DIR}/RtResistanceTask.cpp
+  ${PICKERING_CODE_DIR}/RtSharedArray.cpp
+  ${SIMULINK_GENERATED_CODE_DIR}/resistance_testing_grt_rtw/testing.cpp
+  ${SIMULINK_GENERATED_CODE_DIR}/resistance_testing_grt_rtw/testing_data.cpp
+  ${SIMULINK_GENERATED_CODE_DIR}/resistance_testing_grt_rtw/testing_main.cpp
+  ${XENOMAI_CODE_DIR}/RtPeriodicTask.cpp
 )
 
 target_include_directories(resistance_testing
   PUBLIC
-  ${SIMULINK_GENERATED_DIR}
-  ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw
-  ${MATLAB_DIR}/extern/include
-  ${MATLAB_DIR}/simulink/include
-  ${MATLAB_DIR}/rtw/c/src
-  ${MATLAB_DIR}/rtw/c/src/ext_mode/common
-  ${PICKERING_DIR}
+  ${MATLAB_CODE_DIR}/extern/include
+  ${MATLAB_CODE_DIR}/rtw/c/src
+  ${MATLAB_CODE_DIR}/rtw/c/src/ext_mode/common
+  ${MATLAB_CODE_DIR}/simulink/include
+  ${PICKERING_CODE_DIR}
   ${PICKERING_INCLUDE_DIRS}
+  ${SIMULINK_GENERATED_CODE_DIR}
+  ${SIMULINK_GENERATED_CODE_DIR}/resistance_testing_grt_rtw
+  ${XENOMAI_CODE_DIR}
   ${XENOMAI_INCLUDE_DIRS}
-  ${XENOMAI_DIR}
-#  ${MATLAB_DIR}/rtw/c/ert
-#  ${PROJECT_SOURCE_DIR}/src
-#  SYSTEM PUBLIC
-#  ${OpenSplice_INCLUDE_DIRS}
 )
 
 target_link_libraries(resistance_testing
@@ -276,28 +271,28 @@ target_link_libraries(resistance_testing
 
 # simulink generated code for switching card
 add_executable(switching_testing
-  ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing_main.cpp
-  ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing.cpp
-  ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing_data.cpp
-  ${PICKERING_DIR}/RtSharedState.cpp
-  ${PICKERING_DIR}/RtSwitchTask.cpp
-  ${PICKERING_DIR}/PxiCardTask.cpp
-  ${PICKERING_DIR}/RtGenerateStateTask.cpp
-  ${XENOMAI_DIR}/RtPeriodicTask.cpp
+  ${PICKERING_CODE_DIR}/PxiCardTask.cpp
+  ${PICKERING_CODE_DIR}/RtGenerateStateTask.cpp
+  ${PICKERING_CODE_DIR}/RtSharedState.cpp
+  ${PICKERING_CODE_DIR}/RtSwitchTask.cpp
+  ${SIMULINK_GENERATED_CODE_DIR}/switching_testing_grt_rtw/testing.cpp
+  ${SIMULINK_GENERATED_CODE_DIR}/switching_testing_grt_rtw/testing_data.cpp
+  ${SIMULINK_GENERATED_CODE_DIR}/switching_testing_grt_rtw/testing_main.cpp
+  ${XENOMAI_CODE_DIR}/RtPeriodicTask.cpp
 )
 
 target_include_directories(switching_testing
   PUBLIC
-  ${SIMULINK_GENERATED_DIR}
-  ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw
-  ${MATLAB_DIR}/extern/include
-  ${MATLAB_DIR}/simulink/include
-  ${MATLAB_DIR}/rtw/c/src
-  ${MATLAB_DIR}/rtw/c/src/ext_mode/common
-  ${PICKERING_DIR}
+  ${MATLAB_CODE_DIR}/extern/include
+  ${MATLAB_CODE_DIR}/rtw/c/src
+  ${MATLAB_CODE_DIR}/rtw/c/src/ext_mode/common
+  ${MATLAB_CODE_DIR}/simulink/include
+  ${PICKERING_CODE_DIR}
   ${PICKERING_INCLUDE_DIRS}
+  ${SIMULINK_GENERATED_CODE_DIR}
+  ${SIMULINK_GENERATED_CODE_DIR}/switching_testing_grt_rtw
+  ${XENOMAI_CODE_DIR}
   ${XENOMAI_INCLUDE_DIRS}
-  ${XENOMAI_DIR}
 )
 
 target_link_libraries(switching_testing
@@ -307,19 +302,19 @@ target_link_libraries(switching_testing
 
 # peak can
 add_executable(peak_can_transmit
-  ${PEAK_CAN_DIR}/peak_can_transmit.cpp
-  ${PEAK_CAN_DIR}/PeakCanTask.cpp
-  ${PEAK_CAN_DIR}/RtPeakCanTransmitTask.cpp
-  ${XENOMAI_DIR}/RtPeriodicTask.cpp
+  ${PEAK_CAN_CODE_DIR}/peak_can_transmit.cpp
+  ${PEAK_CAN_CODE_DIR}/PeakCanTask.cpp
+  ${PEAK_CAN_CODE_DIR}/RtPeakCanTransmitTask.cpp
+  ${XENOMAI_CODE_DIR}/RtPeriodicTask.cpp
 )
 
 target_include_directories(peak_can_transmit
   PUBLIC
-  ${PEAK_CAN_DIR}
+  ${PEAK_CAN_CODE_DIR}
   ${PEAK_CAN_INCLUDE_DIR}
-  ${PICKERING_DIR}
+  ${PICKERING_CODE_DIR}
+  ${XENOMAI_CODE_DIR}
   ${XENOMAI_INCLUDE_DIRS}
-  ${XENOMAI_DIR}
 )
 
 target_link_libraries(peak_can_transmit
@@ -329,19 +324,19 @@ target_link_libraries(peak_can_transmit
 )
 
 add_executable(peak_can_receive
-  ${PEAK_CAN_DIR}/peak_can_receive.cpp
-  ${PEAK_CAN_DIR}/PeakCanTask.cpp
-  ${PEAK_CAN_DIR}/RtPeakCanReceiveTask.cpp
-  ${XENOMAI_DIR}/RtPeriodicTask.cpp
+  ${PEAK_CAN_CODE_DIR}/peak_can_receive.cpp
+  ${PEAK_CAN_CODE_DIR}/PeakCanTask.cpp
+  ${PEAK_CAN_CODE_DIR}/RtPeakCanReceiveTask.cpp
+  ${XENOMAI_CODE_DIR}/RtPeriodicTask.cpp
 )
 
 target_include_directories(peak_can_receive
   PUBLIC
-  ${PEAK_CAN_DIR}
+  ${PEAK_CAN_CODE_DIR}
   ${PEAK_CAN_INCLUDE_DIR}
-  ${PICKERING_DIR}
+  ${PICKERING_CODE_DIR}
   ${XENOMAI_INCLUDE_DIRS}
-  ${XENOMAI_DIR}
+  ${XENOMAI_CODE_DIR}
 )
 
 target_link_libraries(peak_can_receive
