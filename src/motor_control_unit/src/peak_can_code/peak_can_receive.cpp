@@ -1,16 +1,17 @@
-#include <PeakCanReceiveTask.h>
+#include <RtMacro.h>
+#include <RtPeakCanReceiveTask.h>
 
 int main(int argc, char **argv)
 {
-  auto peakCanReceiveTask = PeakCanReceiveTask("/dev/pcanusb32", CAN_BAUD_500K);
+  auto rtPeakCanReceiveTask = RtPeakCanReceiveTask(
+    "/dev/pcanusb32", CAN_BAUD_500K, "RtPeakCanReceiveTask", RtMacro::kTaskStackSize,
+    RtMacro::kMediumTaskPriority, RtMacro::kTaskMode, RtMacro::kTenMsTaskPeriod,
+    RtMacro::kCoreId6);
 
-  peakCanReceiveTask.Init();
+  rtPeakCanReceiveTask.StartRoutine();
 
-  for(;;)
-  {
-    peakCanReceiveTask.Read();
-    peakCanReceiveTask.PrintReadMessage();
-  }
+  while(true)
+  {}
 
   return 0;
 }

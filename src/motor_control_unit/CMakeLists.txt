@@ -330,17 +330,22 @@ add_executable(peak_can_receive
   ${PEAK_CAN_DIR}/peak_can_receive.cpp
   ${PEAK_CAN_DIR}/PeakCanReceiveTask.cpp
   ${PEAK_CAN_DIR}/PeakCanTask.cpp
+  ${PEAK_CAN_DIR}/RtPeakCanReceiveTask.cpp
+  ${PICKERING_DIR}/RtPeriodicTask.cpp
 )
 
 target_include_directories(peak_can_receive
   PUBLIC
   ${PEAK_CAN_DIR}
   ${PEAK_CAN_INCLUDE_DIR}
+  ${PICKERING_DIR}
+  ${XENOMAI_INCLUDE_DIRS}
 )
 
 target_link_libraries(peak_can_receive
   -lpcan
   -lpcanfd
+  ${XENOMAI_LIBRARIES}
 )
 
 # install

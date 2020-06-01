@@ -13,10 +13,3 @@ int PeakCanReceiveTask::Read()
     return errno;
   }
 }
-
-void PeakCanReceiveTask::PrintReadMessage()
-{
-  printf("%u.%u ", mReadMessage.dwTime, mReadMessage.wUsec);
-  PeakCanTask::PrintMessage(
-    "PeakCanReceiveTask::PrintReadMessage()", &(mReadMessage.Msg));
-}

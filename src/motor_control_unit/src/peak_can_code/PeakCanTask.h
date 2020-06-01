@@ -17,7 +17,6 @@ public:
   PeakCanTask(const char *deviceName, const unsigned int baudRate);
 
   int Init();
-  void PrintMessage(const char *prompt, TPCANMsg *m);
 
   ~PeakCanTask();
 };

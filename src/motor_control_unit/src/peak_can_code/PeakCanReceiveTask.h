@@ -5,14 +5,13 @@
 
 class PeakCanReceiveTask : public PeakCanTask
 {
-private:
+protected:
   TPCANRdMsg mReadMessage;
 
 public:
   PeakCanReceiveTask() = delete;
   PeakCanReceiveTask(const char *deviceName, const unsigned int baudRate);
 
-  void PrintReadMessage();
   int Read();
 };
 
