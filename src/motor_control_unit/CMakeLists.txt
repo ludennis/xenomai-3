@@ -246,8 +246,8 @@ add_executable(resistance_testing
   ${PICKERING_DIR}/RtResistanceTask.cpp
   ${PICKERING_DIR}/RtSharedArray.cpp
   ${PICKERING_DIR}/PxiCardTask.cpp
-  ${PICKERING_DIR}/RtPeriodicTask.cpp
   ${PICKERING_DIR}/RtGenerateResistanceArrayTask.cpp
+  ${XENOMAI_DIR}/RtPeriodicTask.cpp
 #  ${MATLAB_DIR}/rtw/c/src/common/rt_cppclass_main.cpp
 )
 
@@ -262,6 +262,7 @@ target_include_directories(resistance_testing
   ${PICKERING_DIR}
   ${PICKERING_INCLUDE_DIRS}
   ${XENOMAI_INCLUDE_DIRS}
+  ${XENOMAI_DIR}
 #  ${MATLAB_DIR}/rtw/c/ert
 #  ${PROJECT_SOURCE_DIR}/src
 #  SYSTEM PUBLIC
@@ -280,9 +281,9 @@ add_executable(switching_testing
   ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing_data.cpp
   ${PICKERING_DIR}/RtSharedState.cpp
   ${PICKERING_DIR}/RtSwitchTask.cpp
-  ${PICKERING_DIR}/RtPeriodicTask.cpp
   ${PICKERING_DIR}/PxiCardTask.cpp
   ${PICKERING_DIR}/RtGenerateStateTask.cpp
+  ${XENOMAI_DIR}/RtPeriodicTask.cpp
 )
 
 target_include_directories(switching_testing
@@ -296,6 +297,7 @@ target_include_directories(switching_testing
   ${PICKERING_DIR}
   ${PICKERING_INCLUDE_DIRS}
   ${XENOMAI_INCLUDE_DIRS}
+  ${XENOMAI_DIR}
 )
 
 target_link_libraries(switching_testing
@@ -308,7 +310,7 @@ add_executable(peak_can_transmit
   ${PEAK_CAN_DIR}/peak_can_transmit.cpp
   ${PEAK_CAN_DIR}/PeakCanTask.cpp
   ${PEAK_CAN_DIR}/RtPeakCanTransmitTask.cpp
-  ${PICKERING_DIR}/RtPeriodicTask.cpp
+  ${XENOMAI_DIR}/RtPeriodicTask.cpp
 )
 
 target_include_directories(peak_can_transmit
@@ -317,6 +319,7 @@ target_include_directories(peak_can_transmit
   ${PEAK_CAN_INCLUDE_DIR}
   ${PICKERING_DIR}
   ${XENOMAI_INCLUDE_DIRS}
+  ${XENOMAI_DIR}
 )
 
 target_link_libraries(peak_can_transmit
@@ -329,7 +332,7 @@ add_executable(peak_can_receive
   ${PEAK_CAN_DIR}/peak_can_receive.cpp
   ${PEAK_CAN_DIR}/PeakCanTask.cpp
   ${PEAK_CAN_DIR}/RtPeakCanReceiveTask.cpp
-  ${PICKERING_DIR}/RtPeriodicTask.cpp
+  ${XENOMAI_DIR}/RtPeriodicTask.cpp
 )
 
 target_include_directories(peak_can_receive
@@ -338,6 +341,7 @@ target_include_directories(peak_can_receive
   ${PEAK_CAN_INCLUDE_DIR}
   ${PICKERING_DIR}
   ${XENOMAI_INCLUDE_DIRS}
+  ${XENOMAI_DIR}
 )
 
 target_link_libraries(peak_can_receive
