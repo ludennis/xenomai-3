@@ -33,7 +33,7 @@ RtPeakCanReceiveTask::RtPeakCanReceiveTask(
   const char *deviceName, const unsigned int baudRate, const char *name,
   const int stackSize, const int priority, const int mode, const int period,
   const int coreId)
-  : PeakCanReceiveTask(deviceName, baudRate)
+  : PeakCanTask(deviceName, baudRate)
   , RtPeriodicTask(name, stackSize, priority, mode, period, coreId)
 {}
 

@@ -328,7 +328,6 @@ target_link_libraries(peak_can_transmit
 
 add_executable(peak_can_receive
   ${PEAK_CAN_DIR}/peak_can_receive.cpp
-  ${PEAK_CAN_DIR}/PeakCanReceiveTask.cpp
   ${PEAK_CAN_DIR}/PeakCanTask.cpp
   ${PEAK_CAN_DIR}/RtPeakCanReceiveTask.cpp
   ${PICKERING_DIR}/RtPeriodicTask.cpp
