@@ -1,10 +1,13 @@
 #include <PeakCanTask.h>
 
+HANDLE PeakCanTask::mHandle;
+
 PeakCanTask::PeakCanTask(
   const char *deviceName, const unsigned int baudRate)
   : mBaudRate(baudRate)
 {
   mHandle = LINUX_CAN_Open(deviceName, 0);
+  Init();
 }
 
 int PeakCanTask::Init()

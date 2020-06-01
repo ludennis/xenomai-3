@@ -9,7 +9,7 @@
 class PeakCanTask
 {
 protected:
-  HANDLE mHandle;
+  static HANDLE mHandle;
   unsigned int mBaudRate;
 
 public:
