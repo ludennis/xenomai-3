@@ -4,7 +4,7 @@ RtPeakCanTransmitTask::RtPeakCanTransmitTask(
   const char *deviceName, const unsigned int baudRate,
   const char *name, const int stackSize, const int priority, const int mode,
   const int period, const int coreId)
-  : PeakCanTransmitTask::PeakCanTransmitTask(deviceName, baudRate)
+  : PeakCanTask::PeakCanTask(deviceName, baudRate)
   , RtPeriodicTask::RtPeriodicTask(name, stackSize, priority, mode, period, coreId)
 {}
 

@@ -4,10 +4,10 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 
-#include <PeakCanTransmitTask.h>
+#include <PeakCanTask.h>
 #include <RtPeriodicTask.h>
 
-class RtPeakCanTransmitTask : public PeakCanTransmitTask, public RtPeriodicTask
+class RtPeakCanTransmitTask : public PeakCanTask, public RtPeriodicTask
 {
 public:
   RtPeakCanTransmitTask() = delete;

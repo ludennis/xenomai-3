@@ -306,7 +306,6 @@ target_link_libraries(switching_testing
 # peak can
 add_executable(peak_can_transmit
   ${PEAK_CAN_DIR}/peak_can_transmit.cpp
-  ${PEAK_CAN_DIR}/PeakCanTransmitTask.cpp
   ${PEAK_CAN_DIR}/PeakCanTask.cpp
   ${PEAK_CAN_DIR}/RtPeakCanTransmitTask.cpp
   ${PICKERING_DIR}/RtPeriodicTask.cpp
