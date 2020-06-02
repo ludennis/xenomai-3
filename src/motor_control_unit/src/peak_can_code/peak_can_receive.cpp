@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 
   auto rtPeakCanReceiveTask = std::make_unique<RtPeakCanReceiveTask>(
     deviceName, baudRate, "RtPeakCanReceiveTask", RtMacro::kTaskStackSize,
-    RtMacro::kMediumTaskPriority, RtMacro::kTaskMode, RtMacro::kHundredMsTaskPeriod,
+    RtMacro::kMediumTaskPriority, RtMacro::kTaskMode, RtMacro::kTenMsTaskPeriod,
     RtMacro::kCoreId6);
 
   rtPeakCanReceiveTask->StartRoutine();
