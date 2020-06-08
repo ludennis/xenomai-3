@@ -149,6 +149,30 @@ set(PICKERING_INCLUDE_DIR "/usr/local/lib")
 set(PEAK_CAN_INCLUDE_DIR "/usr/local/include")
 set(PEAK_CAN_LIB_DIR "/usr/local/lib")
 
+set(NI_SOURCES
+  ${NI_CODE_DIR}/nimhddk/LinuxKernel/osiUserCode.cpp
+  ${NI_CODE_DIR}/nimhddk/osiBus.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tXSeries.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tCHInCh.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tAI.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tAO.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tDI.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tDO.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tCounter.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tBusInterface.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tBrdServices.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tInTimer.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tOutTimer.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tDMAController.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tTriggers.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tStreamCircuitRegMap.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tSimultaneousControl.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/devices.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/dio/dioHelper.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/dio/pfiDioHelper.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/simultaneousInit.cpp
+)
+
 # motor_model_v2
 add_executable(motor
   ${MODEL_CODE_DIR}/ert_main.cpp
@@ -346,31 +370,11 @@ target_link_libraries(peak_can_receive
   ${XENOMAI_LIBRARIES}
 )
 
-# ni card
+# ni dioex1
 add_executable(dioex1
   ${NI_CODE_DIR}/dioex1.cpp
-  ${NI_CODE_DIR}/nimhddk/LinuxKernel/osiUserCode.cpp
-  ${NI_CODE_DIR}/nimhddk/osiBus.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tXSeries.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tCHInCh.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tAI.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tAO.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tDI.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tDO.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tCounter.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tBusInterface.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tBrdServices.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tInTimer.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tOutTimer.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tDMAController.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tTriggers.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tStreamCircuitRegMap.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tSimultaneousControl.cpp
   ${NI_CODE_DIR}/nixseries/Examples/main.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/devices.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/dio/dioHelper.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/dio/pfiDioHelper.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/simultaneousInit.cpp
+  ${NI_SOURCES}
 )
 
 target_include_directories(dioex1
