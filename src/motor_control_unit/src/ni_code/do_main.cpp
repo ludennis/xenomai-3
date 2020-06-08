@@ -82,27 +82,25 @@ int main(int argc, char* argv[])
   }
 
   // subsystem
-  auto dioHelper = std::make_unique<nNISTC3::dioHelper>(device.DI, device.DO, status);
-  dioHelper->setTristate(triStateOnExit, status);
-  auto pfiDioHelper = std::make_unique<nNISTC3::pfiDioHelper>(device.Triggers, status);
-  pfiDioHelper->setTristate(triStateOnExit, status);
+  {
+    auto dioHelper = std::make_unique<nNISTC3::dioHelper>(device.DI, device.DO, status);
+    dioHelper->setTristate(triStateOnExit, status);
+    auto pfiDioHelper = std::make_unique<nNISTC3::pfiDioHelper>(device.Triggers, status);
+    pfiDioHelper->setTristate(triStateOnExit, status);
 
-  dioHelper->reset(NULL, 0, status);
-  dioHelper->configureLines(lineMaskPort0, nNISTC3::kOutput, status);
-  pfiDioHelper->reset(NULL, 0, status);
-  pfiDioHelper->configureLines(lineMaskPFI, nNISTC3::kOutput, status);
+    dioHelper->reset(NULL, 0, status);
+    dioHelper->configureLines(lineMaskPort0, nNISTC3::kOutput, status);
+    pfiDioHelper->reset(NULL, 0, status);
+    pfiDioHelper->configureLines(lineMaskPFI, nNISTC3::kOutput, status);
 
-  // write data
-  printf("Writing 0x%0X to port0.\n", outputDataPort0 & lineMaskPort0);
-  dioHelper->writePresentValue(lineMaskPort0, outputDataPort0, status);
+    // write data
+    printf("Writing 0x%0X to port0.\n", outputDataPort0 & lineMaskPort0);
+    dioHelper->writePresentValue(lineMaskPort0, outputDataPort0, status);
 
-  printf("Writing 0x%0X to port1.\n", outputDataPort1 & lineMaskPort1);
-  printf("Writing 0x%0X to port2.\n", outputDataPort2 & lineMaskPort2);
-  pfiDioHelper->writePresentValue(lineMaskPFI, outputDataPFI, status);
-
-  // delete resources used to access the bus before releasing
-  dioHelper.reset();
-  pfiDioHelper.reset();
+    printf("Writing 0x%0X to port1.\n", outputDataPort1 & lineMaskPort1);
+    printf("Writing 0x%0X to port2.\n", outputDataPort2 & lineMaskPort2);
+    pfiDioHelper->writePresentValue(lineMaskPFI, outputDataPFI, status);
+  } // auto delete dioHelper & pfiDioHelper
 
   // release board from bus
   releaseBoard(bus);
