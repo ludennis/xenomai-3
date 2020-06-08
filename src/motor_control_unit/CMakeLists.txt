@@ -143,6 +143,7 @@ set(XENOMAI_CODE_DIR "${PROJECT_SOURCE_DIR}/src/xenomai_code")
 set(PICKERING_CODE_DIR "${PROJECT_SOURCE_DIR}/src/pickering_code")
 set(SIMULINK_GENERATED_CODE_DIR "${PROJECT_SOURCE_DIR}/src/simulink_generated_code")
 set(PEAK_CAN_CODE_DIR "${PROJECT_SOURCE_DIR}/src/peak_can_code")
+set(NI_CODE_DIR "${PROJECT_SOURCE_DIR}/src/ni_code")
 
 set(PICKERING_INCLUDE_DIR "/usr/local/lib")
 set(PEAK_CAN_INCLUDE_DIR "/usr/local/include")
@@ -343,6 +344,56 @@ target_link_libraries(peak_can_receive
   -lpcan
   -lpcanfd
   ${XENOMAI_LIBRARIES}
+)
+
+# ni card
+add_executable(dioex1
+  ${NI_CODE_DIR}/dioex1.cpp
+  ${NI_CODE_DIR}/nimhddk/LinuxKernel/osiUserCode.cpp
+  ${NI_CODE_DIR}/nimhddk/osiBus.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tXSeries.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tCHInCh.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tAI.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tAO.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tDI.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tDO.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tCounter.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tBusInterface.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tBrdServices.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tInTimer.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tOutTimer.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tDMAController.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tTriggers.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tStreamCircuitRegMap.cpp
+  ${NI_CODE_DIR}/nixseries/ChipObjects/tSimultaneousControl.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/main.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/devices.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/dio/dioHelper.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/dio/pfiDioHelper.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/simultaneousInit.cpp
+)
+
+target_include_directories(dioex1
+  PUBLIC
+  ${NI_CODE_DIR}/nimhddk
+  ${NI_CODE_DIR}/nixseries/CHInCh
+  ${NI_CODE_DIR}/nixseries/ChipObjects
+  ${NI_CODE_DIR}/nixseries/Examples
+)
+
+target_compile_options(dioex1
+  PUBLIC
+  -DkLittleEndian=1
+  -DkGNU=1
+  -Dk64BitKernel=1
+  -DkBAR0Only=1
+  -fpermissive
+)
+
+set_target_properties(dioex1
+  PROPERTIES
+  LINKER_LANGUAGE
+  CXX
 )
 
 # install
