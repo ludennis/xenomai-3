@@ -400,6 +400,36 @@ set_target_properties(dioex1
   CXX
 )
 
+# ni do_main
+add_executable(do_main
+  ${NI_CODE_DIR}/do_main.cpp
+  ${NI_SOURCES}
+)
+
+target_include_directories(do_main
+  PUBLIC
+  ${NI_CODE_DIR}/nimhddk
+  ${NI_CODE_DIR}/nixseries/CHInCh
+  ${NI_CODE_DIR}/nixseries/ChipObjects
+  ${NI_CODE_DIR}/nixseries/Examples
+)
+
+target_compile_options(do_main
+  PUBLIC
+  -DkLittleEndian=1
+  -DkGNU=1
+  -Dk64BitKernel=1
+  -DkBAR0Only=1
+  -fpermissive
+  -g
+)
+
+set_target_properties(do_main
+  PROPERTIES
+  LINKER_LANGUAGE
+  CXX
+)
+
 # install
 install(TARGETS
   motor
