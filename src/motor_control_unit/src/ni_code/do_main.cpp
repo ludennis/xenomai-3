@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 
   rtDoTask = std::make_unique<RtDigitalOutputTask>(
     "RtDigitalOutputTask", RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority,
-    RtMacro::kTaskMode, RtMacro::kOneSecondTaskPeriod, RtMacro::kCoreId7);
+    RtMacro::kTaskMode, RtMacro::kOneMsTaskPeriod, RtMacro::kCoreId7);
 
   rtDoTask->lineMaskPort0 = 0xFFFFFFFF; //use all lines on port 0
   rtDoTask->lineMaskPort1 = 0xFF; //use all lines on port 1

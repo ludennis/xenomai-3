@@ -8,6 +8,7 @@ constexpr auto kTaskStackSize = 0;
 constexpr auto kHighTaskPriority = 80;
 constexpr auto kMediumTaskPriority = 50;
 constexpr auto kTaskMode = 0;
+constexpr auto kOneMsTaskPeriod = 1000000; // 1 ms
 constexpr auto kTenMsTaskPeriod = 10000000; // 10 ms
 constexpr auto kHundredMsTaskPeriod = 100000000; //100 ms
 constexpr auto kOneSecondTaskPeriod = 1000000000; // 1000 ms
