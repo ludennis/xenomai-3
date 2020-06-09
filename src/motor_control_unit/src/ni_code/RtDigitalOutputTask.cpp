@@ -1,17 +1,5 @@
 #include <RtDigitalOutputTask.h>
 
-nMDBG::tStatus2 DigitalInputOutputTask::status;
-std::unique_ptr<nNISTC3::dioHelper> DigitalInputOutputTask::dioHelper;
-std::unique_ptr<nNISTC3::pfiDioHelper> DigitalInputOutputTask::pfiDioHelper;
-unsigned int DigitalInputOutputTask::lineMaskPort0;
-unsigned char DigitalInputOutputTask::lineMaskPort1;
-unsigned char DigitalInputOutputTask::lineMaskPort2;
-unsigned int DigitalInputOutputTask::lineMaskPFI;
-unsigned int DigitalInputOutputTask::outputDataPort0;
-unsigned int DigitalInputOutputTask::outputDataPort1;
-unsigned int DigitalInputOutputTask::outputDataPort2;
-unsigned int DigitalInputOutputTask::outputDataPFI;
-
 RtDigitalOutputTask::RtDigitalOutputTask(
   const char *name, const int stackSize, const int priority, const int mode,
   const int period, const int coreId)
