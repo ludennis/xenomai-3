@@ -403,11 +403,13 @@ set_target_properties(dioex1
 # ni do_main
 add_executable(do_main
   ${NI_CODE_DIR}/do_main.cpp
+  ${NI_CODE_DIR}/DigitalInputOutputTask.cpp
   ${NI_SOURCES}
 )
 
 target_include_directories(do_main
   PUBLIC
+  ${NI_CODE_DIR}
   ${NI_CODE_DIR}/nimhddk
   ${NI_CODE_DIR}/nixseries/CHInCh
   ${NI_CODE_DIR}/nixseries/ChipObjects
