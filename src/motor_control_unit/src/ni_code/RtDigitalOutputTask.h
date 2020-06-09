@@ -15,6 +15,8 @@ public:
 
   int StartRoutine();
   static void Routine(void*);
+
+  ~RtDigitalOutputTask();
 };
 
 #endif // _RTDIGITALOUTPUTTASK_H_
