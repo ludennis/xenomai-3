@@ -13,23 +13,6 @@ int DigitalInputOutputTask::Init(const char *busNumber, const char *deviceNumber
     return -1;
   }
 
-  lineMaskPort0 = 0xFFFFFFFF; //use all lines on port 0
-  lineMaskPort1 = 0xFF; //use all lines on port 1
-  lineMaskPort2 = 0xFF; //use all lines on port 2
-  triStateOnExit = kTrue;
-
-  outputDataPort0 = 0x5A5A5A5A; // value to write to port0
-  outputDataPort1 = 0x99; // value to write to port1
-  outputDataPort2 = 0x66; // value to write to port2
-
-  port0Length = 0;
-  port1Length = 8;
-
-  lineMaskPFI = (lineMaskPort2 << port1Length) | lineMaskPort1;
-  outputDataPFI = (outputDataPort2 << port1Length) | outputDataPort1;
-  inputDataPort0 = 0x0; // value of lines on port 0
-  inputDataPFI = 0x0; //value of lines on port1:2 (PFI0..15)
-
   bar0 = bus->createAddressSpace(kPCI_BAR0);
   device = std::make_unique<tXSeries>(bar0, &status);
 
