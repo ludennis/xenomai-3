@@ -75,6 +75,16 @@ int DigitalInputOutputTask::Write()
   pfiDioHelper->writePresentValue(lineMaskPFI, outputDataPFI, status);
 }
 
+int DigitalInputOutputTask::Read()
+{
+  dioHelper->readPresentValue(lineMaskPort0, inputDataPort0, status);
+  pfiDioHelper->readPresentValue(lineMaskPFI, inputDataPFI, status);
+
+  printf("Read 0x%0X from port0.\n", inputDataPort0);
+  printf("Read 0x%0X from port1.\n", inputDataPFI & lineMaskPort1);
+  printf("Read 0x%0X from port2.\n", (inputDataPFI >> port1Length) & lineMaskPort2);
+}
+
 DigitalInputOutputTask::~DigitalInputOutputTask()
 {
   dioHelper.reset();

@@ -47,6 +47,7 @@ public:
   DigitalInputOutputTask();
   int Init(const char *busNumber, const char *deviceNumber);
   int Write();
+  int Read();
   ~DigitalInputOutputTask();
 };
 
