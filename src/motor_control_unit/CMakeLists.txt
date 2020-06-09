@@ -440,6 +440,39 @@ set_target_properties(do_main
   CXX
 )
 
+# ni di_main
+add_executable(di_main
+  ${NI_CODE_DIR}/di_main.cpp
+  ${NI_CODE_DIR}/DigitalInputOutputTask.cpp
+  ${NI_SOURCES}
+)
+
+target_include_directories(di_main
+  PUBLIC
+  ${NI_CODE_DIR}
+  ${NI_CODE_DIR}/nimhddk
+  ${NI_CODE_DIR}/nixseries/CHInCh
+  ${NI_CODE_DIR}/nixseries/ChipObjects
+  ${NI_CODE_DIR}/nixseries/Examples
+)
+
+
+target_compile_options(di_main
+  PUBLIC
+  -DkLittleEndian=1
+  -DkGNU=1
+  -Dk64BitKernel=1
+  -DkBAR0Only=1
+  -fpermissive
+  -g
+)
+
+set_target_properties(di_main
+  PROPERTIES
+  LINKER_LANGUAGE
+  CXX
+)
+
 # install
 install(TARGETS
   motor
