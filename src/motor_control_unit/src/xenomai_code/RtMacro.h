@@ -10,6 +10,7 @@ constexpr auto kMediumTaskPriority = 50;
 constexpr auto kTaskMode = 0;
 constexpr auto kTenMsTaskPeriod = 10000000; // 10 ms
 constexpr auto kHundredMsTaskPeriod = 100000000; //100 ms
+constexpr auto kOneSecondTaskPeriod = 1000000000; // 1000 ms
 constexpr auto kNanosecondsToMicroseconds = 1000;
 constexpr auto kNanosecondsToMilliseconds = 1000000;
 constexpr auto kNanosecondsToSeconds = 1000000000;

@@ -1,8 +1,6 @@
-#include <alchemy/task.h>
+#include <RtDigitalOutputTask.h>
 
-#include <RtPeriodicTask.h>
-
-#include <DigitalInputOutputTask.h>
+#include <RtMacro.h>
 
 // TODO: make this a RT_xenomai periodic Task
 int main(int argc, char* argv[])
@@ -13,7 +11,9 @@ int main(int argc, char* argv[])
     return -1;
   }
 
-  DigitalInputOutputTask dioTask;
+  RtDigitalOutputTask dioTask("RtDigitalOutputTask", RtMacro::kTaskStackSize,
+    RtMacro::kMediumTaskPriority, RtMacro::kTaskMode, RtMacro::kOneSecondTaskPeriod,
+    RtMacro::kCoreId7);
 
   dioTask.lineMaskPort0 = 0xFFFFFFFF; //use all lines on port 0
   dioTask.lineMaskPort1 = 0xFF; //use all lines on port 1
