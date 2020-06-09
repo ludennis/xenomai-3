@@ -444,7 +444,9 @@ set_target_properties(do_main
 add_executable(di_main
   ${NI_CODE_DIR}/di_main.cpp
   ${NI_CODE_DIR}/DigitalInputOutputTask.cpp
+  ${NI_CODE_DIR}/RtDigitalInputTask.cpp
   ${NI_SOURCES}
+  ${XENOMAI_CODE_DIR}/RtPeriodicTask.cpp
 )
 
 target_include_directories(di_main
@@ -454,8 +456,13 @@ target_include_directories(di_main
   ${NI_CODE_DIR}/nixseries/CHInCh
   ${NI_CODE_DIR}/nixseries/ChipObjects
   ${NI_CODE_DIR}/nixseries/Examples
+  ${XENOMAI_CODE_DIR}
+  ${XENOMAI_INCLUDE_DIRS}
 )
 
+target_link_libraries(di_main
+  ${XENOMAI_LIBRARIES}
+)
 
 target_compile_options(di_main
   PUBLIC

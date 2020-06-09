@@ -11,6 +11,10 @@ unsigned int DigitalInputOutputTask::outputDataPort0;
 unsigned int DigitalInputOutputTask::outputDataPort1;
 unsigned int DigitalInputOutputTask::outputDataPort2;
 unsigned int DigitalInputOutputTask::outputDataPFI;
+unsigned int DigitalInputOutputTask::inputDataPort0;
+unsigned int DigitalInputOutputTask::inputDataPFI;
+unsigned int DigitalInputOutputTask::port0Length;
+unsigned int DigitalInputOutputTask::port1Length;
 
 DigitalInputOutputTask::DigitalInputOutputTask()
 {}

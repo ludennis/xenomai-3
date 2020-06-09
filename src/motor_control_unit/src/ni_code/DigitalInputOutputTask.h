@@ -35,13 +35,13 @@ public:
   static unsigned int outputDataPort1;
   static unsigned int outputDataPort2;
 
-  unsigned int port0Length;
-  unsigned int port1Length;
+  static unsigned int port0Length;
+  static unsigned int port1Length;
   static unsigned int lineMaskPFI;
 
   static unsigned int outputDataPFI;
-  unsigned int inputDataPort0;
-  unsigned int inputDataPFI;
+  static unsigned int inputDataPort0;
+  static unsigned int inputDataPFI;
 
 public:
   DigitalInputOutputTask();
