@@ -492,6 +492,29 @@ set_target_properties(di_main
   CXX
 )
 
+# ni di dma
+add_executable(di_dma_main
+  ${NI_CODE_DIR}/di_dma_main.cpp
+  ${NI_SOURCES}
+)
+
+target_include_directories(di_dma_main
+  PUBLIC
+  ${NI_CODE_DIR}
+  ${NI_INCLUDE_DIRS}
+)
+
+target_compile_options(di_dma_main
+  PUBLIC
+  ${NI_COMPILE_OPTIONS}
+)
+
+set_target_properties(di_dma_main
+  PROPERTIES
+  LINKER_LANGUAGE
+  CXX
+)
+
 # install
 install(TARGETS
   motor
