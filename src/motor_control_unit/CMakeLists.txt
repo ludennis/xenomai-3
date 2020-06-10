@@ -171,6 +171,13 @@ set(NI_SOURCES
   ${NI_CODE_DIR}/nixseries/Examples/dio/dioHelper.cpp
   ${NI_CODE_DIR}/nixseries/Examples/dio/pfiDioHelper.cpp
   ${NI_CODE_DIR}/nixseries/Examples/simultaneousInit.cpp
+  ${NI_CODE_DIR}/nixseries/CHInCh/tCHInChDMAChannelController.cpp
+  ${NI_CODE_DIR}/nixseries/CHInCh/tCHInChDMAChannel.cpp
+  ${NI_CODE_DIR}/nixseries/CHInCh/tCHInChSGLChunkyLink.cpp
+  ${NI_CODE_DIR}/nixseries/CHInCh/tCHInChSGL.cpp
+  ${NI_CODE_DIR}/nixseries/CHInCh/tDMABuffer.cpp
+  ${NI_CODE_DIR}/nixseries/CHInCh/tLinearDMABuffer.cpp
+  ${NI_CODE_DIR}/nixseries/CHInCh/tScatterGatherDMABuffer.cpp
 )
 
 # motor_model_v2
@@ -400,6 +407,24 @@ set_target_properties(dioex1
   CXX
 )
 
+# ni compile options
+set(NI_COMPILE_OPTIONS
+  -DkLittleEndian=1
+  -DkGNU=1
+  -Dk64BitKernel=1
+  -DkBAR0Only=1
+  -fpermissive
+  -g
+)
+
+# ni include directories
+set(NI_INCLUDE_DIRS
+  ${NI_CODE_DIR}/nimhddk
+  ${NI_CODE_DIR}/nixseries/CHInCh
+  ${NI_CODE_DIR}/nixseries/ChipObjects
+  ${NI_CODE_DIR}/nixseries/Examples
+)
+
 # ni do_main
 add_executable(do_main
   ${NI_CODE_DIR}/do_main.cpp
@@ -412,10 +437,7 @@ add_executable(do_main
 target_include_directories(do_main
   PUBLIC
   ${NI_CODE_DIR}
-  ${NI_CODE_DIR}/nimhddk
-  ${NI_CODE_DIR}/nixseries/CHInCh
-  ${NI_CODE_DIR}/nixseries/ChipObjects
-  ${NI_CODE_DIR}/nixseries/Examples
+  ${NI_INCLUDE_DIRS}
   ${XENOMAI_CODE_DIR}
   ${XENOMAI_INCLUDE_DIRS}
 )
@@ -426,12 +448,7 @@ target_link_libraries(do_main
 
 target_compile_options(do_main
   PUBLIC
-  -DkLittleEndian=1
-  -DkGNU=1
-  -Dk64BitKernel=1
-  -DkBAR0Only=1
-  -fpermissive
-  -g
+  ${NI_COMPILE_OPTIONS}
 )
 
 set_target_properties(do_main
@@ -466,12 +483,7 @@ target_link_libraries(di_main
 
 target_compile_options(di_main
   PUBLIC
-  -DkLittleEndian=1
-  -DkGNU=1
-  -Dk64BitKernel=1
-  -DkBAR0Only=1
-  -fpermissive
-  -g
+  ${NI_COMPILE_OPTIONS}
 )
 
 set_target_properties(di_main
