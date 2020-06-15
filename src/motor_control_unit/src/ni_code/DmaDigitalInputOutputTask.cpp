@@ -48,6 +48,39 @@ void DmaDigitalInputOutputTask::DmaRead()
 //  }
 }
 
+void DmaDigitalInputOutputTask::ProgramDiSubsystem(
+  const unsigned int samplePeriod, const unsigned int sampleDelay)
+{
+  dataWidth = (port0Length == 32) ? nDI::kDI_FourBytes : nDI::kDI_OneByte;
+  dataLane = nDI::kDI_DataLane0;
+
+  diHelper->reset(status);
+  dioHelper->reset(NULL, 0, status);
+
+  device->DI.DI_Timer.Reset_Register.writeConfiguration_Start(kTrue, &status);
+
+  diHelper->programExternalGate(nDI::kGate_Disabled, nDI::kActive_High_Or_Rising_Edge, status);
+  diHelper->programStart1(nDI::kStart1_SW_Pulse, nDI::kActive_High_Or_Rising_Edge, kTrue, status);
+  diHelper->programConvert(nDI::kSampleClk_Internal, nDI::kActive_High_Or_Rising_Edge, status);
+
+  timingConfig.setAcqLevelTimingMode(nNISTC3::kInTimerContinuous, status);
+  timingConfig.setUseSICounter(kTrue, status);
+  timingConfig.setSamplePeriod(samplePeriod, status);
+  timingConfig.setSampleDelay(sampleDelay, status);
+  timingConfig.setNumberOfSamples(0, status);
+
+  diHelper->getInTimerHelper(status).programTiming(timingConfig, status);
+
+  device->DI.DI_Mode_Register.setDI_DataWidth(dataWidth, &status);
+  device->DI.DI_Mode_Register.setDI_Data_Lane(dataLane, &status);
+  device->DI.DI_Mode_Register.flush(&status);
+
+  diHelper->getInTimerHelper(status).clearFIFO(status);
+
+  dioHelper->configureLines(lineMaskPort0, nNISTC3::kCorrInput, status);
+  device->DI.DI_Timer.Reset_Register.writeConfiguration_End(kTrue, &status);
+}
+
 void DmaDigitalInputOutputTask::EnableStreamHelper()
 {
   if (dma == nullptr)
@@ -86,6 +119,7 @@ void DmaDigitalInputOutputTask::StartDmaChannel()
   const unsigned int dmaBufferFactor = 16;
   readSizeInBytes = samplesPerChannel * sampleSizeInBytes;
   dmaSizeInBytes = dmaBufferFactor * readSizeInBytes;
+  rawData.assign(readSizeInBytes, 0);
 
   dma->configure(bus, nNISTC3::kReuseLinkRing, nNISTC3::kIn, dmaSizeInBytes, status);
   if (status.isFatal())
@@ -100,6 +134,16 @@ void DmaDigitalInputOutputTask::StartDmaChannel()
     printf("Error: DMA channel start (%d).\n", status);
     return;
   }
+}
+
+tBoolean DmaDigitalInputOutputTask::HasDiError()
+{
+  return hasDiError;
+}
+
+tBoolean DmaDigitalInputOutputTask::HasDmaError()
+{
+  return hasDmaError;
 }
 
 DmaDigitalInputOutputTask::~DmaDigitalInputOutputTask()

@@ -18,12 +18,18 @@ protected:
   tBoolean allowOverwrite;
   tBoolean hasDataOverwritten;
   tBoolean hasDiError;
+
   nNISTC3::tDMAChannelNumber dmaChannel;
+  nNISTC3::inTimerParams timingConfig;
+
   std::unique_ptr<nNISTC3::tCHInChDMAChannel> dma;
   std::unique_ptr<nNISTC3::streamHelper> streamHelper;
 
   nInTimer::tInTimer_Error_t scanOverrun;
   nInTimer::tInTimer_Error_t fifoOverflow;
+
+  nDI::tDI_DataWidth_t dataWidth;
+  nDI::tDI_Data_Lane_t dataLane;
 
   unsigned int dmaSizeInBytes;
   unsigned int sampleSizeInBytes;
@@ -36,7 +42,10 @@ public:
   DmaDigitalInputOutputTask();
   void DmaRead();
   void EnableStreamHelper();
+  void ProgramDiSubsystem(const unsigned int samplePeriod, const unsigned int sampleDelay);
   void StartDmaChannel();
+  tBoolean HasDiError();
+  tBoolean HasDmaError();
   ~DmaDigitalInputOutputTask();
 };
 

@@ -1,6 +1,7 @@
 #include <DigitalInputOutputTask.h>
 
 nMDBG::tStatus2 DigitalInputOutputTask::status;
+std::unique_ptr<nNISTC3::diHelper> DigitalInputOutputTask::diHelper;
 std::unique_ptr<nNISTC3::dioHelper> DigitalInputOutputTask::dioHelper;
 std::unique_ptr<nNISTC3::pfiDioHelper> DigitalInputOutputTask::pfiDioHelper;
 unsigned int DigitalInputOutputTask::lineMaskPort0;
