@@ -501,6 +501,8 @@ set_target_properties(di_main
 # ni di dma
 add_executable(di_dma_main
   ${NI_CODE_DIR}/di_dma_main.cpp
+  ${NI_CODE_DIR}/DmaDigitalInputOutputTask.cpp
+  ${NI_CODE_DIR}/DigitalInputOutputTask.cpp
   ${NI_SOURCES}
 )
 
