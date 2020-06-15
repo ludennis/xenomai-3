@@ -3,8 +3,9 @@
 DmaDigitalInputOutputTask::DmaDigitalInputOutputTask()
 {}
 
-void DmaDigitalInputOutputTask::ArmAndStartDiSubsystem(const double runTime)
+void DmaDigitalInputOutputTask::ArmAndStartDiSubsystem()
 {
+  runTime = 10;
   diHelper->getInTimerHelper(status).armTiming(timingConfig, status);
   printf("Starting continuous %.2f-second harware-timed digital measurement.\n", runTime);
   printf("Reading %u-sample chunks from the %u-sample DMA buffer.\n",
@@ -143,6 +144,98 @@ void DmaDigitalInputOutputTask::StartDmaChannel()
   {
     printf("Error: DMA channel start (%d).\n", status);
     return;
+  }
+}
+
+void DmaDigitalInputOutputTask::Stop()
+{
+  double rlpElapsedTime;
+  clock_t rlpStart;
+  const double rlpTimeout = 5;
+
+  if (!hasDiError)
+  {
+    device->DI.DI_Timer.Command_Register.writeEnd_On_End_Of_Scan(kTrue, &status);
+
+    rlpElapsedTime = 0;
+    rlpStart = clock();
+    while (device->DI.DI_Timer.Status_1_Register.readSC_Armed_St(&status))
+    {
+      if (rlpElapsedTime > rlpTimeout)
+      {
+        printf("\n");
+        printf("Error: DI timing engine did not stop within timeout.\n");
+        status.setCode(kStatusRLPTimeout);
+        return;
+      }
+      rlpElapsedTime = static_cast<f64>(clock() - rlpStart) / CLOCKS_PER_SEC;
+    }
+
+    rlpElapsedTime = 0;
+    rlpStart = clock();
+    while (!streamHelper->fifoIsEmpty(status))
+    {
+      if (rlpElapsedTime > rlpTimeout)
+      {
+        printf("\n");
+        printf("Error: Stream circuit did not flush within timeout.\n");
+        status.setCode(kStatusRLPTimeout);
+        return;
+      }
+      rlpElapsedTime = static_cast<f64>(clock() - rlpStart) / CLOCKS_PER_SEC;
+    }
+  }
+
+  dma->read(0, NULL, &bytesAvailable, allowOverwrite, &dataOverwritten, status);
+  if (status.isFatal())
+  {
+    dmaError = status;
+    hasDmaError = kTrue;
+  }
+
+  while (bytesAvailable)
+  {
+    if (bytesAvailable < readSizeInBytes)
+    {
+      readSizeInBytes = bytesAvailable;
+    }
+    dma->read(readSizeInBytes, &rawData[0], &bytesAvailable, allowOverwrite,
+      &dataOverwritten, status);
+    if (status.isNotFatal())
+    {
+      nNISTC3::nDIODataHelper::printData(rawData, readSizeInBytes, sampleSizeInBytes);
+      bytesRead += readSizeInBytes;
+    }
+    else
+    {
+      dmaError = status;
+      hasDmaError = kTrue;
+      break;
+    }
+  }
+
+  if (hasDmaError)
+  {
+    printf("Error: DMA read (%d).\n", dmaError);
+    status.setCode(kStatusRuntimeError);
+  }
+  if (scanOverrun)
+  {
+    printf("Error: DI sample clock overrun.\n");
+    status.setCode(kStatusRuntimeError);
+  }
+  if (fifoOverflow)
+  {
+    printf("Error: DI FIFO overflow.\n");
+    status.setCode(kStatusRuntimeError);
+  }
+  if (!(hasDiError || hasDmaError))
+  {
+    printf("Finished continuous %.2f-second hardware-timed digital measurement.\n", runTime);
+    printf("Read %u samples (%s) using a %u-sample DMA buffer.\n",
+      bytesRead/sampleSizeInBytes,
+      dataOverwritten ? "by overwriting data" : "without overwriting data",
+      dmaSizeInBytes/sampleSizeInBytes);
   }
 }
 

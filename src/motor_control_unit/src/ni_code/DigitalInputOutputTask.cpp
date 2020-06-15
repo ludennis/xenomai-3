@@ -59,6 +59,7 @@ int DigitalInputOutputTask::Init(const char *busNumber, const char *deviceNumber
       static_cast<unsigned int>(nDI::nDI_FIFO_Data_Register8::nCDI_FIFO_Data8::kMask);
   }
 
+  diHelper = std::make_unique<nNISTC3::diHelper>(device->DI, device->DI.DI_Timer, status);
   dioHelper = std::make_unique<nNISTC3::dioHelper>(device->DI, device->DO, status);
   dioHelper->setTristate(triStateOnExit, status);
   pfiDioHelper = std::make_unique<nNISTC3::pfiDioHelper>(device->Triggers, status);
@@ -92,6 +93,7 @@ int DigitalInputOutputTask::Read()
 
 DigitalInputOutputTask::~DigitalInputOutputTask()
 {
+  diHelper.reset();
   dioHelper.reset();
   pfiDioHelper.reset();
   releaseBoard(bus);
