@@ -167,9 +167,11 @@ set(NI_SOURCES
   ${NI_CODE_DIR}/nixseries/ChipObjects/tTriggers.cpp
   ${NI_CODE_DIR}/nixseries/ChipObjects/tStreamCircuitRegMap.cpp
   ${NI_CODE_DIR}/nixseries/ChipObjects/tSimultaneousControl.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/dataHelper.cpp
   ${NI_CODE_DIR}/nixseries/Examples/devices.cpp
   ${NI_CODE_DIR}/nixseries/Examples/dio/dioHelper.cpp
   ${NI_CODE_DIR}/nixseries/Examples/dio/pfiDioHelper.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/eepromHelper.cpp
   ${NI_CODE_DIR}/nixseries/Examples/simultaneousInit.cpp
   ${NI_CODE_DIR}/nixseries/Examples/streamHelper.cpp
   ${NI_CODE_DIR}/nixseries/Examples/inTimer/diHelper.cpp
