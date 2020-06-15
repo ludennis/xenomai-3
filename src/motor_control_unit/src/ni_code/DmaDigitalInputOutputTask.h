@@ -36,10 +36,12 @@ protected:
   unsigned int readSizeInBytes;
   unsigned int bytesAvailable;
   unsigned int bytesRead;
+  unsigned int samplesPerChannel;
 
   std::vector<unsigned char> rawData;
 public:
   DmaDigitalInputOutputTask();
+  void ArmAndStartDiSubsystem(const double runTime);
   void DmaRead();
   void EnableStreamHelper();
   void ProgramDiSubsystem(const unsigned int samplePeriod, const unsigned int sampleDelay);

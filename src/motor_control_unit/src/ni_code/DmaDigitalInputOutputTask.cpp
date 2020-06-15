@@ -3,6 +3,16 @@
 DmaDigitalInputOutputTask::DmaDigitalInputOutputTask()
 {}
 
+void DmaDigitalInputOutputTask::ArmAndStartDiSubsystem(const double runTime)
+{
+  diHelper->getInTimerHelper(status).armTiming(timingConfig, status);
+  printf("Starting continuous %.2f-second harware-timed digital measurement.\n", runTime);
+  printf("Reading %u-sample chunks from the %u-sample DMA buffer.\n",
+    samplesPerChannel, dmaSizeInBytes/sampleSizeInBytes);
+  diHelper->getInTimerHelper(status).strobeStart1(status);
+  nNISTC3::nDIODataHelper::printHeader(0);
+}
+
 void DmaDigitalInputOutputTask::DmaRead()
 {
   dma->read(0, NULL, &bytesAvailable, allowOverwrite, &hasDataOverwritten, status);
@@ -115,7 +125,7 @@ void DmaDigitalInputOutputTask::StartDmaChannel()
   dma->reset(status);
 
   sampleSizeInBytes = (port0Length == 32) ? 4 : 1;
-  const unsigned int samplesPerChannel = 1024;
+  samplesPerChannel = 1024;
   const unsigned int dmaBufferFactor = 16;
   readSizeInBytes = samplesPerChannel * sampleSizeInBytes;
   dmaSizeInBytes = dmaBufferFactor * readSizeInBytes;
