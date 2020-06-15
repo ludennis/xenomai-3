@@ -10,6 +10,7 @@
 #include <osiTypes.h>
 #include <simultaneousInit.h>
 #include <tXSeries.h>
+#include <inTimer/diHelper.h>
 #include <dio/dioHelper.h>
 #include <dio/pfiDioHelper.h>
 
@@ -20,6 +21,7 @@ protected:
   static nMDBG::tStatus2 status;
   tAddressSpace bar0;
   std::unique_ptr<tXSeries> device;
+  static std::unique_ptr<nNISTC3::diHelper> diHelper;
   static std::unique_ptr<nNISTC3::dioHelper> dioHelper;
   static std::unique_ptr<nNISTC3::pfiDioHelper> pfiDioHelper;
 

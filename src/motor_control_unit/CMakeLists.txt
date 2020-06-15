@@ -171,6 +171,10 @@ set(NI_SOURCES
   ${NI_CODE_DIR}/nixseries/Examples/dio/dioHelper.cpp
   ${NI_CODE_DIR}/nixseries/Examples/dio/pfiDioHelper.cpp
   ${NI_CODE_DIR}/nixseries/Examples/simultaneousInit.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/streamHelper.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/inTimer/diHelper.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/inTimer/inTimerHelper.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/inTimer/inTimerParams.cpp
   ${NI_CODE_DIR}/nixseries/CHInCh/tCHInChDMAChannelController.cpp
   ${NI_CODE_DIR}/nixseries/CHInCh/tCHInChDMAChannel.cpp
   ${NI_CODE_DIR}/nixseries/CHInCh/tCHInChSGLChunkyLink.cpp
@@ -420,9 +424,11 @@ set(NI_COMPILE_OPTIONS
 # ni include directories
 set(NI_INCLUDE_DIRS
   ${NI_CODE_DIR}/nimhddk
+  ${NI_CODE_DIR}/nixseries
   ${NI_CODE_DIR}/nixseries/CHInCh
   ${NI_CODE_DIR}/nixseries/ChipObjects
   ${NI_CODE_DIR}/nixseries/Examples
+  ${NI_CODE_DIR}/nixseries/Examples/inTimer
 )
 
 # ni do_main
