@@ -533,6 +533,30 @@ set_target_properties(rt_dma_di_main
   CXX
 )
 
+# pwd do
+add_executable(pwm_do_main
+  ${NI_CODE_DIR}/pwm_do_main.cpp
+  ${NI_CODE_DIR}/DigitalInputOutputTask.cpp
+  ${NI_SOURCES}
+)
+
+target_include_directories(pwm_do_main
+  PUBLIC
+  ${NI_CODE_DIR}
+  ${NI_INCLUDE_DIRS}
+)
+
+target_compile_options(pwm_do_main
+  PUBLIC
+  ${NI_COMPILE_OPTIONS}
+)
+
+set_target_properties(pwm_do_main
+  PROPERTIES
+  LINKER_LANGUAGE
+  CXX
+)
+
 # install
 install(TARGETS
   motor
