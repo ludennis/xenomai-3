@@ -21,6 +21,20 @@ unsigned int DigitalInputOutputTask::port1Length;
 DigitalInputOutputTask::DigitalInputOutputTask()
 {}
 
+void DigitalInputOutputTask::ConfigureDioLines(const unsigned int lineMask)
+{
+  lineMaskPort0 = lineMask;
+  dioHelper->reset(NULL, 0, status);
+  dioHelper->configureLines(lineMask, nNISTC3::kOutput, status);
+}
+
+void DigitalInputOutputTask::ConfigurePfiDioLines(const unsigned int lineMask)
+{
+  lineMaskPFI = lineMask;
+  pfiDioHelper->reset(NULL, 0, status);
+  pfiDioHelper->configureLines(lineMask, nNISTC3::kOutput, status);
+}
+
 int DigitalInputOutputTask::Init(const char *busNumber, const char *deviceNumber)
 {
   sprintf(boardLocation, "PXI%s::%s::INSTR", busNumber, deviceNumber);
@@ -66,10 +80,6 @@ int DigitalInputOutputTask::Init(const char *busNumber, const char *deviceNumber
   pfiDioHelper = std::make_unique<nNISTC3::pfiDioHelper>(device->Triggers, status);
   pfiDioHelper->setTristate(triStateOnExit, status);
 
-  dioHelper->reset(NULL, 0, status);
-  dioHelper->configureLines(lineMaskPort0, nNISTC3::kOutput, status);
-  pfiDioHelper->reset(NULL, 0, status);
-  pfiDioHelper->configureLines(lineMaskPFI, nNISTC3::kOutput, status);
 }
 
 int DigitalInputOutputTask::Write()

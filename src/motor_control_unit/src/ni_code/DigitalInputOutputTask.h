@@ -47,6 +47,8 @@ public:
 
 public:
   DigitalInputOutputTask();
+  void ConfigureDioLines(const unsigned int lineMask);
+  void ConfigurePfiDioLines(const unsigned int lineMask);
   int Init(const char *busNumber, const char *deviceNumber);
   int Write();
   int Read();
