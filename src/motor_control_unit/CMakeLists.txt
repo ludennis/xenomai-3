@@ -149,6 +149,17 @@ set(PICKERING_INCLUDE_DIR "/usr/local/lib")
 set(PEAK_CAN_INCLUDE_DIR "/usr/local/include")
 set(PEAK_CAN_LIB_DIR "/usr/local/lib")
 
+# ni include directories and source files
+set(NI_INCLUDE_DIRS
+  ${NI_CODE_DIR}/nimhddk
+  ${NI_CODE_DIR}/nixseries
+  ${NI_CODE_DIR}/nixseries/CHInCh
+  ${NI_CODE_DIR}/nixseries/ChipObjects
+  ${NI_CODE_DIR}/nixseries/Examples
+  ${NI_CODE_DIR}/nixseries/Examples/inTimer
+  ${NI_CODE_DIR}/nixseries/Examples/outTimer
+)
+
 set(NI_SOURCES
   ${NI_CODE_DIR}/nimhddk/LinuxKernel/osiUserCode.cpp
   ${NI_CODE_DIR}/nimhddk/osiBus.cpp
@@ -423,17 +434,6 @@ set(NI_COMPILE_OPTIONS
   -DkBAR0Only=1
   -fpermissive
   -g
-)
-
-# ni include directories
-set(NI_INCLUDE_DIRS
-  ${NI_CODE_DIR}/nimhddk
-  ${NI_CODE_DIR}/nixseries
-  ${NI_CODE_DIR}/nixseries/CHInCh
-  ${NI_CODE_DIR}/nixseries/ChipObjects
-  ${NI_CODE_DIR}/nixseries/Examples
-  ${NI_CODE_DIR}/nixseries/Examples/inTimer
-  ${NI_CODE_DIR}/nixseries/Examples/outTimer
 )
 
 # ni do_main
