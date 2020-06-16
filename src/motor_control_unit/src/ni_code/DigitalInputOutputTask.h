@@ -20,7 +20,7 @@ protected:
   iBus *bus;
   static nMDBG::tStatus2 status;
   tAddressSpace bar0;
-  std::unique_ptr<tXSeries> device;
+  static std::unique_ptr<tXSeries> device;
   static std::unique_ptr<nNISTC3::diHelper> diHelper;
   static std::unique_ptr<nNISTC3::dioHelper> dioHelper;
   static std::unique_ptr<nNISTC3::pfiDioHelper> pfiDioHelper;

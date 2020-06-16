@@ -506,12 +506,19 @@ add_executable(di_dma_main
   ${NI_CODE_DIR}/DmaDigitalInputOutputTask.cpp
   ${NI_CODE_DIR}/DigitalInputOutputTask.cpp
   ${NI_SOURCES}
+  ${XENOMAI_CODE_DIR}/RtPeriodicTask.cpp
 )
 
 target_include_directories(di_dma_main
   PUBLIC
   ${NI_CODE_DIR}
   ${NI_INCLUDE_DIRS}
+  ${XENOMAI_CODE_DIR}
+  ${XENOMAI_INCLUDE_DIRS}
+)
+
+target_link_libraries(di_dma_main
+  ${XENOMAI_LIBRARIES}
 )
 
 target_compile_options(di_dma_main

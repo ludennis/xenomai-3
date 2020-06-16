@@ -2,6 +2,8 @@
 #include <chrono>
 #include <thread>
 
+#include <RtMacro.h>
+
 #include <DmaDigitalInputOutputTask.h>
 
 std::unique_ptr<DmaDigitalInputOutputTask> dmaDiTask;
@@ -21,19 +23,20 @@ int main(int argc, char *argv[])
   sigemptyset(&action.sa_mask);
   sigaction(SIGINT , &action, NULL);
 
-  dmaDiTask = std::make_unique<DmaDigitalInputOutputTask>();
+  dmaDiTask = std::make_unique<DmaDigitalInputOutputTask>(
+    "DmaDiTask", RtMacro::kTaskStackSize, RtMacro::kHighTaskPriority, RtMacro::kTaskMode,
+    RtMacro::kOneSecondTaskPeriod, RtMacro::kCoreId7);
   dmaDiTask->Init(argv[1], argv[2]);
   dmaDiTask->StartDmaChannel();
   dmaDiTask->EnableStreamHelper();
   dmaDiTask->ProgramDiSubsystem(10000u, 2u);
   dmaDiTask->ArmAndStartDiSubsystem();
 
+  dmaDiTask->StartRoutine();
+
   for (;;)
   {
-    dmaDiTask->DmaRead();
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
-//  dmaDiTask->Stop();
 
   return 0;
 }
