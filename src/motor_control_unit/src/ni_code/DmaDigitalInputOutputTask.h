@@ -4,14 +4,13 @@
 #include <vector>
 
 #include <DigitalInputOutputTask.h>
-#include <RtPeriodicTask.h>
 
 #include <streamHelper.h>
 #include <CHInCh/dmaErrors.h>
 #include <CHInCh/dmaProperties.h>
 #include <CHInCh/tCHInChDMAChannel.h>
 
-class DmaDigitalInputOutputTask : public DigitalInputOutputTask, public RtPeriodicTask
+class DmaDigitalInputOutputTask : public DigitalInputOutputTask
 {
 protected:
   static nMDBG::tStatus2 dmaError;
@@ -44,16 +43,12 @@ protected:
 
   double runTime;
 public:
-  DmaDigitalInputOutputTask() = delete;
-  DmaDigitalInputOutputTask(const char *name, const int stackSize, const int priority,
-    const int mode, const int period, const int coreId);
+  DmaDigitalInputOutputTask();
   void ArmAndStartDiSubsystem();
   void DmaRead();
   void EnableStreamHelper();
   void ProgramDiSubsystem(const unsigned int samplePeriod, const unsigned int sampleDelay);
-  static void Routine(void*);
   void StartDmaChannel();
-  void StartRoutine();
   void Stop();
   tBoolean HasDiError();
   tBoolean HasDmaError();

@@ -501,15 +501,16 @@ set_target_properties(di_main
 )
 
 # ni di dma
-add_executable(di_dma_main
-  ${NI_CODE_DIR}/di_dma_main.cpp
+add_executable(rt_dma_di_main
+  ${NI_CODE_DIR}/rt_dma_di_main.cpp
+  ${NI_CODE_DIR}/RtDmaDigitalInputOutputTask.cpp
   ${NI_CODE_DIR}/DmaDigitalInputOutputTask.cpp
   ${NI_CODE_DIR}/DigitalInputOutputTask.cpp
   ${NI_SOURCES}
   ${XENOMAI_CODE_DIR}/RtPeriodicTask.cpp
 )
 
-target_include_directories(di_dma_main
+target_include_directories(rt_dma_di_main
   PUBLIC
   ${NI_CODE_DIR}
   ${NI_INCLUDE_DIRS}
@@ -517,16 +518,16 @@ target_include_directories(di_dma_main
   ${XENOMAI_INCLUDE_DIRS}
 )
 
-target_link_libraries(di_dma_main
+target_link_libraries(rt_dma_di_main
   ${XENOMAI_LIBRARIES}
 )
 
-target_compile_options(di_dma_main
+target_compile_options(rt_dma_di_main
   PUBLIC
   ${NI_COMPILE_OPTIONS}
 )
 
-set_target_properties(di_dma_main
+set_target_properties(rt_dma_di_main
   PROPERTIES
   LINKER_LANGUAGE
   CXX
