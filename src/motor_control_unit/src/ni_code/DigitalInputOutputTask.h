@@ -11,6 +11,7 @@
 #include <simultaneousInit.h>
 #include <tXSeries.h>
 #include <inTimer/diHelper.h>
+#include <outTimer/doHelper.h>
 #include <dio/dioHelper.h>
 #include <dio/pfiDioHelper.h>
 
@@ -22,6 +23,7 @@ protected:
   tAddressSpace bar0;
   static std::unique_ptr<tXSeries> device;
   static std::unique_ptr<nNISTC3::diHelper> diHelper;
+  static std::unique_ptr<nNISTC3::doHelper> doHelper;
   static std::unique_ptr<nNISTC3::dioHelper> dioHelper;
   static std::unique_ptr<nNISTC3::pfiDioHelper> pfiDioHelper;
 

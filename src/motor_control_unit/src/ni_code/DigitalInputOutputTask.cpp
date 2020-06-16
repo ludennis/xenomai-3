@@ -2,6 +2,7 @@
 
 nMDBG::tStatus2 DigitalInputOutputTask::status;
 std::unique_ptr<nNISTC3::diHelper> DigitalInputOutputTask::diHelper;
+std::unique_ptr<nNISTC3::doHelper> DigitalInputOutputTask::doHelper;
 std::unique_ptr<nNISTC3::dioHelper> DigitalInputOutputTask::dioHelper;
 std::unique_ptr<nNISTC3::pfiDioHelper> DigitalInputOutputTask::pfiDioHelper;
 std::unique_ptr<tXSeries> DigitalInputOutputTask::device;
@@ -79,7 +80,6 @@ int DigitalInputOutputTask::Init(const char *busNumber, const char *deviceNumber
   dioHelper->setTristate(triStateOnExit, status);
   pfiDioHelper = std::make_unique<nNISTC3::pfiDioHelper>(device->Triggers, status);
   pfiDioHelper->setTristate(triStateOnExit, status);
-
 }
 
 int DigitalInputOutputTask::Write()

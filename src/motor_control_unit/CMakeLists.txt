@@ -177,6 +177,8 @@ set(NI_SOURCES
   ${NI_CODE_DIR}/nixseries/Examples/inTimer/diHelper.cpp
   ${NI_CODE_DIR}/nixseries/Examples/inTimer/inTimerHelper.cpp
   ${NI_CODE_DIR}/nixseries/Examples/inTimer/inTimerParams.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/outTimer/doHelper.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/outTimer/outTimerHelper.cpp
   ${NI_CODE_DIR}/nixseries/CHInCh/tCHInChDMAChannelController.cpp
   ${NI_CODE_DIR}/nixseries/CHInCh/tCHInChDMAChannel.cpp
   ${NI_CODE_DIR}/nixseries/CHInCh/tCHInChSGLChunkyLink.cpp
@@ -431,6 +433,7 @@ set(NI_INCLUDE_DIRS
   ${NI_CODE_DIR}/nixseries/ChipObjects
   ${NI_CODE_DIR}/nixseries/Examples
   ${NI_CODE_DIR}/nixseries/Examples/inTimer
+  ${NI_CODE_DIR}/nixseries/Examples/outTimer
 )
 
 # ni do_main
