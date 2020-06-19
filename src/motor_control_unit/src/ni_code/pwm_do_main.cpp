@@ -20,26 +20,26 @@ std::unique_ptr<tXSeries> GetDevice(const char* busNumber, const char* deviceNum
   return std::move(device);
 }
 
-std::unique_ptr<std::vector<unsigned char>> FillRawData(
+std::unique_ptr<std::vector<unsigned char>> GenerateWaveform(
   const unsigned int invertMaskPort0, const unsigned int samplesPerChannel,
   const unsigned int sampleSizeInBytes)
 {
-  auto rawData = std::make_unique<std::vector<unsigned char>>(
+  auto data = std::make_unique<std::vector<unsigned char>>(
     samplesPerChannel * sampleSizeInBytes);
-  unsigned char* rawDataBlockOneByte = &(rawData->at(0));
-  unsigned int* rawDataBlockFourBytes = reinterpret_cast<unsigned int*>(&(rawData->at(0)));
+  unsigned char* dataOneByte = &(data->at(0));
+  unsigned int* dataFourBytes = reinterpret_cast<unsigned int*>(&(data->at(0)));
   for (auto j{0u}; j < samplesPerChannel; ++j)
   {
     if (sampleSizeInBytes == 1)
     {
-      rawDataBlockOneByte[j] = static_cast<unsigned char>(j ^ invertMaskPort0);
+      dataOneByte[j] = static_cast<unsigned char>(j ^ invertMaskPort0);
     }
     else
     {
-      rawDataBlockFourBytes[j] = j ^ invertMaskPort0;
+      dataFourBytes[j] = j ^ invertMaskPort0;
     }
   }
-  return std::move(rawData);
+  return std::move(data);
 }
 
 int main(int argc, char *argv[])
@@ -222,12 +222,12 @@ int main(int argc, char *argv[])
   invertMaskPort0 &= (port0Length == 32)
     ? static_cast<unsigned int>(nDI::nDI_FIFO_Data_Register::nCDI_FIFO_Data::kMask)
     : static_cast<unsigned int>(nDI::nDI_FIFO_Data_Register8::nCDI_FIFO_Data8::kMask);
-  std::unique_ptr<std::vector<unsigned char>> rawData =
-    FillRawData(invertMaskPort0, samplesPerChannel, sampleSizeInBytes);
+  std::unique_ptr<std::vector<unsigned char>> waveform =
+    GenerateWaveform(invertMaskPort0, samplesPerChannel, sampleSizeInBytes);
 
   nNISTC3::nDIODataHelper::printHeader(0);
   nNISTC3::nDIODataHelper::printData(
-    *rawData, samplesPerChannel * sampleSizeInBytes, sampleSizeInBytes);
+    *waveform, samplesPerChannel * sampleSizeInBytes, sampleSizeInBytes);
 
   // start pulse
   // cleanup
