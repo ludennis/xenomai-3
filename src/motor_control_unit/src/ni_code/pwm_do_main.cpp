@@ -4,11 +4,8 @@
 
 nMDBG::tStatus2 status;
 
-std::unique_ptr<tXSeries> GetDevice(const char* busNumber, const char* deviceNumber)
+std::unique_ptr<tXSeries> GetDevice(iBus *bus)
 {
-  char boardLocation[256];
-  sprintf(boardLocation, "PXI%s::%s::INSTR", busNumber, deviceNumber);
-  auto bus = acquireBoard(boardLocation);
   if (bus == NULL)
   {
     return nullptr;
@@ -54,8 +51,11 @@ int main(int argc, char *argv[])
   // get tXSeries device object
   auto busNumber = argv[1];
   auto deviceNumber = argv[2];
+  char boardLocation[256];
+  sprintf(boardLocation, "PXI%s::%s::INSTR", busNumber, deviceNumber);
+  iBus *bus = acquireBoard(boardLocation);
 
-  std::unique_ptr<tXSeries> device = GetDevice(busNumber, deviceNumber);
+  std::unique_ptr<tXSeries> device = GetDevice(bus);
   if (device == nullptr)
   {
     printf("tXSeries device is nullptr\n");
