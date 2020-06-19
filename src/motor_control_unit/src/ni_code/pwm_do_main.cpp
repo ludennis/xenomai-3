@@ -39,6 +39,15 @@ std::unique_ptr<std::vector<unsigned char>> GenerateWaveform(
   return std::move(data);
 }
 
+void CheckStatusFatality(const nMDBG::tStatus2 &status, const char *errorMessage)
+{
+  if (status.isFatal())
+  {
+    printf("%s: %d.\n", errorMessage, status.statusCode);
+    exit(-1);
+  }
+}
+
 int main(int argc, char *argv[])
 {
   if (argc <= 2)
