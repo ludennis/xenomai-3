@@ -406,16 +406,6 @@ target_link_libraries(peak_can_receive
   ${XENOMAI_LIBRARIES}
 )
 
-# ni compile options
-set(NI_COMPILE_OPTIONS
-  -DkLittleEndian=1
-  -DkGNU=1
-  -Dk64BitKernel=1
-  -DkBAR0Only=1
-  -fpermissive
-  -g
-)
-
 # ni do_main
 add_executable(do_main
   ${NI_CODE_DIR}/do_main.cpp
