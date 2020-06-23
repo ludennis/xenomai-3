@@ -560,6 +560,32 @@ set_target_properties(pwm_do_main
   CXX
 )
 
+# gpctex1
+add_executable(gpctex1
+  ${NI_CODE_DIR}/gpctex1.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/main.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/inTimer/aiHelper.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/counterResetHelper.cpp
+  ${NI_CODE_DIR}/nimhddk/osiBus.cpp
+  ${NI_SOURCES}
+)
+
+target_include_directories(gpctex1
+  PUBLIC
+  ${NI_INCLUDE_DIRS}
+)
+
+target_compile_options(gpctex1
+  PUBLIC
+  ${NI_COMPILE_OPTIONS}
+)
+
+set_target_properties(gpctex1
+  PROPERTIES
+  LINKER_LANGUAGE
+  CXX
+)
+
 # install
 install(TARGETS
   motor
