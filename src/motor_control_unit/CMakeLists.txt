@@ -586,6 +586,33 @@ set_target_properties(gpctex1
   CXX
 )
 
+# gpctex7
+add_executable(gpctex7
+  ${NI_CODE_DIR}/gpctex7.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/main.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/inTimer/aiHelper.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/counterResetHelper.cpp
+  ${NI_CODE_DIR}/nixseries/Examples/pfiRtsiResetHelper.cpp
+  ${NI_CODE_DIR}/nimhddk/osiBus.cpp
+  ${NI_SOURCES}
+)
+
+target_include_directories(gpctex7
+  PUBLIC
+  ${NI_INCLUDE_DIRS}
+)
+
+target_compile_options(gpctex7
+  PUBLIC
+  ${NI_COMPILE_OPTIONS}
+)
+
+set_target_properties(gpctex7
+  PROPERTIES
+  LINKER_LANGUAGE
+  CXX
+)
+
 # install
 install(TARGETS
   motor
