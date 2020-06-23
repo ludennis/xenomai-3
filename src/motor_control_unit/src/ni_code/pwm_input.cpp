@@ -466,6 +466,9 @@ void test(iBus* bus)
 
    elapsedTime = 0;
    start = clock();
+   auto activeTime{0.f};
+   auto idleTime{0.f};
+
    for (n=0; n<sampsPerChan; ++n)
    {
       if (operation == kCountEdges)
@@ -509,6 +512,14 @@ void test(iBus* bus)
       {
          nNISTC3::nGPCTDataHelper::scaleData(rawData, samplesPerRead, scaledData, samplesPerRead, scaler);
          nNISTC3::nGPCTDataHelper::printData(scaledData, samplesPerRead, 1);
+         if (n == 0)
+         {
+            activeTime = scaledData[0];
+         }
+         else if (n == 1)
+         {
+            idleTime = scaledData[0];
+         }
       }
       else
       {
@@ -516,6 +527,12 @@ void test(iBus* bus)
       }
    }
    printf("\n");
+
+   auto dutyCycle = (activeTime / (activeTime + idleTime)) * 100.;
+   auto frequency = (1.0f / (activeTime + idleTime));
+   printf("dutyCycle = %.2f\%, frequency = %.1f Hz", dutyCycle, frequency);
+
+  printf("\n");
 
    /*********************************************************************\
    |
