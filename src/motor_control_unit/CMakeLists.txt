@@ -509,7 +509,7 @@ set_target_properties(rt_dma_di_main
 # pwm_input
 add_executable(pwm_input
   ${NI_CODE_DIR}/pwm_input.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/main.cpp
+  ${NI_CODE_DIR}/pwm_input_main.cpp
   ${NI_CODE_DIR}/nixseries/Examples/inTimer/aiHelper.cpp
   ${NI_CODE_DIR}/nixseries/Examples/counterResetHelper.cpp
   ${NI_CODE_DIR}/nimhddk/osiBus.cpp
