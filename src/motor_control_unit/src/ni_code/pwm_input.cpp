@@ -102,7 +102,7 @@ void test(iBus* bus)
    // Channel parameters
    const u32 counterNumber = 0;
    tBoolean printTime = kTrue;
-   tOperation operation = kPeriod;
+   tOperation operation = kSemiPeriod;
 
    // Count Edges parameters
    const nCounter::tGi_Source_Select_t countEdgesSource = nCounter::kSrc_PFI0;
@@ -130,7 +130,7 @@ void test(iBus* bus)
    const nCounter::tGi_Polarity_t gate2Polarity = nCounter::kActiveLow;
 
    // Buffer parameters
-   const u32 sampsPerChan = 20;
+   const u32 sampsPerChan = 10;
 
    // Behavior parameters
    const f64 timeout = 10;
@@ -246,8 +246,8 @@ void test(iBus* bus)
    |
    \*********************************************************************/
 
-   // Set all PFI lines to be input
-   device.Triggers.PFI_Direction_Register.writeRegister(0x0, &status);
+   // set PFI0 to be input
+   device.Triggers.PFI_Direction_Register.setPFI0_Pin_Dir(0x0, &status);
 
    /*********************************************************************\
    |
