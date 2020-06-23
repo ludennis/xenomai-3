@@ -406,36 +406,6 @@ target_link_libraries(peak_can_receive
   ${XENOMAI_LIBRARIES}
 )
 
-# ni dioex1
-add_executable(dioex1
-  ${NI_CODE_DIR}/dioex1.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/main.cpp
-  ${NI_SOURCES}
-)
-
-target_include_directories(dioex1
-  PUBLIC
-  ${NI_CODE_DIR}/nimhddk
-  ${NI_CODE_DIR}/nixseries/CHInCh
-  ${NI_CODE_DIR}/nixseries/ChipObjects
-  ${NI_CODE_DIR}/nixseries/Examples
-)
-
-target_compile_options(dioex1
-  PUBLIC
-  -DkLittleEndian=1
-  -DkGNU=1
-  -Dk64BitKernel=1
-  -DkBAR0Only=1
-  -fpermissive
-)
-
-set_target_properties(dioex1
-  PROPERTIES
-  LINKER_LANGUAGE
-  CXX
-)
-
 # ni compile options
 set(NI_COMPILE_OPTIONS
   -DkLittleEndian=1
@@ -541,30 +511,6 @@ target_compile_options(rt_dma_di_main
 )
 
 set_target_properties(rt_dma_di_main
-  PROPERTIES
-  LINKER_LANGUAGE
-  CXX
-)
-
-# pwd do
-add_executable(pwm_do_main
-  ${NI_CODE_DIR}/pwm_do_main.cpp
-  ${NI_CODE_DIR}/DigitalInputOutputTask.cpp
-  ${NI_SOURCES}
-)
-
-target_include_directories(pwm_do_main
-  PUBLIC
-  ${NI_CODE_DIR}
-  ${NI_INCLUDE_DIRS}
-)
-
-target_compile_options(pwm_do_main
-  PUBLIC
-  ${NI_COMPILE_OPTIONS}
-)
-
-set_target_properties(pwm_do_main
   PROPERTIES
   LINKER_LANGUAGE
   CXX
