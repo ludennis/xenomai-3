@@ -199,6 +199,16 @@ set(NI_SOURCES
   ${NI_CODE_DIR}/nixseries/CHInCh/tScatterGatherDMABuffer.cpp
 )
 
+# ni compile options
+set(NI_COMPILE_OPTIONS
+  -DkLittleEndian=1
+  -DkGNU=1
+  -Dk64BitKernel=1
+  -DkBAR0Only=1
+  -fpermissive
+  -g
+)
+
 # motor_model_v2
 add_executable(motor
   ${MODEL_CODE_DIR}/ert_main.cpp
