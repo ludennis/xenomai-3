@@ -79,23 +79,23 @@ void test(iBus* bus)
    //
 
    // Channel parameters
-   const u32 counterNumber = 0;
+   const u32 counterNumber = 1;
    tBoolean printTime = kTrue;
    const nCounter::tGi_Polarity_t outputPolarity = nCounter::kActiveLow;
    tBoolean preserveOutputState = kTrue;
-   tMode mode = kFinitePulseTrain;
+   tMode mode = kContinuousPulseTrain;
    u32 numberOfPulsesForFinite = 5;
-   const f32 delayTime  = 0.5F;
-   const f32 activeTime = 0.2F;
-   const f32 idleTime   = 0.1F;
+   const f32 delayTime  = 3.0F;
+   const f32 activeTime = 0.30F;
+   const f32 idleTime   = 0.70F;
 
    // Timing parameters
    const nCounter::tGi_Source_Select_t timebaseSource = nCounter::kSrc_TB3;
    const nCounter::tGi_Polarity_t timebasePolarity = nCounter::kActiveHigh;
-   const f32 timebaseRate = 100000000;
+   const f32 timebaseRate = 100.0;
 
    // Behavior parameters
-   const f64 runTime = 10;
+   const f64 runTime = 30;
 
    //
    // Fixed or calculated parameters (do not modify these)
@@ -207,12 +207,12 @@ void test(iBus* bus)
 
    switch (counterNumber)
    {
-   case 0: device.Triggers.PFI_OutputSelectRegister_i[0].writePFI_i_Output_Select(nTriggers::kPFI_G0_Out, &status); break;
-   case 1: device.Triggers.PFI_OutputSelectRegister_i[0].writePFI_i_Output_Select(nTriggers::kPFI_G1_Out, &status); break;
-   case 2: device.Triggers.PFI_OutputSelectRegister_i[0].writePFI_i_Output_Select(nTriggers::kPFI_G2_Out, &status); break;
-   case 3: device.Triggers.PFI_OutputSelectRegister_i[0].writePFI_i_Output_Select(nTriggers::kPFI_G3_Out, &status); break;
+   case 0: device.Triggers.PFI_OutputSelectRegister_i[1].writePFI_i_Output_Select(nTriggers::kPFI_G0_Out, &status); break;
+   case 1: device.Triggers.PFI_OutputSelectRegister_i[1].writePFI_i_Output_Select(nTriggers::kPFI_G1_Out, &status); break;
+   case 2: device.Triggers.PFI_OutputSelectRegister_i[1].writePFI_i_Output_Select(nTriggers::kPFI_G2_Out, &status); break;
+   case 3: device.Triggers.PFI_OutputSelectRegister_i[1].writePFI_i_Output_Select(nTriggers::kPFI_G3_Out, &status); break;
    }
-   device.Triggers.PFI_Direction_Register.writePFI0_Pin_Dir(nTriggers::kPFI_Output, &status); // Pulse train output terminal
+   device.Triggers.PFI_Direction_Register.writePFI1_Pin_Dir(nTriggers::kPFI_Output, &status); // Pulse train output terminal
 
    /*********************************************************************\
    |
