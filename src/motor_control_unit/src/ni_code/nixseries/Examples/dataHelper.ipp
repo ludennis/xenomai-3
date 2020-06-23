@@ -23,7 +23,7 @@ namespace nNISTC3
 
    inline void printElement(f32 element)
    {
-      printf(" %10.4f  ", element);
+      printf(" %10.9f  ", element);
    }
 
    template<typename T>
