@@ -81,7 +81,7 @@ void test(iBus* bus, f32 dutyCycle, u32 frequency, f64 runTime)
    // Channel parameters
    const u32 counterNumber = 1;
    tBoolean printTime = kTrue;
-   const nCounter::tGi_Polarity_t outputPolarity = nCounter::kActiveLow;
+   const nCounter::tGi_Polarity_t outputPolarity = nCounter::kActiveHigh;
    tBoolean preserveOutputState = kTrue;
    tMode mode = kContinuousPulseTrain;
    u32 numberOfPulsesForFinite = 5;
