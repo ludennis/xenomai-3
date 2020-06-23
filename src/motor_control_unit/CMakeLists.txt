@@ -589,7 +589,7 @@ set_target_properties(pwm_input
 # pwm_output
 add_executable(pwm_output
   ${NI_CODE_DIR}/pwm_output.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/main.cpp
+  ${NI_CODE_DIR}/pwm_output_main.cpp
   ${NI_CODE_DIR}/nixseries/Examples/inTimer/aiHelper.cpp
   ${NI_CODE_DIR}/nixseries/Examples/counterResetHelper.cpp
   ${NI_CODE_DIR}/nixseries/Examples/pfiRtsiResetHelper.cpp

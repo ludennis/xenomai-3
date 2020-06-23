@@ -59,7 +59,7 @@
 #include "pfiRtsiResetHelper.h"
 #include "simultaneousInit.h"
 
-void test(iBus* bus)
+void test(iBus* bus, f32 dutyCycle, u32 frequency, f64 runTime)
 {
    /*********************************************************************\
    |
@@ -86,16 +86,13 @@ void test(iBus* bus)
    tMode mode = kContinuousPulseTrain;
    u32 numberOfPulsesForFinite = 5;
    const f32 delayTime  = 3.0F;
-   const f32 activeTime = 0.30F;
-   const f32 idleTime   = 0.70F;
+   const f32 activeTime = dutyCycle / 100.0;
+   const f32 idleTime   = 1 - (dutyCycle / 100.0);
 
    // Timing parameters
    const nCounter::tGi_Source_Select_t timebaseSource = nCounter::kSrc_TB3;
    const nCounter::tGi_Polarity_t timebasePolarity = nCounter::kActiveHigh;
-   const f32 timebaseRate = 100.0;
-
-   // Behavior parameters
-   const f64 runTime = 30;
+   const f32 timebaseRate = 100000000.0 / static_cast<f32>(frequency);
 
    //
    // Fixed or calculated parameters (do not modify these)
