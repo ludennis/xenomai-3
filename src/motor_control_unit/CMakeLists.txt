@@ -560,9 +560,9 @@ set_target_properties(pwm_do_main
   CXX
 )
 
-# gpctex1
-add_executable(gpctex1
-  ${NI_CODE_DIR}/gpctex1.cpp
+# pwm_input
+add_executable(pwm_input
+  ${NI_CODE_DIR}/pwm_input.cpp
   ${NI_CODE_DIR}/nixseries/Examples/main.cpp
   ${NI_CODE_DIR}/nixseries/Examples/inTimer/aiHelper.cpp
   ${NI_CODE_DIR}/nixseries/Examples/counterResetHelper.cpp
@@ -570,25 +570,25 @@ add_executable(gpctex1
   ${NI_SOURCES}
 )
 
-target_include_directories(gpctex1
+target_include_directories(pwm_input
   PUBLIC
   ${NI_INCLUDE_DIRS}
 )
 
-target_compile_options(gpctex1
+target_compile_options(pwm_input
   PUBLIC
   ${NI_COMPILE_OPTIONS}
 )
 
-set_target_properties(gpctex1
+set_target_properties(pwm_input
   PROPERTIES
   LINKER_LANGUAGE
   CXX
 )
 
-# gpctex7
-add_executable(gpctex7
-  ${NI_CODE_DIR}/gpctex7.cpp
+# pwm_output
+add_executable(pwm_output
+  ${NI_CODE_DIR}/pwm_output.cpp
   ${NI_CODE_DIR}/nixseries/Examples/main.cpp
   ${NI_CODE_DIR}/nixseries/Examples/inTimer/aiHelper.cpp
   ${NI_CODE_DIR}/nixseries/Examples/counterResetHelper.cpp
@@ -597,17 +597,17 @@ add_executable(gpctex7
   ${NI_SOURCES}
 )
 
-target_include_directories(gpctex7
+target_include_directories(pwm_output
   PUBLIC
   ${NI_INCLUDE_DIRS}
 )
 
-target_compile_options(gpctex7
+target_compile_options(pwm_output
   PUBLIC
   ${NI_COMPILE_OPTIONS}
 )
 
-set_target_properties(gpctex7
+set_target_properties(pwm_output
   PROPERTIES
   LINKER_LANGUAGE
   CXX
