@@ -406,38 +406,6 @@ target_link_libraries(peak_can_receive
   ${XENOMAI_LIBRARIES}
 )
 
-# ni do_main
-add_executable(do_main
-  ${NI_CODE_DIR}/do_main.cpp
-  ${NI_CODE_DIR}/DigitalInputOutputTask.cpp
-  ${NI_CODE_DIR}/RtDigitalOutputTask.cpp
-  ${NI_SOURCES}
-  ${XENOMAI_CODE_DIR}/RtPeriodicTask.cpp
-)
-
-target_include_directories(do_main
-  PUBLIC
-  ${NI_CODE_DIR}
-  ${NI_INCLUDE_DIRS}
-  ${XENOMAI_CODE_DIR}
-  ${XENOMAI_INCLUDE_DIRS}
-)
-
-target_link_libraries(do_main
-  ${XENOMAI_LIBRARIES}
-)
-
-target_compile_options(do_main
-  PUBLIC
-  ${NI_COMPILE_OPTIONS}
-)
-
-set_target_properties(do_main
-  PROPERTIES
-  LINKER_LANGUAGE
-  CXX
-)
-
 # pwm_input
 add_executable(pwm_input
   ${NI_CODE_DIR}/pwm_input.cpp
