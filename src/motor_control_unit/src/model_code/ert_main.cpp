@@ -19,6 +19,9 @@ RT_TASK rtMotorReceiveStepTask;
 RT_TASK_MCB rtReceiveMessage;
 RT_TASK_MCB rtSendMessage;
 
+RTIME rtTimerBegin;
+RTIME rtTimerEnd;
+
 namespace {
 
 //void motorStep()
@@ -63,6 +66,13 @@ void MotorReceiveStepRoutine(void*)
     rt_printf("Reply Sent: %s\n", rtSendMessage.data);
 
     // run step
+    if (strcmp(rtReceiveMessage.data, "motor_step") == 0)
+    {
+      rtTimerBegin = rt_timer_read();
+      generated_model_step();
+      rtTimerEnd = rt_timer_read();
+      rt_printf("Motor Stepped. Time: %d nanoseconds\n", rtTimerEnd - rtTimerBegin);
+    }
 
     free(rtReceiveMessage.data);
     free(rtSendMessage.data);
