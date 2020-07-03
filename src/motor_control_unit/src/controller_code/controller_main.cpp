@@ -1,6 +1,7 @@
 #include <sys/mman.h>
 
 #include <fstream>
+#include <limits>
 #include <thread>
 #include <sstream>
 #include <signal.h>
@@ -20,6 +21,17 @@ RT_TASK rtSendMotorStepTask;
 RT_TASK_MCB rtSendMessage;
 RT_TASK_MCB rtReceiveMessage;
 
+RTIME rtTimerBegin;
+RTIME rtTimerEnd;
+RTIME rtTimerOneSecond;
+RTIME rtTimerFiveSeconds;
+
+unsigned int numberOfMessages{0u};
+unsigned int numberOfMessagesRealTime{0u};
+double totalRoundTripTime;
+RTIME minRoundTripTime = std::numeric_limits<RTIME>::max();
+RTIME maxRoundTripTime = std::numeric_limits<RTIME>::min();
+
 void TerminationHandler(int s)
 {
   printf("Controller Exiting\n");
@@ -35,6 +47,9 @@ void SendMotorStepRoutine(void*)
   rt_task_bind(&rtMotorReceiveStepTask, "rtMotorReceiveStepTask", TM_INFINITE);
   rt_printf("Found motor\n");
 
+  rtTimerOneSecond = rt_timer_read();
+  rtTimerFiveSeconds = rt_timer_read();
+
   for (;;)
   {
     // send message
@@ -46,18 +61,42 @@ void SendMotorStepRoutine(void*)
     rtReceiveMessage.data = (char*) malloc(RtTask::kMessageSize);
     rtReceiveMessage.size = RtTask::kMessageSize;
 
-    rt_printf("Sending message to motor task: %s\n", rtSendMessage.data);
+    rtTimerBegin = rt_timer_read();
     auto retval = rt_task_send(&rtMotorReceiveStepTask, &rtSendMessage, &rtReceiveMessage,
       TM_INFINITE);
+    rtTimerEnd = rt_timer_read();
     if (retval < 0)
     {
       rt_printf("rt_task_send error: %s\n", strerror(-retval));
     }
+    else
+    {
+      if (rt_timer_read() - rtTimerFiveSeconds >= RtTime::kFiveSeconds)
+      {
+        auto timeElapsed = rtTimerEnd - rtTimerBegin;
+        ++numberOfMessages;
+        totalRoundTripTime += timeElapsed;
 
-    rt_printf("Received from motor task: %s\n", rtReceiveMessage.data);
+        if (timeElapsed < minRoundTripTime)
+          minRoundTripTime = timeElapsed;
+        else if (timeElapsed > maxRoundTripTime)
+          maxRoundTripTime = timeElapsed;
+        if (timeElapsed <= RtTime::kTenMicroseconds)
+          ++numberOfMessagesRealTime;
+      }
+    }
 
     free(rtSendMessage.data);
     free(rtReceiveMessage.data);
+
+    if (rt_timer_read() - rtTimerOneSecond >= RtTime::kOneSecond)
+    {
+      rt_printf("num msgs: %d, min: %d ns, avg: %.1f ns, max: %d ns, hrt: %.5f%\n",
+        numberOfMessages, minRoundTripTime,
+        totalRoundTripTime/numberOfMessages, maxRoundTripTime,
+        (numberOfMessagesRealTime * 100.0f) / numberOfMessages);
+      rtTimerOneSecond = rt_timer_read();
+    }
 
     rt_task_wait_period(NULL);
   }
@@ -102,7 +141,7 @@ int main(int argc, char *argv[])
   rt_task_create(&rtSendMotorStepTask, "rtSendMotorStepTask",
     RtTask::kStackSize, RtTask::kHighPriority, RtTask::kMode);
   rt_task_set_periodic(&rtSendMotorStepTask, TM_NOW,
-    rt_timer_ns2ticks(RtTime::kTwoHundredMicroseconds));
+    rt_timer_ns2ticks(RtTime::kTwentyMicroseconds));
   rt_task_start(&rtSendMotorStepTask, SendMotorStepRoutine, NULL);
 
   for (;;)

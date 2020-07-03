@@ -240,6 +240,7 @@ target_link_libraries(motor
 target_compile_options(motor
   PUBLIC
   -Wall
+  -fpermissive
 )
 
 # controller
