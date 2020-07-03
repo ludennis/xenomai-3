@@ -21,6 +21,10 @@ RT_TASK_MCB rtSendMessage;
 
 RTIME rtTimerBegin;
 RTIME rtTimerEnd;
+RTIME rtTimerOneSecond;
+
+unsigned int numberOfMessages{0u};
+double totalStepTime{0.0};
 
 namespace {
 
@@ -44,6 +48,8 @@ void MotorReceiveStepRoutine(void*)
 {
   rt_printf("Motor Ready to Receive\n");
 
+  rtTimerOneSecond = rt_timer_read();
+
   for (;;)
   {
     // wait to receive step
@@ -55,7 +61,6 @@ void MotorReceiveStepRoutine(void*)
       rt_printf("rt_task_receive error: %s\n", strerror(-retval));
     }
     auto flowid = retval;
-    rt_printf("Received: %s\n", rtReceiveMessage.data);
 
     // send ack message
     rtSendMessage.data = (char*) malloc(RtTask::kMessageSize);
@@ -63,7 +68,6 @@ void MotorReceiveStepRoutine(void*)
     const char buffer[] = "ack";
     memcpy(rtSendMessage.data, buffer, RtTask::kMessageSize);
     rt_task_reply(flowid, &rtSendMessage);
-    rt_printf("Reply Sent: %s\n", rtSendMessage.data);
 
     // run step
     if (strcmp(rtReceiveMessage.data, "motor_step") == 0)
@@ -71,7 +75,15 @@ void MotorReceiveStepRoutine(void*)
       rtTimerBegin = rt_timer_read();
       generated_model_step();
       rtTimerEnd = rt_timer_read();
-      rt_printf("Motor Stepped. Time: %d nanoseconds\n", rtTimerEnd - rtTimerBegin);
+      ++numberOfMessages;
+      totalStepTime += (rtTimerEnd - rtTimerBegin);
+    }
+
+    if (rt_timer_read() - rtTimerOneSecond > RtTime::kOneSecond)
+    {
+      rt_printf("Motor Stepped %d times. avg step time: %.2f nanoseconds\n",
+        numberOfMessages, totalStepTime / numberOfMessages);
+      rtTimerOneSecond = rt_timer_read();
     }
 
     free(rtReceiveMessage.data);
