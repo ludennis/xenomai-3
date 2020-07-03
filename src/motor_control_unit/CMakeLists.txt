@@ -229,21 +229,17 @@ target_include_directories(motor
   ${MATLAB_CODE_DIR}/simulink/include
   ${MODEL_CODE_DIR}
   ${PROJECT_SOURCE_DIR}/src
-  SYSTEM PUBLIC
-  ${OpenSplice_INCLUDE_DIRS}
+  ${XENOMAI_INCLUDE_DIRS}
+  ${XENOMAI_CODE_DIR}
 )
 
 target_link_libraries(motor
-  ${DATAMODEL}
-  ${OpenSplice_LIBRARIES}
+  ${XENOMAI_LIBRARIES}
 )
 
 target_compile_options(motor
   PUBLIC
   -Wall
-  -Werror
-  -Wextra
-  -Wpedantic
 )
 
 # controller
@@ -255,25 +251,20 @@ add_executable(controller
 )
 
 target_link_libraries(controller
-  ${DATAMODEL}
-  ${OpenSplice_LIBRARIES}
   ${XENOMAI_LIBRARIES}
   Threads::Threads
 )
 
 target_include_directories(controller
   SYSTEM PUBLIC
-  ${OpenSplice_INCLUDE_DIRS}
   ${PROJECT_SOURCE_DIR}/src
   ${XENOMAI_INCLUDE_DIRS}
+  ${XENOMAI_CODE_DIR}
 )
 
 target_compile_options(controller
   PUBLIC
   -Wall
-  -Werror
-  -Wextra
-  -Wpedantic
 )
 
 # pickering rt task

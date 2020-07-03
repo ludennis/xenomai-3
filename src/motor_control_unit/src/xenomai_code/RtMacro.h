@@ -1,27 +1,34 @@
 #ifndef _RTMACRO_H_
 #define _RTMACRO_H_
 
-namespace RtMacro
+namespace RtTask
 {
+constexpr auto kStackSize = 0;
+constexpr auto kHighPriority = 80;
+constexpr auto kMediumPriority = 50;
+constexpr auto kMode = 0;
+constexpr auto kMessageSize = 256u;
+}
 
-constexpr auto kTaskStackSize = 0;
-constexpr auto kHighTaskPriority = 80;
-constexpr auto kMediumTaskPriority = 50;
-constexpr auto kTaskMode = 0;
-constexpr auto kOneMsTaskPeriod = 1000000; // 1 ms
-constexpr auto kTenMsTaskPeriod = 10000000; // 10 ms
-constexpr auto kHundredMsTaskPeriod = 100000000; //100 ms
-constexpr auto kOneSecondTaskPeriod = 1000000000; // 1000 ms
+namespace RtTime
+{
+constexpr auto kTwoHundredMicroseconds = 200000;
+constexpr auto kOneMillisecond = 1000000;
+constexpr auto kTenMilliseconds = 10000000;
+constexpr auto kHundredMilliseconds = 100000000;
+constexpr auto kOneSecond = 1000000000;
 constexpr auto kNanosecondsToMicroseconds = 1000;
 constexpr auto kNanosecondsToMilliseconds = 1000000;
 constexpr auto kNanosecondsToSeconds = 1000000000;
 constexpr auto kMutexAcquireTimeout = 1000000; // 1 ms
+}
 
-constexpr auto kCoreId4 = 4;
-constexpr auto kCoreId5 = 5;
-constexpr auto kCoreId6 = 6;
-constexpr auto kCoreId7 = 7;
-
-} // namespace RtMacro
+namespace RtCpu
+{
+constexpr auto kCore4 = 4;
+constexpr auto kCore5 = 5;
+constexpr auto kCore6 = 6;
+constexpr auto kCore7 = 7;
+}
 
 #endif // _RTMACRO_H_
