@@ -12,11 +12,18 @@ constexpr auto kMessageSize = 256u;
 
 namespace RtTime
 {
+constexpr auto kTenMicroseconds = 10000;
+constexpr auto kFifteenMicroseconds = 15000;
+constexpr auto kTwentyMicroseconds = 20000;
+constexpr auto kFiftyMicroseconds = 50000;
+constexpr auto kOneHundredMicroseconds = 100000;
 constexpr auto kTwoHundredMicroseconds = 200000;
 constexpr auto kOneMillisecond = 1000000;
 constexpr auto kTenMilliseconds = 10000000;
 constexpr auto kHundredMilliseconds = 100000000;
 constexpr auto kOneSecond = 1000000000;
+constexpr auto kFiveSeconds = 5000000000;
+constexpr auto kTenSeconds = 10000000000;
 constexpr auto kNanosecondsToMicroseconds = 1000;
 constexpr auto kNanosecondsToMilliseconds = 1000000;
 constexpr auto kNanosecondsToSeconds = 1000000000;
