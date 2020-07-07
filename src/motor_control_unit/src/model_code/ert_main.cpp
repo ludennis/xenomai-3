@@ -94,8 +94,14 @@ void MotorBroadcastOutputRoutine(void*)
     void *message = rt_queue_alloc(&rtQueue, sizeof(RtMessage::kMessageSize));
     if (message == NULL)
       rt_printf("rt_queue_alloc error\n");
+
+    // TODO prevent two tasks figting over model
+    auto generatedModelMotorOutput = input_interface::GetMsgMotorOutput();
     MotorMessage *motorMessageData =
-      new MotorMessage{0, 3.0, 4.0, 5.0, 6000.0, 35.0, 400.0};
+      new MotorMessage{tMotorMessage, generatedModelMotorOutput.ft_CurrentU,
+      generatedModelMotorOutput.ft_CurrentV, generatedModelMotorOutput.ft_CurrentW,
+      generatedModelMotorOutput.ft_RotorRPM, generatedModelMotorOutput.ft_RotorDegreeRad,
+      generatedModelMotorOutput.ft_OutputTorque};
     memcpy(message, motorMessageData, sizeof(MotorMessage));
 
     // send message
