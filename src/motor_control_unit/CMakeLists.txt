@@ -451,6 +451,21 @@ set_target_properties(pwm_output
   CXX
 )
 
+# motor monitor
+add_executable(motor_monitor
+  ${XENOMAI_CODE_DIR}/motor_monitor.cpp
+)
+
+target_include_directories(motor_monitor
+  PUBLIC
+  ${XENOMAI_INCLUDE_DIRS}
+  ${XENOMAI_CODE_DIR}
+)
+
+target_link_libraries(motor_monitor
+  ${XENOMAI_LIBRARIES}
+)
+
 # install
 install(TARGETS
   motor
