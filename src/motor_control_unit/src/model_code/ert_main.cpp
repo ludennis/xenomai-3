@@ -10,6 +10,7 @@
 #include <alchemy/task.h>
 
 #include <RtMacro.h>
+#include <MessageTypes.h>
 
 #include "generated_model.h"
 #include "input_interface.h"
