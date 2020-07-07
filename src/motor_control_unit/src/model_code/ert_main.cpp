@@ -8,6 +8,7 @@
 #include <sstream>
 
 #include <alchemy/task.h>
+#include <alchemy/queue.h>
 
 #include <RtMacro.h>
 #include <MessageTypes.h>
@@ -16,6 +17,7 @@
 #include "input_interface.h"
 
 RT_TASK rtMotorReceiveStepTask;
+RT_TASK rtMotorBroadcastOutputTask;
 
 RT_TASK_MCB rtReceiveMessage;
 RT_TASK_MCB rtSendMessage;
@@ -24,26 +26,11 @@ RTIME rtTimerBegin;
 RTIME rtTimerEnd;
 RTIME rtTimerOneSecond;
 
+RT_QUEUE rtQueue;
+RT_QUEUE_INFO rtQueueInfo;
+
 unsigned int numberOfMessages{0u};
 double totalStepTime{0.0};
-
-namespace {
-
-//void motorStep()
-//{
-//  generated_model_step();
-//}
-//
-//void OutputMsgMotorOutput(const MsgMotorOutput& output)
-//{
-//  std::cout << "MsgMotorOutput: ft_CurrentU = " << output.ft_CurrentU
-//    << ", ft_CurrentV = " << output.ft_CurrentV << ", ft_CurrentW = " << output.ft_CurrentW
-//    << ", ft_RotorRPM = " << output.ft_RotorRPM << ", ft_RotorDegreeRad = "
-//    << output.ft_RotorDegreeRad << ", ft_OutputTorque = " << output.ft_OutputTorque
-//    << std::endl;
-//}
-
-} // namespace
 
 void MotorReceiveStepRoutine(void*)
 {
@@ -54,8 +41,8 @@ void MotorReceiveStepRoutine(void*)
   for (;;)
   {
     // wait to receive step
-    rtReceiveMessage.data = (char*) malloc(RtTask::kMessageSize);
-    rtReceiveMessage.size = RtTask::kMessageSize;
+    rtReceiveMessage.data = (char*) malloc(RtMessage::kMessageSize);
+    rtReceiveMessage.size = RtMessage::kMessageSize;
     auto retval = rt_task_receive(&rtReceiveMessage, TM_INFINITE);
     if (retval < 0)
     {
@@ -64,10 +51,10 @@ void MotorReceiveStepRoutine(void*)
     auto flowid = retval;
 
     // send ack message
-    rtSendMessage.data = (char*) malloc(RtTask::kMessageSize);
-    rtSendMessage.size = RtTask::kMessageSize;
+    rtSendMessage.data = (char*) malloc(RtMessage::kMessageSize);
+    rtSendMessage.size = RtMessage::kMessageSize;
     const char buffer[] = "ack";
-    memcpy(rtSendMessage.data, buffer, RtTask::kMessageSize);
+    memcpy(rtSendMessage.data, buffer, RtMessage::kMessageSize);
     rt_task_reply(flowid, &rtSendMessage);
 
     // run step
@@ -89,6 +76,38 @@ void MotorReceiveStepRoutine(void*)
 
     free(rtReceiveMessage.data);
     free(rtSendMessage.data);
+  }
+}
+
+void MotorBroadcastOutputRoutine(void*)
+{
+  // find queue to send to
+  auto queueBound = rt_queue_bind(&rtQueue, "rtQueue", TM_INFINITE);
+
+  if (queueBound == 0)
+    rt_printf("Queue Bound\n");
+
+  for (;;)
+  {
+    rt_printf("Sending/broadcasting\n");
+    // send/boradcast
+    void *message = rt_queue_alloc(&rtQueue, sizeof(RtMessage::kMessageSize));
+    if (message == NULL)
+      rt_printf("rt_queue_alloc error\n");
+    MotorMessage *motorMessageData =
+      new MotorMessage{0, 3.0, 4.0, 5.0, 6000.0, 35.0, 400.0};
+    memcpy(message, motorMessageData, sizeof(MotorMessage));
+
+    // send message
+    auto retval = rt_queue_send(&rtQueue, message, sizeof(MotorMessage), Q_NORMAL);
+    if (retval < -1)
+    {
+      rt_printf("rt_queue_send error: %s\n", strerror(-retval));
+    }
+    else
+      rt_printf("motor message sent\n");
+
+    rt_task_wait_period(NULL);
   }
 }
 
@@ -116,6 +135,16 @@ int main(int argc, char * argv[])
   rt_task_create(&rtMotorReceiveStepTask, "rtMotorReceiveStepTask", RtTask::kStackSize,
     RtTask::kHighPriority, RtTask::kMode);
   rt_task_start(&rtMotorReceiveStepTask, MotorReceiveStepRoutine, NULL);
+  rt_printf("rtMotorReceiveStepTask started\n");
+
+
+  // TODO: use a different CPU for this task
+  rt_task_create(&rtMotorBroadcastOutputTask, "rtMotorBroadcastOutputTask",
+    RtTask::kStackSize, RtTask::kMediumPriority, RtTask::kMode);
+  rt_task_set_periodic(&rtMotorBroadcastOutputTask, TM_NOW,
+    rt_timer_ns2ticks(RtTime::kOneSecond));
+  rt_task_start(&rtMotorBroadcastOutputTask, MotorBroadcastOutputRoutine, NULL);
+  rt_printf("rtMotorBroadcastOutputTask started\n");
 
   for (;;)
   {}

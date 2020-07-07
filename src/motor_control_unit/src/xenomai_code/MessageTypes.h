@@ -1,11 +1,12 @@
 #ifndef _MESSAGETYPES_H_
 #define _MESSAGETYPES_H_
 
+// TODO: ensure a way that all message type size is less than RtMessage::kMessageSize
 auto constexpr tMotorMessage = 0;
 
 struct MotorMessage
 {
-  char messageType;
+  int messageType;
   float ft_CurrentU;
   float ft_CurrentV;
   float ft_CurrentW;
