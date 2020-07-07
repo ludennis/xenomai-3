@@ -82,13 +82,13 @@ void MotorReceiveStepRoutine(void*)
 void MotorBroadcastOutputRoutine(void*)
 {
   // find queue to send to
-  auto queueBound = rt_queue_bind(&rtQueue, "rtQueue", TM_INFINITE);
-
-  if (queueBound == 0)
-    rt_printf("Queue Bound\n");
 
   for (;;)
   {
+    auto queueBound = rt_queue_bind(&rtQueue, "rtQueue", TM_INFINITE);
+    if (queueBound == 0)
+      rt_printf("Queue Bound\n");
+
     rt_printf("Sending/broadcasting\n");
     // send/boradcast
     void *message = rt_queue_alloc(&rtQueue, sizeof(RtMessage::kMessageSize));
