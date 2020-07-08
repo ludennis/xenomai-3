@@ -6,6 +6,7 @@ namespace RtTask
 constexpr auto kStackSize = 0;
 constexpr auto kHighPriority = 80;
 constexpr auto kMediumPriority = 50;
+constexpr auto kLowPriority = 20;
 constexpr auto kMode = 0;
 }
 

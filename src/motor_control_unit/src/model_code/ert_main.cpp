@@ -101,7 +101,7 @@ void MotorBroadcastOutputRoutine(void*)
     memcpy(message, motorMessageData, sizeof(MotorMessage));
 
     // send message
-    auto retval = rt_queue_send(&rtMotorOutputQueue, message, sizeof(MotorMessage), Q_NORMAL);
+    auto retval = rt_queue_send(&rtMotorOutputQueue, message, sizeof(MotorMessage), Q_BROADCAST);
     if (retval < -1)
     {
       rt_printf("rt_queue_send error: %s\n", strerror(-retval));
