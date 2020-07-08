@@ -466,6 +466,21 @@ target_link_libraries(motor_monitor
   ${XENOMAI_LIBRARIES}
 )
 
+# dds pipe
+add_executable(dds_pipe
+  ${XENOMAI_CODE_DIR}/dds_pipe.cpp
+)
+
+target_include_directories(dds_pipe
+  PUBLIC
+  ${XENOMAI_INCLUDE_DIRS}
+  ${XENOMAI_CODE_DIR}
+)
+
+target_link_libraries(dds_pipe
+  ${XENOMAI_LIBRARIES}
+)
+
 # install
 install(TARGETS
   motor
