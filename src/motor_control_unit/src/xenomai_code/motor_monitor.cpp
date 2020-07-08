@@ -83,10 +83,18 @@ int main(int argc, char *argv[])
   rt_heap_create(&rtHeap, "rtHeap", RtMessage::kMessageSize, H_SINGLE);
   rt_printf("Heap Created\n");
 
+  cpu_set_t cpuSet;
+  CPU_ZERO(&cpuSet);
+  CPU_SET(5, &cpuSet);
+  CPU_SET(6, &cpuSet);
+  CPU_SET(7, &cpuSet);
+  CPU_SET(8, &cpuSet);
+
   rt_task_create(&rtReceiveMotorMessageTask, "rtReceiveMotorMessageTask",
     RtTask::kStackSize, RtTask::kMediumPriority, RtTask::kMode);
   rt_task_set_periodic(&rtReceiveMotorMessageTask, TM_NOW,
     rt_timer_ns2ticks(RtTime::kHundredMilliseconds));
+  rt_task_set_affinity(&rtReceiveMotorMessageTask, &cpuSet);
   rt_task_start(&rtReceiveMotorMessageTask, ReceiveMotorMessage, NULL);
 
   for (;;)

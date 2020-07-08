@@ -147,6 +147,12 @@ int main(int argc, char * argv[])
 
 
   // TODO: use a different CPU for this task
+  cpu_set_t cpuSet;
+  CPU_ZERO(&cpuSet);
+  CPU_SET(5, &cpuSet);
+  CPU_SET(6, &cpuSet);
+  CPU_SET(7, &cpuSet);
+  CPU_SET(8, &cpuSet);
   rt_task_create(&rtMotorBroadcastOutputTask, "rtMotorBroadcastOutputTask",
     RtTask::kStackSize, RtTask::kMediumPriority, RtTask::kMode);
   rt_task_set_periodic(&rtMotorBroadcastOutputTask, TM_NOW,

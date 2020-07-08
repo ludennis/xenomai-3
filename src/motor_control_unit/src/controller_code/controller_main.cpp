@@ -138,10 +138,18 @@ int main(int argc, char *argv[])
 
   mlockall(MCL_CURRENT | MCL_FUTURE);
 
+  cpu_set_t cpuSet;
+  CPU_ZERO(&cpuSet);
+  CPU_SET(5, &cpuSet);
+  CPU_SET(6, &cpuSet);
+  CPU_SET(7, &cpuSet);
+  CPU_SET(8, &cpuSet);
+
   rt_task_create(&rtSendMotorStepTask, "rtSendMotorStepTask",
     RtTask::kStackSize, RtTask::kHighPriority, RtTask::kMode);
   rt_task_set_periodic(&rtSendMotorStepTask, TM_NOW,
     rt_timer_ns2ticks(RtTime::kTwentyMicroseconds));
+  rt_task_set_affinity(&rtSendMotorStepTask, &cpuSet);
   rt_task_start(&rtSendMotorStepTask, SendMotorStepRoutine, NULL);
 
   for (;;)

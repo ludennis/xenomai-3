@@ -55,9 +55,16 @@ int main(int argc, char *argv[])
 
   rt_pipe_create(&rtDdsPipe, "rtDdsPipe", 1, RtMessage::kMessageSize);
 
+  cpu_set_t cpuSet;
+  CPU_ZERO(&cpuSet);
+  CPU_SET(5, &cpuSet);
+  CPU_SET(6, &cpuSet);
+  CPU_SET(7, &cpuSet);
+  CPU_SET(8, &cpuSet);
   rt_task_create(&rtDdsPipeTask, "rtDdsPipeTask", RtTask::kStackSize,
     RtTask::kLowPriority, RtTask::kMode);
   rt_task_set_periodic(&rtDdsPipeTask, TM_NOW, rt_timer_ns2ticks(RtTime::kHundredMilliseconds));
+  rt_task_set_affinity(&rtDdsPipeTask, &cpuSet);
   rt_task_start(&rtDdsPipeTask, DdsPipeRoutine, NULL);
 
   for (;;)
