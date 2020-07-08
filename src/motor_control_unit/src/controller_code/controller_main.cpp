@@ -53,13 +53,13 @@ void SendMotorStepRoutine(void*)
   for (;;)
   {
     // send message
-    rtSendMessage.data = (char*) malloc(RtTask::kMessageSize);
-    rtSendMessage.size = RtTask::kMessageSize;
+    rtSendMessage.data = (char*) malloc(RtMessage::kMessageSize);
+    rtSendMessage.size = RtMessage::kMessageSize;
     const char sendData[] = "motor_step";
-    memcpy(rtSendMessage.data, sendData, RtTask::kMessageSize);
+    memcpy(rtSendMessage.data, sendData, RtMessage::kMessageSize);
 
-    rtReceiveMessage.data = (char*) malloc(RtTask::kMessageSize);
-    rtReceiveMessage.size = RtTask::kMessageSize;
+    rtReceiveMessage.data = (char*) malloc(RtMessage::kMessageSize);
+    rtReceiveMessage.size = RtMessage::kMessageSize;
 
     rtTimerBegin = rt_timer_read();
     auto retval = rt_task_send(&rtMotorReceiveStepTask, &rtSendMessage, &rtReceiveMessage,

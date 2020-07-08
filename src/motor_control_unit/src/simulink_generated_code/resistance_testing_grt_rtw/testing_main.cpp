@@ -38,15 +38,15 @@ int main(int argc, char **argv)
   rtSharedArray = std::make_shared<RtSharedArray>("RtSharedArray");
 
   rtGenerateResistanceArrayTask = std::make_unique<RtGenerateResistanceArrayTask>(
-    "GenerateResistanceArrayRoutine", RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority,
-    RtMacro::kTaskMode, RtMacro::kTenMsTaskPeriod, RtMacro::kCoreId6);
+    "GenerateResistanceArrayRoutine", RtTask::kStackSize, RtTask::kMediumPriority,
+    RtTask::kMode, RtTime::kTenMilliseconds, RtCpu::kCore6);
   rtGenerateResistanceArrayTask->mRtSharedArray = rtSharedArray;
   rtGenerateResistanceArrayTask->StartRoutine();
 
   DWORD cardNum = 3;
   rtResistanceTask = std::make_unique<RtResistanceTask>(
-    "SetSubunitResistanceRoutine", RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority,
-    RtMacro::kTaskMode, RtMacro::kTenMsTaskPeriod, RtMacro::kCoreId7);
+    "SetSubunitResistanceRoutine", RtTask::kStackSize, RtTask::kMediumPriority,
+    RtTask::kMode, RtTime::kTenMilliseconds, RtCpu::kCore7);
   rtResistanceTask->OpenCard(cardNum);
   rtResistanceTask->mRtSharedArray = rtSharedArray;
   rtResistanceTask->StartRoutine();

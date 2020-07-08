@@ -41,11 +41,11 @@ void RtResistanceTask::Routine(void*)
 
       mNow = rt_timer_read();
 
-      if(static_cast<long>(mNow - mOneSecondTimer) / RtMacro::kNanosecondsToSeconds > 0)
+      if(static_cast<long>(mNow - mOneSecondTimer) / RtTime::kNanosecondsToSeconds > 0)
       {
         printf("Time elapsed for task: %ld.%ld microseconds\n",
-          static_cast<long>(mNow - mPrevious) / RtMacro::kNanosecondsToMicroseconds,
-          static_cast<long>(mNow - mPrevious) % RtMacro::kNanosecondsToMicroseconds);
+          static_cast<long>(mNow - mPrevious) / RtTime::kNanosecondsToMicroseconds,
+          static_cast<long>(mNow - mPrevious) % RtTime::kNanosecondsToMicroseconds);
         mOneSecondTimer = mNow;
 
         /* show all subunits */

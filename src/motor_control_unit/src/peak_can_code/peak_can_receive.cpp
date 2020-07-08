@@ -30,9 +30,9 @@ int main(int argc, char **argv)
   sigaction(SIGINT, &signalHandler, NULL);
 
   auto rtPeakCanReceiveTask = std::make_unique<RtPeakCanReceiveTask>(
-    deviceName, baudRate, "RtPeakCanReceiveTask", RtMacro::kTaskStackSize,
-    RtMacro::kMediumTaskPriority, RtMacro::kTaskMode, RtMacro::kTenMsTaskPeriod,
-    RtMacro::kCoreId6);
+    deviceName, baudRate, "RtPeakCanReceiveTask", RtTask::kStackSize,
+    RtTask::kMediumPriority, RtTask::kMode, RtTime::kTenMilliseconds,
+    RtCpu::kCore6);
 
   rtPeakCanReceiveTask->StartRoutine();
 

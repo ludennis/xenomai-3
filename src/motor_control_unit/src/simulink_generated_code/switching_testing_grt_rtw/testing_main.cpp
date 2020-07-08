@@ -38,8 +38,8 @@ int main(int argc, char **argv)
 
   // TODO: specify which cpu to run task on
   rtGenerateStateTask = std::make_unique<RtGenerateStateTask>(
-    "GenerateStateTask", RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority,
-    RtMacro::kTaskMode, RtMacro::kTenMsTaskPeriod, RtMacro::kCoreId7);
+    "GenerateStateTask", RtTask::kStackSize, RtTask::kMediumPriority,
+    RtTask::kMode, RtTime::kTenMilliseconds, RtCpu::kCore7);
   rtGenerateStateTask->mRtSharedState = rtSharedState;
   rtGenerateStateTask->StartRoutine();
 
@@ -48,8 +48,8 @@ int main(int argc, char **argv)
   DWORD bit = 1;
 
   rtSwitchTask = std::make_unique<RtSwitchTask>(
-    "SetSubunitSwitchState", RtMacro::kTaskStackSize, RtMacro::kMediumTaskPriority,
-    RtMacro::kTaskMode, RtMacro::kTenMsTaskPeriod, RtMacro::kCoreId6);
+    "SetSubunitSwitchState", RtTask::kStackSize, RtTask::kMediumPriority,
+    RtTask::kMode, RtTime::kTenMilliseconds, RtCpu::kCore6);
 
   rtSwitchTask->OpenCard(cardNum);
   rtSwitchTask->mSubunit = subunit;
