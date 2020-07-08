@@ -36,6 +36,8 @@ void DdsPipeRoutine(void*)
       if (messageType == tMotorMessage)
       {
         rt_printf("Received motor output message\n");
+
+        rt_pipe_write(&rtDdsPipe, blockPointer, RtMessage::kMessageSize, P_NORMAL);
       }
     }
 
@@ -50,6 +52,8 @@ int main(int argc, char *argv[])
     rt_printf("rt_queue_bind error\n");
 
   rt_heap_create(&rtDdsPipeHeap, "rtDdsPipeHeap", RtMessage::kMessageSize, H_SINGLE);
+
+  rt_pipe_create(&rtDdsPipe, "rtDdsPipe", 1, RtMessage::kMessageSize);
 
   rt_task_create(&rtDdsPipeTask, "rtDdsPipeTask", RtTask::kStackSize,
     RtTask::kLowPriority, RtTask::kMode);

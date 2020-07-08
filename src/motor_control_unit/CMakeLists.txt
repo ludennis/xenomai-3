@@ -144,6 +144,7 @@ set(PICKERING_CODE_DIR "${PROJECT_SOURCE_DIR}/src/pickering_code")
 set(SIMULINK_GENERATED_CODE_DIR "${PROJECT_SOURCE_DIR}/src/simulink_generated_code")
 set(PEAK_CAN_CODE_DIR "${PROJECT_SOURCE_DIR}/src/peak_can_code")
 set(NI_CODE_DIR "${PROJECT_SOURCE_DIR}/src/ni_code")
+set(DDS_CODE_DIR "${PROJECT_SOURCE_DIR}/src/dds_code")
 
 set(PICKERING_INCLUDE_DIR "/usr/local/lib")
 set(PEAK_CAN_INCLUDE_DIR "/usr/local/include")
@@ -479,6 +480,16 @@ target_include_directories(dds_pipe
 
 target_link_libraries(dds_pipe
   ${XENOMAI_LIBRARIES}
+)
+
+# rt_pipe
+add_executable(rt_pipe
+  ${DDS_CODE_DIR}/rt_pipe.cpp
+)
+
+target_include_directories(rt_pipe
+  PUBLIC
+  ${XENOMAI_CODE_DIR}
 )
 
 # install
