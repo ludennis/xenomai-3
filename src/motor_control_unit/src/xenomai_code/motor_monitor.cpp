@@ -37,10 +37,10 @@ void ReceiveMotorMessage(void*)
     if (bytesRead > 0)
     {
       // check message type
-      int *messageType = (int*) malloc(sizeof(int));
-      memcpy(messageType, blockPointer, sizeof(int));
+      int messageType;
+      memcpy(&messageType, blockPointer, sizeof(int));
 
-      if (*messageType == tMotorMessage)
+      if (messageType == tMotorMessage)
       {
         MotorMessage *motorMessage = (MotorMessage*) malloc(sizeof(MotorMessage));
         memcpy(motorMessage, blockPointer, sizeof(MotorMessage));
@@ -51,7 +51,6 @@ void ReceiveMotorMessage(void*)
           motorMessage->ft_CurrentW, motorMessage->ft_RotorRPM,
           motorMessage->ft_RotorDegreeRad, motorMessage->ft_OutputTorque);
       }
-      free(messageType);
     }
 
     rt_heap_free(&rtHeap, blockPointer);
