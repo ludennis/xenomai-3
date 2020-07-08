@@ -27,7 +27,7 @@ void ReceiveMotorMessage(void*)
     // find sending queue before reading
     auto sendingQueueBound = rt_queue_bind(
       &rtMotorOutputQueue, "rtMotorOutputQueue", TM_INFINITE);
-    if (sendingQueueBound == 0)
+    if (sendingQueueBound != 0)
       rt_printf("Sending queue binding error\n");
 
     // to store the motor message from queue
