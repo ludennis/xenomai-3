@@ -12,7 +12,7 @@
 
 RT_HEAP rtHeap;
 
-RT_QUEUE rtQueue;
+RT_QUEUE rtMotorOutputQueue;
 
 RT_TASK rtReceiveMotorMessageTask;
 
@@ -24,9 +24,15 @@ void ReceiveMotorMessage(void*)
 
   for (;;)
   {
+    // find sending queue before reading
+    auto sendingQueueBound = rt_queue_bind(
+      &rtMotorOutputQueue, "rtMotorOutputQueue", TM_INFINITE);
+    if (sendingQueueBound == 0)
+      rt_printf("Sending queue binding error\n");
+
     // to store the motor message from queue
     auto bytesRead =
-      rt_queue_read(&rtQueue, blockPointer, RtMessage::kMessageSize, TM_INFINITE);
+      rt_queue_read(&rtMotorOutputQueue, blockPointer, RtMessage::kMessageSize, TM_INFINITE);
 
     if (bytesRead > 0)
     {
@@ -45,7 +51,6 @@ void ReceiveMotorMessage(void*)
           motorMessage->ft_CurrentW, motorMessage->ft_RotorRPM,
           motorMessage->ft_RotorDegreeRad, motorMessage->ft_OutputTorque);
       }
-
       free(messageType);
     }
 
@@ -59,8 +64,6 @@ void ReceiveMotorMessage(void*)
 void TerminationHandler(int signal)
 {
   printf("Termination signal received. Exiting\n");
-  rt_queue_delete(&rtQueue);
-  printf("Deleted rt queue\n");
   rt_heap_delete(&rtHeap);
   printf("Deleted rt heap\n");
   exit(1);
@@ -76,11 +79,6 @@ int main(int argc, char *argv[])
   sigaction(SIGINT, &action, NULL);
 
   mlockall(MCL_CURRENT|MCL_FUTURE);
-
-  // allocate queue
-  rt_queue_create(&rtQueue, "rtQueue", RtMessage::kMessageSize,
-    RtQueue::kQueueLimit, Q_NORMAL);
-  rt_printf("Queue Created\n");
 
   // allocate heap
   rt_heap_create(&rtHeap, "rtHeap", RtMessage::kMessageSize, H_SINGLE);

@@ -26,8 +26,8 @@ RTIME rtTimerBegin;
 RTIME rtTimerEnd;
 RTIME rtTimerOneSecond;
 
-RT_QUEUE rtQueue;
-RT_QUEUE_INFO rtQueueInfo;
+RT_QUEUE rtMotorOutputQueue;
+RT_QUEUE_INFO rtMotorOutputQueueInfo;
 
 unsigned int numberOfMessages{0u};
 double totalStepTime{0.0};
@@ -85,13 +85,9 @@ void MotorBroadcastOutputRoutine(void*)
 
   for (;;)
   {
-    auto queueBound = rt_queue_bind(&rtQueue, "rtQueue", TM_INFINITE);
-    if (queueBound == 0)
-      rt_printf("Queue Bound\n");
-
     rt_printf("Sending/broadcasting\n");
     // send/boradcast
-    void *message = rt_queue_alloc(&rtQueue, sizeof(RtMessage::kMessageSize));
+    void *message = rt_queue_alloc(&rtMotorOutputQueue, sizeof(RtMessage::kMessageSize));
     if (message == NULL)
       rt_printf("rt_queue_alloc error\n");
 
@@ -105,7 +101,7 @@ void MotorBroadcastOutputRoutine(void*)
     memcpy(message, motorMessageData, sizeof(MotorMessage));
 
     // send message
-    auto retval = rt_queue_send(&rtQueue, message, sizeof(MotorMessage), Q_NORMAL);
+    auto retval = rt_queue_send(&rtMotorOutputQueue, message, sizeof(MotorMessage), Q_NORMAL);
     if (retval < -1)
     {
       rt_printf("rt_queue_send error: %s\n", strerror(-retval));
@@ -122,6 +118,7 @@ void terminationHandler(int signal)
   std::cout << "Motor Exiting ..." << std::endl;
   free(rtReceiveMessage.data);
   free(rtSendMessage.data);
+  rt_queue_delete(&rtMotorOutputQueue);
   generated_model_terminate();
   exit(1);
 }
@@ -137,6 +134,11 @@ int main(int argc, char * argv[])
   mlockall(MCL_CURRENT|MCL_FUTURE);
 
   generated_model_initialize();
+
+  rt_queue_create(&rtMotorOutputQueue, "rtMotorOutputQueue", RtMessage::kMessageSize,
+    RtQueue::kQueueLimit, Q_FIFO);
+  rt_queue_inquire(&rtMotorOutputQueue, &rtMotorOutputQueueInfo);
+  rt_printf("Queue %s created\n", rtMotorOutputQueueInfo.name);
 
   rt_task_create(&rtMotorReceiveStepTask, "rtMotorReceiveStepTask", RtTask::kStackSize,
     RtTask::kHighPriority, RtTask::kMode);
