@@ -85,29 +85,35 @@ void MotorBroadcastOutputRoutine(void*)
 
   for (;;)
   {
-    rt_printf("Sending/broadcasting\n");
-    // send/boradcast
-    void *message = rt_queue_alloc(&rtMotorOutputQueue, sizeof(RtMessage::kMessageSize));
-    if (message == NULL)
-      rt_printf("rt_queue_alloc error\n");
-
-    // TODO prevent two tasks figting over model
-    auto generatedModelMotorOutput = input_interface::GetMsgMotorOutput();
-    MotorMessage *motorMessageData =
-      new MotorMessage{tMotorMessage, generatedModelMotorOutput.ft_CurrentU,
-      generatedModelMotorOutput.ft_CurrentV, generatedModelMotorOutput.ft_CurrentW,
-      generatedModelMotorOutput.ft_RotorRPM, generatedModelMotorOutput.ft_RotorDegreeRad,
-      generatedModelMotorOutput.ft_OutputTorque};
-    memcpy(message, motorMessageData, sizeof(MotorMessage));
-
-    // send message
-    auto retval = rt_queue_send(&rtMotorOutputQueue, message, sizeof(MotorMessage), Q_BROADCAST);
-    if (retval < -1)
+    rt_queue_inquire(&rtMotorOutputQueue, &rtMotorOutputQueueInfo);
+    if (rtMotorOutputQueueInfo.nwaiters > 0)
     {
-      rt_printf("rt_queue_send error: %s\n", strerror(-retval));
+      rt_printf("rtMotorOutputQueueInfo.nwaiters = %d\n", rtMotorOutputQueueInfo.nwaiters);
+
+      rt_printf("Sending/broadcasting\n");
+      // send/boradcast
+      void *message = rt_queue_alloc(&rtMotorOutputQueue, sizeof(RtMessage::kMessageSize));
+      if (message == NULL)
+        rt_printf("rt_queue_alloc error\n");
+
+      // TODO prevent two tasks figting over model
+      auto generatedModelMotorOutput = input_interface::GetMsgMotorOutput();
+      MotorMessage motorMessageData = MotorMessage{
+        tMotorMessage, generatedModelMotorOutput.ft_CurrentU,
+        generatedModelMotorOutput.ft_CurrentV, generatedModelMotorOutput.ft_CurrentW,
+        generatedModelMotorOutput.ft_RotorRPM, generatedModelMotorOutput.ft_RotorDegreeRad,
+        generatedModelMotorOutput.ft_OutputTorque};
+      memcpy(message, &motorMessageData, sizeof(MotorMessage));
+
+      // send message
+      auto retval = rt_queue_send(&rtMotorOutputQueue, message, sizeof(MotorMessage), Q_BROADCAST);
+      if (retval < -1)
+      {
+        rt_printf("rt_queue_send error: %s\n", strerror(-retval));
+      }
+      else
+        rt_printf("motor message sent\n");
     }
-    else
-      rt_printf("motor message sent\n");
 
     rt_task_wait_period(NULL);
   }
