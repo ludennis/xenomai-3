@@ -1,19 +1,12 @@
 #include <sys/mman.h>
 
-#include <fstream>
 #include <limits>
-#include <thread>
-#include <sstream>
 #include <signal.h>
 #include <iostream>
-#include <iomanip>
 
 #include <alchemy/task.h>
 
 #include <RtMacro.h>
-
-#include <utils/FileWriter.hpp>
-#include <utils/SynchronizedFile.hpp>
 
 RT_TASK rtMotorReceiveStepTask;
 RT_TASK rtSendMotorStepTask;
@@ -104,29 +97,6 @@ void SendMotorStepRoutine(void*)
 
 int main(int argc, char *argv[])
 {
-  std::string outputFilename;
-  auto outputFile = std::make_shared<utils::SynchronizedFile>();
-
-  if(argc == 0)
-  {
-    std::cerr << "Usage: controller [latency output]" << std::endl;
-    return -1;
-  }
-
-  if(argc >= 2)
-  {
-    outputFilename = argv[1];
-  }
-
-  if(!outputFilename.empty())
-  {
-    std::cout << "Writing to " << outputFilename << " ..." << std::endl;
-    outputFile->open(outputFilename);
-    std::stringstream header;
-    header << "write,roundtrip,take" << std::endl;
-    auto fileWriter = utils::FileWriter(outputFile, header.str());
-  }
-
   // signal handler for ctrl + c
   struct sigaction signalHandler;
   signalHandler.sa_handler = TerminationHandler;
