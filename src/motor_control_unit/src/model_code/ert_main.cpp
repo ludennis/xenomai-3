@@ -41,8 +41,8 @@ void MotorReceiveStepRoutine(void*)
   for (;;)
   {
     // wait to receive step
-    rtReceiveMessage.data = (char*) malloc(RtMessage::kMessageSize);
-    rtReceiveMessage.size = RtMessage::kMessageSize;
+    rtReceiveMessage.data = (char*) malloc(RtTask::kMessageSize);
+    rtReceiveMessage.size = RtTask::kMessageSize;
     auto retval = rt_task_receive(&rtReceiveMessage, TM_INFINITE);
     if (retval < 0)
     {
@@ -51,10 +51,10 @@ void MotorReceiveStepRoutine(void*)
     auto flowid = retval;
 
     // send ack message
-    rtSendMessage.data = (char*) malloc(RtMessage::kMessageSize);
-    rtSendMessage.size = RtMessage::kMessageSize;
+    rtSendMessage.data = (char*) malloc(RtTask::kMessageSize);
+    rtSendMessage.size = RtTask::kMessageSize;
     const char buffer[] = "ack";
-    memcpy(rtSendMessage.data, buffer, RtMessage::kMessageSize);
+    memcpy(rtSendMessage.data, buffer, RtTask::kMessageSize);
     rt_task_reply(flowid, &rtSendMessage);
 
     // run step
@@ -92,7 +92,7 @@ void MotorBroadcastOutputRoutine(void*)
 
       rt_printf("Sending/broadcasting\n");
       // send/boradcast
-      void *message = rt_queue_alloc(&rtMotorOutputQueue, sizeof(RtMessage::kMessageSize));
+      void *message = rt_queue_alloc(&rtMotorOutputQueue, sizeof(RtQueue::kMessageSize));
       if (message == NULL)
         rt_printf("rt_queue_alloc error\n");
 
@@ -141,7 +141,7 @@ int main(int argc, char * argv[])
 
   generated_model_initialize();
 
-  rt_queue_create(&rtMotorOutputQueue, "rtMotorOutputQueue", RtMessage::kMessageSize,
+  rt_queue_create(&rtMotorOutputQueue, "rtMotorOutputQueue", RtQueue::kMessageSize,
     RtQueue::kQueueLimit, Q_FIFO);
   rt_queue_inquire(&rtMotorOutputQueue, &rtMotorOutputQueueInfo);
   rt_printf("Queue %s created\n", rtMotorOutputQueueInfo.name);

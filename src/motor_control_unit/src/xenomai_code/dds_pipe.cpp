@@ -21,10 +21,10 @@ void DdsPipeRoutine(void*)
   for (;;)
   {
     void *blockPointer;
-    rt_heap_alloc(&rtDdsPipeHeap, RtMessage::kMessageSize, TM_INFINITE, &blockPointer);
+    rt_heap_alloc(&rtDdsPipeHeap, RtQueue::kMessageSize, TM_INFINITE, &blockPointer);
 
     auto bytesRead = rt_queue_read(
-      &rtMotorOutputQueue, blockPointer, RtMessage::kMessageSize, TM_INFINITE);
+      &rtMotorOutputQueue, blockPointer, RtQueue::kMessageSize, TM_INFINITE);
 
     if (bytesRead)
     {
@@ -37,7 +37,7 @@ void DdsPipeRoutine(void*)
       {
         rt_printf("Received motor output message\n");
 
-        rt_pipe_write(&rtDdsPipe, blockPointer, RtMessage::kMessageSize, P_NORMAL);
+        rt_pipe_write(&rtDdsPipe, blockPointer, RtQueue::kMessageSize, P_NORMAL);
       }
     }
 
@@ -51,9 +51,9 @@ int main(int argc, char *argv[])
   if (outputQueueBound != 0)
     rt_printf("rt_queue_bind error\n");
 
-  rt_heap_create(&rtDdsPipeHeap, "rtDdsPipeHeap", RtMessage::kMessageSize, H_SINGLE);
+  rt_heap_create(&rtDdsPipeHeap, "rtDdsPipeHeap", RtQueue::kMessageSize, H_SINGLE);
 
-  rt_pipe_create(&rtDdsPipe, "rtDdsPipe", 1, RtMessage::kMessageSize);
+  rt_pipe_create(&rtDdsPipe, "rtDdsPipe", 1, RtQueue::kMessageSize);
 
   cpu_set_t cpuSet;
   CPU_ZERO(&cpuSet);

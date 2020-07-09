@@ -8,6 +8,7 @@ constexpr auto kHighPriority = 80;
 constexpr auto kMediumPriority = 50;
 constexpr auto kLowPriority = 20;
 constexpr auto kMode = 0;
+constexpr auto kMessageSize = 8u;
 }
 
 namespace RtTime
@@ -40,12 +41,13 @@ constexpr auto kCore7 = 7;
 
 namespace RtMessage
 {
-constexpr auto kMessageSize = 256u;
+constexpr auto kMessageSize = 32u;
 }
 
 namespace RtQueue
 {
 constexpr auto kQueueLimit = 10;
+constexpr auto kMessageSize = 32u;
 }
 
 #endif // _RTMACRO_H_

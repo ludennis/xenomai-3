@@ -20,7 +20,7 @@ void ReceiveMotorMessage(void*)
 {
   // alloc heap block
   void *blockPointer;
-  rt_heap_alloc(&rtHeap, RtMessage::kMessageSize, TM_INFINITE, &blockPointer);
+  rt_heap_alloc(&rtHeap, RtQueue::kMessageSize, TM_INFINITE, &blockPointer);
 
   for (;;)
   {
@@ -32,7 +32,7 @@ void ReceiveMotorMessage(void*)
 
     // to store the motor message from queue
     auto bytesRead =
-      rt_queue_read(&rtMotorOutputQueue, blockPointer, RtMessage::kMessageSize, TM_INFINITE);
+      rt_queue_read(&rtMotorOutputQueue, blockPointer, RtQueue::kMessageSize, TM_INFINITE);
 
     if (bytesRead > 0)
     {
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
   mlockall(MCL_CURRENT|MCL_FUTURE);
 
   // allocate heap
-  rt_heap_create(&rtHeap, "rtHeap", RtMessage::kMessageSize, H_SINGLE);
+  rt_heap_create(&rtHeap, "rtHeap", RtQueue::kMessageSize, H_SINGLE);
   rt_printf("Heap Created\n");
 
   cpu_set_t cpuSet;
