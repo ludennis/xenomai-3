@@ -58,7 +58,7 @@ void MotorReceiveStepRoutine(void*)
     rt_task_reply(flowid, &rtSendMessage);
 
     // run step
-    if (strcmp((char*)rtReceiveMessage.data, "motor_step") == 0)
+    if (strcmp((char*)rtReceiveMessage.data, "step") == 0)
     {
       rtTimerBegin = rt_timer_read();
       generated_model_step();

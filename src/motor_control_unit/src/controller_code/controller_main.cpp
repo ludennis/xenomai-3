@@ -55,7 +55,7 @@ void SendMotorStepRoutine(void*)
     // send message
     rtSendMessage.data = (char*) malloc(RtTask::kMessageSize);
     rtSendMessage.size = RtTask::kMessageSize;
-    const char sendData[] = "motor_step";
+    const char sendData[] = "step";
     memcpy(rtSendMessage.data, sendData, RtTask::kMessageSize);
 
     rtReceiveMessage.data = (char*) malloc(RtTask::kMessageSize);
