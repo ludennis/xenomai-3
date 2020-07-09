@@ -5,11 +5,15 @@
 #include <iostream>
 
 #include <alchemy/task.h>
+#include <alchemy/heap.h>
+#include <alchemy/queue.h>
 
 #include <RtMacro.h>
+#include <MessageTypes.h>
 
 RT_TASK rtMotorReceiveStepTask;
 RT_TASK rtSendMotorStepTask;
+RT_TASK rtReceiveMotorOutputTask;
 
 RT_TASK_MCB rtSendMessage;
 RT_TASK_MCB rtReceiveMessage;
@@ -19,20 +23,15 @@ RTIME rtTimerEnd;
 RTIME rtTimerOneSecond;
 RTIME rtTimerFiveSeconds;
 
+RT_HEAP rtHeap;
+
+RT_QUEUE rtMotorOutputQueue;
+
 unsigned int numberOfMessages{0u};
 unsigned int numberOfMessagesRealTime{0u};
 double totalRoundTripTime;
 RTIME minRoundTripTime = std::numeric_limits<RTIME>::max();
 RTIME maxRoundTripTime = std::numeric_limits<RTIME>::min();
-
-void TerminationHandler(int s)
-{
-  printf("Controller Exiting\n");
-
-  free(rtSendMessage.data);
-  free(rtReceiveMessage.data);
-  exit(1);
-}
 
 void SendMotorStepRoutine(void*)
 {
@@ -95,6 +94,47 @@ void SendMotorStepRoutine(void*)
   }
 }
 
+void ReceiveMotorOutputRoutine(void*)
+{
+  void *blockPointer;
+  rt_heap_alloc(&rtHeap, RtQueue::kMessageSize, TM_INFINITE, &blockPointer);
+
+  for (;;)
+  {
+    rt_queue_bind(&rtMotorOutputQueue, "rtMotorOutputQueue", TM_INFINITE);
+    auto bytesRead = rt_queue_read(
+      &rtMotorOutputQueue, blockPointer, RtQueue::kMessageSize, TM_INFINITE);
+
+    if (bytesRead)
+    {
+      int messageType;
+      memcpy(&messageType, blockPointer, sizeof(int));
+
+      if (messageType == tMotorMessage)
+      {
+        auto motorMessage = MotorMessage{};
+        memcpy(&motorMessage, blockPointer, sizeof(MotorMessage));
+
+        rt_printf("Received MotorMessage, ft_CurrentU: %f, ft_CurrentV: %f, "
+          "ft_CurrentW: %f, ft_RotorRPM: %f, ft_RotorDegreeRad: %f, "
+          "ft_OutputTorque: %f\n", motorMessage.ft_CurrentU, motorMessage.ft_CurrentV,
+          motorMessage.ft_CurrentW, motorMessage.ft_RotorRPM,
+          motorMessage.ft_RotorDegreeRad, motorMessage.ft_OutputTorque);
+      }
+    }
+    rt_heap_free(&rtHeap, blockPointer);
+  }
+}
+
+void TerminationHandler(int s)
+{
+  printf("Controller Exiting\n");
+  rt_heap_delete(&rtHeap);
+  free(rtSendMessage.data);
+  free(rtReceiveMessage.data);
+  exit(1);
+}
+
 int main(int argc, char *argv[])
 {
   // signal handler for ctrl + c
@@ -110,10 +150,7 @@ int main(int argc, char *argv[])
 
   cpu_set_t cpuSet;
   CPU_ZERO(&cpuSet);
-  CPU_SET(5, &cpuSet);
   CPU_SET(6, &cpuSet);
-  CPU_SET(7, &cpuSet);
-  CPU_SET(8, &cpuSet);
 
   rt_task_create(&rtSendMotorStepTask, "rtSendMotorStepTask",
     RtTask::kStackSize, RtTask::kHighPriority, RtTask::kMode);
@@ -121,6 +158,16 @@ int main(int argc, char *argv[])
     rt_timer_ns2ticks(RtTime::kTwentyMicroseconds));
   rt_task_set_affinity(&rtSendMotorStepTask, &cpuSet);
   rt_task_start(&rtSendMotorStepTask, SendMotorStepRoutine, NULL);
+
+  // TODO receive motor output
+  CPU_ZERO(&cpuSet);
+  CPU_SET(7, &cpuSet);
+  rt_heap_create(&rtHeap, "rtControllerHeap", RtQueue::kMessageSize, H_SINGLE);
+
+  rt_task_create(&rtReceiveMotorOutputTask, "rtControlReceiveMotorOutputTask",
+    RtTask::kStackSize, RtTask::kHighPriority, RtTask::kMode);
+  rt_task_set_affinity(&rtReceiveMotorOutputTask, &cpuSet);
+  rt_task_start(&rtReceiveMotorOutputTask, ReceiveMotorOutputRoutine, NULL);
 
   for (;;)
   {}
