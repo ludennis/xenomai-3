@@ -16,7 +16,8 @@
 #include "generated_model.h"
 #include "input_interface.h"
 
-RT_TASK rtMotorReceiveStepTask;
+RT_TASK rtMotorStepTask;
+RT_TASK rtMotorReceiveTask;
 RT_TASK rtMotorBroadcastOutputTask;
 
 RT_TASK_MCB rtReceiveMessage;
@@ -32,7 +33,28 @@ RT_QUEUE_INFO rtMotorOutputQueueInfo;
 unsigned int numberOfMessages{0u};
 double totalStepTime{0.0};
 
-void MotorReceiveStepRoutine(void*)
+void MotorStepRoutine(void*)
+{
+  for (;;)
+  {
+    rtTimerBegin = rt_timer_read();
+    generated_model_step();
+    rtTimerEnd = rt_timer_read();
+    ++numberOfMessages;
+    totalStepTime += (rtTimerEnd - rtTimerBegin);
+
+    if (rt_timer_read() - rtTimerOneSecond > RtTime::kOneSecond)
+    {
+      rt_printf("Motor Stepped %d times. avg step time: %.2f nanoseconds\n",
+        numberOfMessages, totalStepTime / numberOfMessages);
+      rtTimerOneSecond = rt_timer_read();
+    }
+
+    rt_task_wait_period(NULL);
+  }
+}
+
+void MotorReceiveRoutine(void*)
 {
   rt_printf("Motor Ready to Receive\n");
 
@@ -40,7 +62,7 @@ void MotorReceiveStepRoutine(void*)
 
   for (;;)
   {
-    // wait to receive step
+    // wait to receive message
     rtReceiveMessage.data = (char*) malloc(RtTask::kMessageSize);
     rtReceiveMessage.size = RtTask::kMessageSize;
     auto retval = rt_task_receive(&rtReceiveMessage, TM_INFINITE);
@@ -57,23 +79,6 @@ void MotorReceiveStepRoutine(void*)
     memcpy(rtSendMessage.data, buffer, RtTask::kMessageSize);
     rt_task_reply(flowid, &rtSendMessage);
 
-    // run step
-    if (strcmp((char*)rtReceiveMessage.data, "step") == 0)
-    {
-      rtTimerBegin = rt_timer_read();
-      generated_model_step();
-      rtTimerEnd = rt_timer_read();
-      ++numberOfMessages;
-      totalStepTime += (rtTimerEnd - rtTimerBegin);
-    }
-
-    if (rt_timer_read() - rtTimerOneSecond > RtTime::kOneSecond)
-    {
-      rt_printf("Motor Stepped %d times. avg step time: %.2f nanoseconds\n",
-        numberOfMessages, totalStepTime / numberOfMessages);
-      rtTimerOneSecond = rt_timer_read();
-    }
-
     free(rtReceiveMessage.data);
     free(rtSendMessage.data);
   }
@@ -82,15 +87,11 @@ void MotorReceiveStepRoutine(void*)
 void MotorBroadcastOutputRoutine(void*)
 {
   // find queue to send to
-
   for (;;)
   {
     rt_queue_inquire(&rtMotorOutputQueue, &rtMotorOutputQueueInfo);
     if (rtMotorOutputQueueInfo.nwaiters > 0)
     {
-      rt_printf("rtMotorOutputQueueInfo.nwaiters = %d\n", rtMotorOutputQueueInfo.nwaiters);
-
-      rt_printf("Sending/broadcasting\n");
       // send/boradcast
       void *message = rt_queue_alloc(&rtMotorOutputQueue, sizeof(RtQueue::kMessageSize));
       if (message == NULL)
@@ -111,8 +112,6 @@ void MotorBroadcastOutputRoutine(void*)
       {
         rt_printf("rt_queue_send error: %s\n", strerror(-retval));
       }
-      else
-        rt_printf("motor message sent\n");
     }
 
     rt_task_wait_period(NULL);
@@ -146,23 +145,31 @@ int main(int argc, char * argv[])
   rt_queue_inquire(&rtMotorOutputQueue, &rtMotorOutputQueueInfo);
   rt_printf("Queue %s created\n", rtMotorOutputQueueInfo.name);
 
-  rt_task_create(&rtMotorReceiveStepTask, "rtMotorReceiveStepTask", RtTask::kStackSize,
-    RtTask::kHighPriority, RtTask::kMode);
-  rt_task_start(&rtMotorReceiveStepTask, MotorReceiveStepRoutine, NULL);
-  rt_printf("rtMotorReceiveStepTask started\n");
-
-
-  // TODO: use a different CPU for this task
   cpu_set_t cpuSet;
   CPU_ZERO(&cpuSet);
   CPU_SET(5, &cpuSet);
+  rt_task_create(&rtMotorStepTask, "rtMotorStepTask", RtTask::kStackSize,
+    RtTask::kHighPriority, RtTask::kMode);
+  rt_task_set_affinity(&rtMotorStepTask, &cpuSet);
+  rt_task_set_periodic(&rtMotorStepTask, TM_NOW, rt_timer_ns2ticks(RtTime::kTenMicroseconds));
+  rt_task_start(&rtMotorStepTask, MotorStepRoutine, NULL);
+
+  CPU_ZERO(&cpuSet);
   CPU_SET(6, &cpuSet);
+  rt_task_create(&rtMotorReceiveTask, "rtMotorReceiveStepTask", RtTask::kStackSize,
+    RtTask::kHighPriority, RtTask::kMode);
+  rt_task_set_affinity(&rtMotorReceiveTask, &cpuSet);
+  rt_task_start(&rtMotorReceiveTask, MotorReceiveRoutine, NULL);
+  rt_printf("rtMotorReceiveStepTask started\n");
+
+  // TODO: use a different CPU for this task
+  CPU_ZERO(&cpuSet);
   CPU_SET(7, &cpuSet);
-  CPU_SET(8, &cpuSet);
+
   rt_task_create(&rtMotorBroadcastOutputTask, "rtMotorBroadcastOutputTask",
     RtTask::kStackSize, RtTask::kMediumPriority, RtTask::kMode);
   rt_task_set_periodic(&rtMotorBroadcastOutputTask, TM_NOW,
-    rt_timer_ns2ticks(RtTime::kOneSecond));
+    rt_timer_ns2ticks(RtTime::kTenMilliseconds));
   rt_task_start(&rtMotorBroadcastOutputTask, MotorBroadcastOutputRoutine, NULL);
   rt_printf("rtMotorBroadcastOutputTask started\n");
 

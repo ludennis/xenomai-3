@@ -13,6 +13,9 @@ constexpr auto kMessageSize = 8u;
 
 namespace RtTime
 {
+constexpr auto kOneMicrosecond = 1000;
+constexpr auto kTwoMicroseconds = 2000;
+constexpr auto kFiveMicroseconds = 5000;
 constexpr auto kTenMicroseconds = 10000;
 constexpr auto kFifteenMicroseconds = 15000;
 constexpr auto kTwentyMicroseconds = 20000;
