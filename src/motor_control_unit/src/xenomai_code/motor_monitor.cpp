@@ -40,16 +40,18 @@ void ReceiveMotorMessage(void*)
       int messageType;
       memcpy(&messageType, blockPointer, sizeof(int));
 
-      if (messageType == tMotorMessage)
+      if (messageType == tMotorOutputMessage)
       {
-        MotorMessage *motorMessage = (MotorMessage*) malloc(sizeof(MotorMessage));
-        memcpy(motorMessage, blockPointer, sizeof(MotorMessage));
+        MotorOutputMessage *motorOutputMessage =
+          (MotorOutputMessage*) malloc(sizeof(MotorOutputMessage));
+        memcpy(motorOutputMessage, blockPointer, sizeof(MotorOutputMessage));
 
-        rt_printf("Received MotorMessage, ft_CurrentU: %f, ft_CurrentV: %f, "
+        rt_printf("Received MotorOutputMessage, ft_CurrentU: %f, ft_CurrentV: %f, "
           "ft_CurrentW: %f, ft_RotorRPM: %f, ft_RotorDegreeRad: %f, "
-          "ft_OutputTorque: %f\n", motorMessage->ft_CurrentU, motorMessage->ft_CurrentV,
-          motorMessage->ft_CurrentW, motorMessage->ft_RotorRPM,
-          motorMessage->ft_RotorDegreeRad, motorMessage->ft_OutputTorque);
+          "ft_OutputTorque: %f\n", motorOutputMessage->ft_CurrentU,
+          motorOutputMessage->ft_CurrentV, motorOutputMessage->ft_CurrentW,
+          motorOutputMessage->ft_RotorRPM, motorOutputMessage->ft_RotorDegreeRad,
+          motorOutputMessage->ft_OutputTorque);
       }
     }
 

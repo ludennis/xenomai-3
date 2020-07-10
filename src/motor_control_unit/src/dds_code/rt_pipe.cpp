@@ -21,16 +21,17 @@ int main(int argc, char *argv[])
 
   for (;;)
   {
-    MotorMessage *motorMessage = (MotorMessage*) malloc(RtMessage::kMessageSize);
-    auto bytesRead = read(fileDescriptor, motorMessage, RtMessage::kMessageSize);
+    MotorOutputMessage *motorOutputMessage =
+      (MotorOutputMessage*) malloc(RtMessage::kMessageSize);
+    auto bytesRead = read(fileDescriptor, motorOutputMessage, RtMessage::kMessageSize);
     printf("Read bytes %ld from fileDescriptor\n", bytesRead);
     if (bytesRead > 0)
     {
-      printf("motorMessage rpm: %f\n", motorMessage->ft_RotorRPM);
+      printf("motorOutputMessage rpm: %f\n", motorOutputMessage->ft_RotorRPM);
     }
     if (bytesRead < 0)
       printf("read error: %s\n", strerror(errno));
-    free(motorMessage);
+    free(motorOutputMessage);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }

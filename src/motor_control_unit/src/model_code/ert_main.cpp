@@ -99,15 +99,16 @@ void MotorBroadcastOutputRoutine(void*)
 
       // TODO prevent two tasks figting over model
       auto generatedModelMotorOutput = input_interface::GetMsgMotorOutput();
-      MotorMessage motorMessageData = MotorMessage{
-        tMotorMessage, generatedModelMotorOutput.ft_CurrentU,
+      MotorOutputMessage motorOutputMessageData = MotorOutputMessage{
+        tMotorOutputMessage, generatedModelMotorOutput.ft_CurrentU,
         generatedModelMotorOutput.ft_CurrentV, generatedModelMotorOutput.ft_CurrentW,
         generatedModelMotorOutput.ft_RotorRPM, generatedModelMotorOutput.ft_RotorDegreeRad,
         generatedModelMotorOutput.ft_OutputTorque};
-      memcpy(message, &motorMessageData, sizeof(MotorMessage));
+      memcpy(message, &motorOutputMessageData, sizeof(MotorOutputMessage));
 
       // send message
-      auto retval = rt_queue_send(&rtMotorOutputQueue, message, sizeof(MotorMessage), Q_BROADCAST);
+      auto retval = rt_queue_send(
+        &rtMotorOutputQueue, message, sizeof(MotorOutputMessage), Q_BROADCAST);
       if (retval < -1)
       {
         rt_printf("rt_queue_send error: %s\n", strerror(-retval));

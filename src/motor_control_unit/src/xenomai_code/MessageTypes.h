@@ -2,9 +2,10 @@
 #define _MESSAGETYPES_H_
 
 // TODO: ensure a way that all message type size is less than RtMessage::kMessageSize
-auto constexpr tMotorMessage = 0;
+auto constexpr tMotorOutputMessage = 0;
+auto constexpr tMotorInputMessage = 1;
 
-struct MotorMessage
+struct MotorOutputMessage
 {
   int messageType;
   float ft_CurrentU;

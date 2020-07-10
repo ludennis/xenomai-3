@@ -33,7 +33,7 @@ void DdsPipeRoutine(void*)
       int messageType;
       memcpy(&messageType, blockPointer, sizeof(int));
 
-      if (messageType == tMotorMessage)
+      if (messageType == tMotorOutputMessage)
       {
         rt_printf("Received motor output message\n");
 
