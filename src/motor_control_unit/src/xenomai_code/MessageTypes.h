@@ -16,4 +16,15 @@ struct MotorOutputMessage
   float ft_OutputTorque;
 };
 
+struct MotorInputMessage
+{
+  int messageType;
+  float ft_OutputTorqueS;
+  float ft_VoltageQ;
+  float ft_VoltageD;
+  float ft_CurrentUS;
+  float ft_CurrentVS;
+  float ft_CurrentWs;
+};
+
 #endif // _MESSAGETYPES_H_
