@@ -1,0 +1,65 @@
+module basic{
+	module module_vehicleSignal{
+		struct vehicleSignalStruct{
+			short id;
+			float server_fps;
+			string vehicle_name;
+			string map_name;
+			string simulation_time;
+			float vehicle_speed;
+			float compass;
+			string heading;
+			float accelerometer[3];
+			float gyroscope[3];
+			float location[3];
+			float latitude;
+			float longitude;
+			float throttle;
+			float steer;
+			float brake;
+			boolean reverse;
+			boolean hand_brake;
+			boolean manual_gear_shift;
+			short gear;
+			float collision[200];
+			short vehicle_number;
+			string surrounding_vehicle_name[10];
+			float surrounding_vehicle_distance[10];
+			boolean user_cmd[20];
+			short user_cmd_sensor_change;
+		};
+		#pragma keylist vehicleSignalStruct id
+	};
+
+	module module_vehicleMessage{
+		struct vehicleMessageStruct{
+			short id;
+			string notification;
+		};
+		#pragma keylist vehicleMessageStruct id
+	};
+
+	module module_driverSignal{
+		struct driverSignalStruct{
+			short id;
+			double throttle;
+			double brake;
+			boolean reverse;
+			boolean manual_gear_shift;
+			short gear;
+			double steer;
+			boolean hand_brake;
+		};
+		#pragma keylist driverSignalStruct id
+	};
+
+	module module_userSignal{
+		struct userSignalStruct{
+			short id;
+			boolean user_cmd[21];
+			short user_cmd_sensor_change;
+		};
+		#pragma keylist userSignalStruct id
+	};
+
+};

@@ -52,6 +52,7 @@ add_definitions(
 # idl settings
 set(idls
   ${PROJECT_SOURCE_DIR}/src/idl/MotorControllerUnitModule.idl
+  ${PROJECT_SOURCE_DIR}/src/idl/carla_client_server_user.idl
 )
 
 set(idl_targets)
@@ -145,6 +146,7 @@ set(SIMULINK_GENERATED_CODE_DIR "${PROJECT_SOURCE_DIR}/src/simulink_generated_co
 set(PEAK_CAN_CODE_DIR "${PROJECT_SOURCE_DIR}/src/peak_can_code")
 set(NI_CODE_DIR "${PROJECT_SOURCE_DIR}/src/ni_code")
 set(DDS_CODE_DIR "${PROJECT_SOURCE_DIR}/src/dds_code")
+set(IDL_DIR "${PROJECT_SOURCE_DIR}/src/idl")
 
 set(PICKERING_INCLUDE_DIR "/usr/local/lib")
 set(PEAK_CAN_INCLUDE_DIR "/usr/local/include")
@@ -468,28 +470,44 @@ target_link_libraries(motor_monitor
 )
 
 # dds pipe
-add_executable(dds_pipe
+add_executable(to_non_rt_pipe
   ${XENOMAI_CODE_DIR}/dds_pipe.cpp
 )
 
-target_include_directories(dds_pipe
+target_include_directories(to_non_rt_pipe
   PUBLIC
   ${XENOMAI_INCLUDE_DIRS}
   ${XENOMAI_CODE_DIR}
 )
 
-target_link_libraries(dds_pipe
+target_link_libraries(to_non_rt_pipe
   ${XENOMAI_LIBRARIES}
 )
 
-# rt_pipe
-add_executable(rt_pipe
-  ${DDS_CODE_DIR}/rt_pipe.cpp
+# dds from rt pipe
+add_executable(from_rt_pipe
+  ${DDS_CODE_DIR}/from_rt_pipe.cpp
 )
 
-target_include_directories(rt_pipe
+target_include_directories(from_rt_pipe
   PUBLIC
   ${XENOMAI_CODE_DIR}
+)
+
+# dds to rt pipe
+add_executable(to_rt_pipe
+  ${DDS_CODE_DIR}/to_rt_pipe.cpp
+)
+
+target_include_directories(to_rt_pipe
+  PUBLIC
+  ${XENOMAI_CODE_DIR}
+  ${IDL_DIR}
+)
+
+target_link_libraries(to_rt_pipe
+  PUBLIC
+  ${DATAMODEL}
 )
 
 # install
