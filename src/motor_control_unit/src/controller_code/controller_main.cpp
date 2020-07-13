@@ -6,6 +6,7 @@
 
 #include <alchemy/task.h>
 #include <alchemy/heap.h>
+#include <alchemy/pipe.h>
 #include <alchemy/queue.h>
 
 #include <RtMacro.h>
@@ -14,6 +15,7 @@
 RT_TASK rtMotorReceiveStepTask;
 RT_TASK rtSendMotorStepTask;
 RT_TASK rtReceiveMotorOutputTask;
+RT_TASK rtReceiveMotorInputFromPipeTask;
 
 RT_TASK_MCB rtSendMessage;
 RT_TASK_MCB rtReceiveMessage;
@@ -25,6 +27,8 @@ RTIME rtTimerFiveSeconds;
 
 RT_HEAP rtHeap;
 
+RT_PIPE rtPipe;
+
 RT_QUEUE rtMotorOutputQueue;
 
 unsigned int numberOfMessages{0u};
@@ -33,65 +37,34 @@ double totalRoundTripTime;
 RTIME minRoundTripTime = std::numeric_limits<RTIME>::max();
 RTIME maxRoundTripTime = std::numeric_limits<RTIME>::min();
 
-void SendMotorStepRoutine(void*)
+void ReceiveMotorInputFromPipeRoutine(void*)
 {
-  // find motor task
-  rt_task_bind(&rtMotorReceiveStepTask, "rtMotorReceiveStepTask", TM_INFINITE);
-  rt_printf("Found motor\n");
-
-  rtTimerOneSecond = rt_timer_read();
-  rtTimerFiveSeconds = rt_timer_read();
+  void *buffer = malloc(RtMessage::kMessageSize);
 
   for (;;)
   {
-    // send message
-    rtSendMessage.data = (char*) malloc(RtTask::kMessageSize);
-    rtSendMessage.size = RtTask::kMessageSize;
-    const char sendData[] = "step";
-    memcpy(rtSendMessage.data, sendData, RtTask::kMessageSize);
+    auto bytesRead = rt_pipe_read(&rtPipe, buffer, RtMessage::kMessageSize, TM_INFINITE);
 
-    rtReceiveMessage.data = (char*) malloc(RtTask::kMessageSize);
-    rtReceiveMessage.size = RtTask::kMessageSize;
-
-    rtTimerBegin = rt_timer_read();
-    auto retval = rt_task_send(&rtMotorReceiveStepTask, &rtSendMessage, &rtReceiveMessage,
-      TM_INFINITE);
-    rtTimerEnd = rt_timer_read();
-    if (retval < 0)
+    if (bytesRead <= 0)
     {
-      rt_printf("rt_task_send error: %s\n", strerror(-retval));
+      rt_printf("rt_pipe_read error: %s\n");
     }
     else
     {
-      if (rt_timer_read() - rtTimerFiveSeconds >= RtTime::kFiveSeconds)
-      {
-        auto timeElapsed = rtTimerEnd - rtTimerBegin;
-        ++numberOfMessages;
-        totalRoundTripTime += timeElapsed;
-
-        if (timeElapsed < minRoundTripTime)
-          minRoundTripTime = timeElapsed;
-        else if (timeElapsed > maxRoundTripTime)
-          maxRoundTripTime = timeElapsed;
-        if (timeElapsed <= RtTime::kTenMicroseconds)
-          ++numberOfMessagesRealTime;
-      }
+      rt_printf("Read %ld bytes\n", bytesRead);
     }
-
-    free(rtSendMessage.data);
-    free(rtReceiveMessage.data);
-
-    if (rt_timer_read() - rtTimerOneSecond >= RtTime::kOneSecond)
-    {
-      rt_printf("num msgs: %d, min: %d ns, avg: %.1f ns, max: %d ns, hrt: %.5f%\n",
-        numberOfMessages, minRoundTripTime,
-        totalRoundTripTime/numberOfMessages, maxRoundTripTime,
-        (numberOfMessagesRealTime * 100.0f) / numberOfMessages);
-      rtTimerOneSecond = rt_timer_read();
-    }
-
-    rt_task_wait_period(NULL);
   }
+
+  free(buffer);
+}
+
+void SendMotorInputRoutine(void*)
+{
+  void *buffer = rt_queue_alloc(&rtMotorInputQueue, RtQueue::kMessageSize);
+  MotorInputMessage motorInputMessage = MotorInputMessage{
+    1, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0};
+  memcpy(buffer, &motorInputMessage, RtQueue::kMessageSize);
+  rt_queue_send(&rtMotorInputQueue, buffer, RtQueue::kMessageSize, Q_NORMAL);
 }
 
 void ReceiveMotorOutputRoutine(void*)
@@ -144,20 +117,11 @@ int main(int argc, char *argv[])
   signalHandler.sa_flags = 0;
   sigaction(SIGINT, &signalHandler, NULL);
 
-  std::cout << "Connecting to motor ...";
+  printf("Connecting to motor\n");
 
   mlockall(MCL_CURRENT | MCL_FUTURE);
 
   cpu_set_t cpuSet;
-  CPU_ZERO(&cpuSet);
-  CPU_SET(6, &cpuSet);
-
-  rt_task_create(&rtSendMotorStepTask, "rtSendMotorStepTask",
-    RtTask::kStackSize, RtTask::kHighPriority, RtTask::kMode);
-  rt_task_set_periodic(&rtSendMotorStepTask, TM_NOW,
-    rt_timer_ns2ticks(RtTime::kTwentyMicroseconds));
-  rt_task_set_affinity(&rtSendMotorStepTask, &cpuSet);
-  rt_task_start(&rtSendMotorStepTask, SendMotorStepRoutine, NULL);
 
   // TODO receive motor output
   CPU_ZERO(&cpuSet);
@@ -168,6 +132,26 @@ int main(int argc, char *argv[])
     RtTask::kStackSize, RtTask::kHighPriority, RtTask::kMode);
   rt_task_set_affinity(&rtReceiveMotorOutputTask, &cpuSet);
   rt_task_start(&rtReceiveMotorOutputTask, ReceiveMotorOutputRoutine, NULL);
+
+  // send motor input task
+  rt_queue_create(&rtMotorInputQueue, "rtMotorInputQueue",
+    RtQueue::kMessageSize * RtQueue::kQueueLimit, RtQueue::kQueueLimit, Q_FIFO);
+
+  CPU_ZERO(&cpuSet);
+  CPU_SET(6, &cpuSet);
+  rt_task_create(&rtSendMotorInputTask, "rtSendMotorInputTask", RtTask::kStackSize,
+    RtTask::kHighPriority, RtTask::kMode);
+  rt_task_set_affinity(&rtSendMotorInputTask, &cpuSet);
+  rt_task_start(&rtSendMotorInputTask, SendMotorInputRoutine, NULL);
+
+  // receive motor input through message pipe
+  CPU_ZERO(&cpuSet);
+  CPU_SET(7, &cpuSet);
+  rt_pipe_create(&rtPipe, "rtPipeRtp1", 1, RtMessage::kMessageSize);
+  rt_task_create(&rtReceiveMotorInputFromPipeTask, "rtReceiveMotorInputFromPipeTask",
+    RtTask::kStackSize, RtTask::kMediumPriority, RtTask::kMode);
+  rt_task_set_affinity(&rtReceiveMotorInputFromPipeTask, &cpuSet);
+  rt_task_start(&rtReceiveMotorInputFromPipeTask, ReceiveMotorInputFromPipeRoutine, NULL);
 
   for (;;)
   {}
