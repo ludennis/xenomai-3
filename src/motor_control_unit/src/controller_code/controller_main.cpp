@@ -15,7 +15,7 @@
 RT_TASK rtMotorReceiveStepTask;
 RT_TASK rtSendMotorStepTask;
 RT_TASK rtReceiveMotorOutputTask;
-RT_TASK rtReceiveMotorInputFromPipeTask;
+RT_TASK rtForwardMotorInputFromPipeTask;
 
 RT_TASK_MCB rtSendMessage;
 RT_TASK_MCB rtReceiveMessage;
@@ -30,6 +30,7 @@ RT_HEAP rtHeap;
 RT_PIPE rtPipe;
 
 RT_QUEUE rtMotorOutputQueue;
+RT_QUEUE rtMotorInputQueue;
 
 unsigned int numberOfMessages{0u};
 unsigned int numberOfMessagesRealTime{0u};
@@ -37,13 +38,14 @@ double totalRoundTripTime;
 RTIME minRoundTripTime = std::numeric_limits<RTIME>::max();
 RTIME maxRoundTripTime = std::numeric_limits<RTIME>::min();
 
-void ReceiveMotorInputFromPipeRoutine(void*)
+void ForwardMotorInputFromPipeRoutine(void*)
 {
-  void *buffer = malloc(RtMessage::kMessageSize);
+  void *pipeBufferRead = malloc(RtMessage::kMessageSize);
 
   for (;;)
   {
-    auto bytesRead = rt_pipe_read(&rtPipe, buffer, RtMessage::kMessageSize, TM_INFINITE);
+    auto bytesRead = rt_pipe_read(
+      &rtPipe, pipeBufferRead, RtMessage::kMessageSize, TM_INFINITE);
 
     if (bytesRead <= 0)
     {
@@ -51,20 +53,19 @@ void ReceiveMotorInputFromPipeRoutine(void*)
     }
     else
     {
-      rt_printf("Read %ld bytes\n", bytesRead);
+      void *queueBufferSend = rt_queue_alloc(&rtMotorInputQueue, RtQueue::kMessageSize);
+      memcpy(queueBufferSend, pipeBufferRead, RtQueue::kMessageSize);
+      auto retval = rt_queue_send(
+        &rtMotorInputQueue, queueBufferSend, RtQueue::kMessageSize, Q_NORMAL);
+
+      if (retval < 0)
+        rt_printf("rt_queue_send error: %s\n", strerror(retval));
+      else
+        rt_printf("Forwarded %ld bytes\n", bytesRead);
     }
   }
 
-  free(buffer);
-}
-
-void SendMotorInputRoutine(void*)
-{
-  void *buffer = rt_queue_alloc(&rtMotorInputQueue, RtQueue::kMessageSize);
-  MotorInputMessage motorInputMessage = MotorInputMessage{
-    1, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0};
-  memcpy(buffer, &motorInputMessage, RtQueue::kMessageSize);
-  rt_queue_send(&rtMotorInputQueue, buffer, RtQueue::kMessageSize, Q_NORMAL);
+  free(pipeBufferRead);
 }
 
 void ReceiveMotorOutputRoutine(void*)
@@ -137,21 +138,14 @@ int main(int argc, char *argv[])
   rt_queue_create(&rtMotorInputQueue, "rtMotorInputQueue",
     RtQueue::kMessageSize * RtQueue::kQueueLimit, RtQueue::kQueueLimit, Q_FIFO);
 
-  CPU_ZERO(&cpuSet);
-  CPU_SET(6, &cpuSet);
-  rt_task_create(&rtSendMotorInputTask, "rtSendMotorInputTask", RtTask::kStackSize,
-    RtTask::kHighPriority, RtTask::kMode);
-  rt_task_set_affinity(&rtSendMotorInputTask, &cpuSet);
-  rt_task_start(&rtSendMotorInputTask, SendMotorInputRoutine, NULL);
-
   // receive motor input through message pipe
   CPU_ZERO(&cpuSet);
-  CPU_SET(7, &cpuSet);
+  CPU_SET(6, &cpuSet);
   rt_pipe_create(&rtPipe, "rtPipeRtp1", 1, RtMessage::kMessageSize);
-  rt_task_create(&rtReceiveMotorInputFromPipeTask, "rtReceiveMotorInputFromPipeTask",
+  rt_task_create(&rtForwardMotorInputFromPipeTask, "rtForwardMotorInputFromPipeTask",
     RtTask::kStackSize, RtTask::kMediumPriority, RtTask::kMode);
-  rt_task_set_affinity(&rtReceiveMotorInputFromPipeTask, &cpuSet);
-  rt_task_start(&rtReceiveMotorInputFromPipeTask, ReceiveMotorInputFromPipeRoutine, NULL);
+  rt_task_set_affinity(&rtForwardMotorInputFromPipeTask, &cpuSet);
+  rt_task_start(&rtForwardMotorInputFromPipeTask, ForwardMotorInputFromPipeRoutine, NULL);
 
   for (;;)
   {}

@@ -9,6 +9,7 @@
 
 #include <alchemy/task.h>
 #include <alchemy/queue.h>
+#include <alchemy/heap.h>
 
 #include <RtMacro.h>
 #include <MessageTypes.h>
@@ -16,9 +17,12 @@
 #include "generated_model.h"
 #include "input_interface.h"
 
+RT_HEAP rtHeap;
+
 RT_TASK rtMotorStepTask;
 RT_TASK rtMotorReceiveTask;
 RT_TASK rtMotorBroadcastOutputTask;
+RT_TASK rtMotorReceiveInputTask;
 
 RT_TASK_MCB rtReceiveMessage;
 RT_TASK_MCB rtSendMessage;
@@ -27,6 +31,7 @@ RTIME rtTimerBegin;
 RTIME rtTimerEnd;
 RTIME rtTimerOneSecond;
 
+RT_QUEUE rtMotorInputQueue;
 RT_QUEUE rtMotorOutputQueue;
 RT_QUEUE_INFO rtMotorOutputQueueInfo;
 
@@ -54,33 +59,39 @@ void MotorStepRoutine(void*)
   }
 }
 
-void MotorReceiveRoutine(void*)
+void MotorReceiveInputRoutine(void*)
 {
-  rt_printf("Motor Ready to Receive\n");
+  rt_printf("MotorReceiveInputRoutine started\n");
 
-  rtTimerOneSecond = rt_timer_read();
-
+  void *blockPointer;
+  rt_heap_alloc(&rtHeap, RtQueue::kMessageSize, TM_INFINITE, &blockPointer);
   for (;;)
   {
-    // wait to receive message
-    rtReceiveMessage.data = (char*) malloc(RtTask::kMessageSize);
-    rtReceiveMessage.size = RtTask::kMessageSize;
-    auto retval = rt_task_receive(&rtReceiveMessage, TM_INFINITE);
-    if (retval < 0)
+    auto sendingQueueBound = rt_queue_bind(
+      &rtMotorInputQueue, "rtMotorInputQueue", TM_INFINITE);
+    if (sendingQueueBound != 0)
     {
-      rt_printf("rt_task_receive error: %s\n", strerror(-retval));
+      rt_printf("Sending queue binding error\n");
+      continue;
     }
-    auto flowid = retval;
 
-    // send ack message
-    rtSendMessage.data = (char*) malloc(RtTask::kMessageSize);
-    rtSendMessage.size = RtTask::kMessageSize;
-    const char buffer[] = "ack";
-    memcpy(rtSendMessage.data, buffer, RtTask::kMessageSize);
-    rt_task_reply(flowid, &rtSendMessage);
+    rt_printf("Reading queue\n");
+    auto bytesRead =
+      rt_queue_read(&rtMotorInputQueue, blockPointer, RtQueue::kMessageSize, TM_INFINITE);
 
-    free(rtReceiveMessage.data);
-    free(rtSendMessage.data);
+    if (bytesRead > 0)
+    {
+      rt_printf("Received %d\n", bytesRead);
+      int messageType;
+      memcpy(&messageType, blockPointer, sizeof(int));
+
+      if (messageType == tMotorInputMessage)
+      {
+        rt_printf("Motor Input Message received\n");
+      }
+    }
+
+    rt_heap_free(&rtHeap, blockPointer);
   }
 }
 
@@ -155,13 +166,13 @@ int main(int argc, char * argv[])
   rt_task_set_periodic(&rtMotorStepTask, TM_NOW, rt_timer_ns2ticks(RtTime::kTenMicroseconds));
   rt_task_start(&rtMotorStepTask, MotorStepRoutine, NULL);
 
+  rt_heap_create(&rtHeap, "rtHeapMotorInput", RtQueue::kMessageSize, H_SINGLE);
   CPU_ZERO(&cpuSet);
   CPU_SET(6, &cpuSet);
-  rt_task_create(&rtMotorReceiveTask, "rtMotorReceiveStepTask", RtTask::kStackSize,
+  rt_task_create(&rtMotorReceiveInputTask, "rtMotorReceiveInputTask", RtTask::kStackSize,
     RtTask::kHighPriority, RtTask::kMode);
-  rt_task_set_affinity(&rtMotorReceiveTask, &cpuSet);
-  rt_task_start(&rtMotorReceiveTask, MotorReceiveRoutine, NULL);
-  rt_printf("rtMotorReceiveStepTask started\n");
+  rt_task_set_affinity(&rtMotorReceiveInputTask, &cpuSet);
+  rt_task_start(&rtMotorReceiveInputTask, MotorReceiveInputRoutine, NULL);
 
   // TODO: use a different CPU for this task
   CPU_ZERO(&cpuSet);
