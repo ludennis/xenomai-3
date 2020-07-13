@@ -147,6 +147,8 @@ set(PEAK_CAN_CODE_DIR "${PROJECT_SOURCE_DIR}/src/peak_can_code")
 set(NI_CODE_DIR "${PROJECT_SOURCE_DIR}/src/ni_code")
 set(DDS_CODE_DIR "${PROJECT_SOURCE_DIR}/src/dds_code")
 set(IDL_DIR "${PROJECT_SOURCE_DIR}/src/idl")
+set(UTILS_DIR "${PROJECT_SOURCE_DIR}/src/utils")
+set(SRC_DIR "${PROJECT_SOURCE_DIR}/src")
 
 set(PICKERING_INCLUDE_DIR "/usr/local/lib")
 set(PEAK_CAN_INCLUDE_DIR "/usr/local/include")
@@ -503,6 +505,8 @@ target_include_directories(to_rt_pipe
   PUBLIC
   ${XENOMAI_CODE_DIR}
   ${IDL_DIR}
+  ${DDS_CODE_DIR}
+  ${SRC_DIR}
 )
 
 target_link_libraries(to_rt_pipe

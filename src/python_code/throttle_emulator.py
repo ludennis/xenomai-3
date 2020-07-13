@@ -19,13 +19,12 @@ if __name__ == '__main__':
     dp = DomainParticipant()
     vehicleSignalIdlClass = ddsutil.get_dds_classes_from_idl(idlFile, tVehicleSignal);
 
-    qos = Qos([DurabilityQosPolicy(DDSDurabilityKind.TRANSIENT),
-        ReliabilityQosPolicy(DDSReliabilityKind.RELIABLE)])
-    vehicleSignalTopic = vehicleSignalIdlClass.register_topic(dp, vehicleSignalTopicName, qos)
+    vehicleSignalTopic = vehicleSignalIdlClass.register_topic(dp, vehicleSignalTopicName)
 
     pub = dp.create_publisher()
 
-    vehicleSignalWriter = pub.create_datawriter(vehicleSignalTopic)
+    qos = Qos([ReliabilityQosPolicy(DDSReliabilityKind.RELIABLE)])
+    vehicleSignalWriter = pub.create_datawriter(vehicleSignalTopic, qos)
 
 
     print('Press w to increase throttle, s to decrease throttle, q to quit')
