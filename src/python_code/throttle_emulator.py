@@ -7,16 +7,16 @@ import sys
 from dds import *
 import ddsutil
 
-if __name__ == '__main__':
-    throttle = 0
+dp = DomainParticipant()
 
+def WaitForThrottleInputRoutine(threadName):
+    print("Thread {}: starting", threadName)
     print('Initializing DDS and idl files ...')
     idlFile = 'carla_client_server_user.idl'
 
     vehicleSignalTopicName = 'VehicleSignalTopic'
     tVehicleSignal = 'basic::module_vehicleSignal::vehicleSignalStruct'
 
-    dp = DomainParticipant()
     vehicleSignalIdlClass = ddsutil.get_dds_classes_from_idl(idlFile, tVehicleSignal);
 
     vehicleSignalTopic = vehicleSignalIdlClass.register_topic(dp, vehicleSignalTopicName)
@@ -26,9 +26,9 @@ if __name__ == '__main__':
     qos = Qos([ReliabilityQosPolicy(DDSReliabilityKind.RELIABLE)])
     vehicleSignalWriter = pub.create_datawriter(vehicleSignalTopic, qos)
 
-
     print('Press w to increase throttle, s to decrease throttle, q to quit')
 
+    throttle = 0
     messageId = 1;
     vehicleSpeed = 0.0;
     while True:
@@ -57,3 +57,10 @@ if __name__ == '__main__':
         vehicleSignalMessage.throttle = throttle
         vehicleSignalMessage.vehicle_speed = vehicleSpeed
         vehicleSignalWriter.write(vehicleSignalMessage)
+if __name__ == '__main__':
+    waitForThrottleInputThread = threading.Thread(
+      target=WaitForThrottleInputRoutine, args=("WaitForThrottleInputThread",))
+    waitForThrottleInputThread.start()
+
+    # wait for termination
+    waitForThrottleInputThread.join()
