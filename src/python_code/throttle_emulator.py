@@ -56,6 +56,7 @@ def WaitForThrottleInputRoutine(threadName):
         vehicleSignalMessage.id = messageId
         vehicleSignalMessage.throttle = throttle
         vehicleSignalMessage.vehicle_speed = vehicleSpeed
+        vehicleSignalMessage.simulation_time = str(int(time.monotonic() * 1e9))
         vehicleSignalWriter.write(vehicleSignalMessage)
 
 def WaitForVehicleSignalStructRoutine(threadName):

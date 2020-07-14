@@ -1,5 +1,8 @@
 #include <unistd.h>
 
+#include <chrono>
+#include <string>
+
 #include <alchemy/timer.h>
 
 #include <gen/carla_client_server_user_DCPS.hpp>
@@ -54,8 +57,16 @@ int main(int argc, char *argv[])
         {
           const auto &sample = *itr;
           const auto sampleData = sample.data();
-          printf("sample.id = %d, sample.throttle = %f, sample.vehicle_speed = %f\n",
-            sampleData.id(), sampleData.throttle(), sampleData.vehicle_speed());
+          printf("sample.id = %d, sample.throttle = %f, sample.vehicle_speed = %f, "
+            "sample.simulation_time = %s\n", sampleData.id(), sampleData.throttle(),
+            sampleData.vehicle_speed(), sampleData.simulation_time().c_str());
+
+          auto timeNow = std::chrono::duration_cast<std::chrono::nanoseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count();
+          printf("timeNow: %ld\n", timeNow);
+
+          printf("DDS Message travel time: %ld ns\n",
+            timeNow - std::stoul(sampleData.simulation_time()));
 
           // TODO: convert to xenomai MotorInputMessage
           MotorInputMessage motorInputMessage{1, rt_timer_read(), 1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
