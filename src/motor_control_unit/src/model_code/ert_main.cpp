@@ -89,9 +89,13 @@ void MotorReceiveInputRoutine(void*)
       {
         MotorInputMessage motorInputMessage;
         memcpy(&motorInputMessage, blockPointer, sizeof(MotorInputMessage));
-        rt_printf("Motor Input Message received: ft_OutputTorqueS = %f, "
-          "ft_VoltageQ = %f, ft_VoltageD = %f\n", motorInputMessage.ft_OutputTorqueS,
-          motorInputMessage.ft_VoltageQ, motorInputMessage.ft_VoltageD);
+        rt_printf("Motor Input Message received: timestamp: %lld, ft_OutputTorqueS = %f, "
+          "ft_VoltageQ = %f, ft_VoltageD = %f\n", motorInputMessage.timestamp,
+          motorInputMessage.ft_OutputTorqueS, motorInputMessage.ft_VoltageQ,
+          motorInputMessage.ft_VoltageD);
+
+        rt_printf("Motor Input took %lld ns from rt pipe\n",
+          rt_timer_read() - motorInputMessage.timestamp);
       }
     }
 
@@ -115,7 +119,7 @@ void MotorBroadcastOutputRoutine(void*)
       // TODO prevent two tasks figting over model
       auto generatedModelMotorOutput = input_interface::GetMsgMotorOutput();
       MotorOutputMessage motorOutputMessageData = MotorOutputMessage{
-        tMotorOutputMessage, generatedModelMotorOutput.ft_CurrentU,
+        tMotorOutputMessage, rt_timer_read(), generatedModelMotorOutput.ft_CurrentU,
         generatedModelMotorOutput.ft_CurrentV, generatedModelMotorOutput.ft_CurrentW,
         generatedModelMotorOutput.ft_RotorRPM, generatedModelMotorOutput.ft_RotorDegreeRad,
         generatedModelMotorOutput.ft_OutputTorque};
