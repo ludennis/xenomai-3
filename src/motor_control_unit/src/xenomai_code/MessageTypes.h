@@ -8,6 +8,7 @@ auto constexpr tMotorInputMessage = 1;
 struct MotorOutputMessage
 {
   int messageType;
+  unsigned long long timestamp;
   float ft_CurrentU;
   float ft_CurrentV;
   float ft_CurrentW;
@@ -19,6 +20,7 @@ struct MotorOutputMessage
 struct MotorInputMessage
 {
   int messageType;
+  unsigned long long timestamp;
   float ft_OutputTorqueS;
   float ft_VoltageQ;
   float ft_VoltageD;

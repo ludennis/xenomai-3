@@ -1,5 +1,7 @@
 #include <unistd.h>
 
+#include <alchemy/timer.h>
+
 #include <gen/carla_client_server_user_DCPS.hpp>
 
 #include <dds_bridge.hpp>
@@ -56,7 +58,7 @@ int main(int argc, char *argv[])
             sampleData.id(), sampleData.throttle(), sampleData.vehicle_speed());
 
           // TODO: convert to xenomai MotorInputMessage
-          MotorInputMessage motorInputMessage{1, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
+          MotorInputMessage motorInputMessage{1, rt_timer_read(), 1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
 
           // and send it to pipe /dev/rtp0
           memcpy(buffer, &motorInputMessage, RtMessage::kMessageSize);

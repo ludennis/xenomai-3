@@ -515,11 +515,13 @@ target_include_directories(to_rt_pipe
   ${IDL_DIR}
   ${DDS_CODE_DIR}
   ${SRC_DIR}
+  ${XENOMAI_INCLUDE_DIRS}
 )
 
 target_link_libraries(to_rt_pipe
   PUBLIC
   ${DATAMODEL}
+  ${XENOMAI_LIBRARIES}
 )
 
 # install

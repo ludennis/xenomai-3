@@ -44,13 +44,13 @@ constexpr auto kCore7 = 7;
 
 namespace RtMessage
 {
-constexpr auto kMessageSize = 32u;
+constexpr auto kMessageSize = 40u;
 }
 
 namespace RtQueue
 {
 constexpr auto kQueueLimit = 10;
-constexpr auto kMessageSize = 32u;
+constexpr auto kMessageSize = 40u;
 }
 
 #endif // _RTMACRO_H_
