@@ -9,7 +9,7 @@
 
 int main(int argc, char *argv[])
 {
-  char deviceName[] = "/dev/rtp1";
+  char deviceName[] = "/dev/rtp0";
   auto fileDescriptor = open(deviceName , O_WRONLY | O_NONBLOCK);
   if (fileDescriptor < 0)
   {
