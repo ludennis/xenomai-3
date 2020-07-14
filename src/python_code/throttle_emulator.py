@@ -8,10 +8,13 @@ from dds import *
 import ddsutil
 
 dp = DomainParticipant()
+isFinished = False
+
 
 def WaitForThrottleInputRoutine(threadName):
-    print('Thread {}: starting', threadName)
-    print('{} => Initializing DDS and idl files ...', threadName)
+    global isFinished;
+    print('Thread {}: starting'.format(threadName))
+    print('{} => Initializing DDS and idl files ...'.format(threadName))
     idlFile = 'carla_client_server_user.idl'
 
     vehicleSignalTopicName = 'VehicleSignalTopic'
@@ -41,7 +44,9 @@ def WaitForThrottleInputRoutine(threadName):
                 throttle += 1
             vehicleSpeed += (throttle * 0.6)
         elif keyboardInput == 'q':
-            sys.exit()
+            print('{} => Exiting'.format(threadName))
+            isFinished = True
+            return
         else:
             if throttle > 0:
                 throttle -= 1
@@ -59,9 +64,10 @@ def WaitForThrottleInputRoutine(threadName):
         vehicleSignalMessage.simulation_time = str(int(time.monotonic() * 1e9))
         vehicleSignalWriter.write(vehicleSignalMessage)
 
+
 def WaitForVehicleSignalStructRoutine(threadName):
-    print('Thread {}: starting ...', threadName)
-    print('{} => Initializing DDS and idl files ...', threadName)
+    print('Thread {}: starting ...'.format(threadName))
+    print('{} => Initializing DDS and idl files ...'.format(threadName))
     idlFile = 'carla_client_server_user.idl'
 
     vehicleSignalTopicName = 'VehicleSignalTopic'
@@ -76,15 +82,15 @@ def WaitForVehicleSignalStructRoutine(threadName):
     qos = Qos([ReliabilityQosPolicy(DDSReliabilityKind.RELIABLE)])
     reader = sub.create_datareader(vehicleSignalTopic, qos)
 
-    # read by waiting with infinite timeout
-#    waitset = WaitSet()
-#    dataAvailableCondition = QueryCondition(reader, DDSMaskUtil.new_samples())
-#    waitset.attach(dataAvailableCondition)
-
-    print('{} => Waiting for Motor Vehicle Signal messages', threadName)
-
+    print('{} => Waiting for Motor Vehicle Signal messages'.format(threadName))
     while True:
+        if isFinished == True:
+            print('{} => Exiting'.format(threadName))
+            return
+
+#        print("Reading/Taking")
         samples = reader.take(1)
+#        print("Finished reading/taking")
         for sd, si in samples:
             sd.print_vars()
 
@@ -100,3 +106,6 @@ if __name__ == '__main__':
 
     # wait for termination
     waitForThrottleInputThread.join()
+    print("waitForThrottleInputThread stopped")
+    waitForVehicleSignalStructThread.join()
+    print("waitForVehicleSignalStructThread stopped")
