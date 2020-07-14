@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include <alchemy/heap.h>
+#include <alchemy/pipe.h>
 #include <alchemy/task.h>
 #include <alchemy/queue.h>
 
@@ -12,11 +13,13 @@
 
 RT_HEAP rtHeap;
 
+RT_PIPE rtPipe;
+
 RT_QUEUE rtMotorOutputQueue;
 
-RT_TASK rtReceiveMotorMessageTask;
+RT_TASK rtForwardMotorOutputToPipeTask;
 
-void ReceiveMotorMessage(void*)
+void ForwardMotorOutputToPipeRoutine(void*)
 {
   // alloc heap block
   void *blockPointer;
@@ -42,16 +45,21 @@ void ReceiveMotorMessage(void*)
 
       if (messageType == tMotorOutputMessage)
       {
-        MotorOutputMessage *motorOutputMessage =
-          (MotorOutputMessage*) malloc(sizeof(MotorOutputMessage));
-        memcpy(motorOutputMessage, blockPointer, sizeof(MotorOutputMessage));
+        MotorOutputMessage motorOutputMessage;
 
+        // forward to message pipe
+        auto bytesWritten =
+          rt_pipe_write(&rtPipe, blockPointer, RtMessage::kMessageSize, P_NORMAL);
+        rt_printf("forwarded %ld bytes to pipe\n", bytesWritten);
+
+        // output the message
+        memcpy(&motorOutputMessage, blockPointer, sizeof(MotorOutputMessage));
         rt_printf("Received MotorOutputMessage, ft_CurrentU: %f, ft_CurrentV: %f, "
           "ft_CurrentW: %f, ft_RotorRPM: %f, ft_RotorDegreeRad: %f, "
-          "ft_OutputTorque: %f\n", motorOutputMessage->ft_CurrentU,
-          motorOutputMessage->ft_CurrentV, motorOutputMessage->ft_CurrentW,
-          motorOutputMessage->ft_RotorRPM, motorOutputMessage->ft_RotorDegreeRad,
-          motorOutputMessage->ft_OutputTorque);
+          "ft_OutputTorque: %f\n", motorOutputMessage.ft_CurrentU,
+          motorOutputMessage.ft_CurrentV, motorOutputMessage.ft_CurrentW,
+          motorOutputMessage.ft_RotorRPM, motorOutputMessage.ft_RotorDegreeRad,
+          motorOutputMessage.ft_OutputTorque);
       }
     }
 
@@ -81,23 +89,25 @@ int main(int argc, char *argv[])
 
   mlockall(MCL_CURRENT|MCL_FUTURE);
 
+  // message pipe
+  char deviceName[] = "/dev/rtp1";
+  rt_pipe_create(&rtPipe, "rtPipeRtp1", 1, RtMessage::kMessageSize * 10);
+
   // allocate heap
   rt_heap_create(&rtHeap, "rtHeap", RtQueue::kMessageSize, H_SINGLE);
   rt_printf("Heap Created\n");
 
   cpu_set_t cpuSet;
   CPU_ZERO(&cpuSet);
-  CPU_SET(5, &cpuSet);
-  CPU_SET(6, &cpuSet);
   CPU_SET(7, &cpuSet);
   CPU_SET(8, &cpuSet);
 
-  rt_task_create(&rtReceiveMotorMessageTask, "rtReceiveMotorMessageTask",
+  rt_task_create(&rtForwardMotorOutputToPipeTask, "rtForwardMotorOutputToPipeTask",
     RtTask::kStackSize, RtTask::kMediumPriority, RtTask::kMode);
-  rt_task_set_periodic(&rtReceiveMotorMessageTask, TM_NOW,
+  rt_task_set_periodic(&rtForwardMotorOutputToPipeTask, TM_NOW,
     rt_timer_ns2ticks(RtTime::kHundredMilliseconds));
-  rt_task_set_affinity(&rtReceiveMotorMessageTask, &cpuSet);
-  rt_task_start(&rtReceiveMotorMessageTask, ReceiveMotorMessage, NULL);
+  rt_task_set_affinity(&rtForwardMotorOutputToPipeTask, &cpuSet);
+  rt_task_start(&rtForwardMotorOutputToPipeTask, ForwardMotorOutputToPipeRoutine, NULL);
 
   for (;;)
   {}
