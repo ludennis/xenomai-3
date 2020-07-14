@@ -58,10 +58,15 @@ void ForwardMotorInputFromPipeRoutine(void*)
       auto retval = rt_queue_send(
         &rtMotorInputQueue, queueBufferSend, RtQueue::kMessageSize, Q_NORMAL);
 
+      // TODO: check if it's motor input message and its validity
+
       if (retval < 0)
         rt_printf("rt_queue_send error: %s\n", strerror(retval));
       else
+      {
         rt_printf("Forwarded %ld bytes\n", bytesRead);
+        rt_printf("Forwarded Motor Input Message\n");
+      }
     }
   }
 

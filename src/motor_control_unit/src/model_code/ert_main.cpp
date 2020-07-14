@@ -87,7 +87,11 @@ void MotorReceiveInputRoutine(void*)
 
       if (messageType == tMotorInputMessage)
       {
-        rt_printf("Motor Input Message received\n");
+        MotorInputMessage motorInputMessage;
+        memcpy(&motorInputMessage, blockPointer, sizeof(MotorInputMessage));
+        rt_printf("Motor Input Message received: ft_OutputTorqueS = %f, "
+          "ft_VoltageQ = %f, ft_VoltageD = %f\n", motorInputMessage.ft_OutputTorqueS,
+          motorInputMessage.ft_VoltageQ, motorInputMessage.ft_VoltageD);
       }
     }
 
