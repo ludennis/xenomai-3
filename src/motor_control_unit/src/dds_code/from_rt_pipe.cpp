@@ -10,6 +10,8 @@
 
 #include <MessageTypes.h>
 #include <RtMacro.h>
+#include <dds_bridge.hpp>
+#include <gen/carla_client_server_user_DCPS.hpp>
 
 int main(int argc, char *argv[])
 {
@@ -20,19 +22,37 @@ int main(int argc, char *argv[])
   else
     printf("file descriptor acquired\n");
 
+  // DDS
+  dds_bridge::DDSBridge ddsBridge;
+  ddsBridge.CreateDomainParticipant();
+  ddsBridge.CreatePublisher();
+
+  auto writerQos = ddsBridge.CreateDataWriterQos();
+  writerQos << dds::core::policy::Reliability::Reliable();
+  auto writer =
+    ddsBridge.CreateDataWriter<basic::module_vehicleSignal::vehicleSignalStruct>(
+      "VehicleSignalTopic", writerQos);
+
+  auto numMessage{0u};
   for (;;)
   {
-    MotorOutputMessage *motorOutputMessage =
-      (MotorOutputMessage*) malloc(RtMessage::kMessageSize);
-    auto bytesRead = read(fileDescriptor, motorOutputMessage, RtMessage::kMessageSize);
+    MotorOutputMessage motorOutputMessage;
+    auto bytesRead = read(fileDescriptor, &motorOutputMessage, sizeof(MotorOutputMessage));
     printf("Read bytes %ld from fileDescriptor\n", bytesRead);
     if (bytesRead > 0)
     {
-      printf("motorOutputMessage rpm: %f\n", motorOutputMessage->ft_RotorRPM);
+      printf("motorOutputMessage rpm: %f\n", motorOutputMessage.ft_RotorRPM);
+
+      // write dds message
+      basic::module_vehicleSignal::vehicleSignalStruct vehicleSignalMessage;
+      vehicleSignalMessage.id(numMessage++);
+      vehicleSignalMessage.vehicle_speed(
+        motorOutputMessage.ft_RotorRPM / motorOutputMessage.ft_OutputTorque);
+      vehicleSignalMessage.throttle(motorOutputMessage.ft_RotorRPM);
+      writer.write(vehicleSignalMessage);
     }
     if (bytesRead < 0)
       printf("read error: %s\n", strerror(errno));
-    free(motorOutputMessage);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }

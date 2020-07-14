@@ -494,6 +494,14 @@ add_executable(from_rt_pipe
 target_include_directories(from_rt_pipe
   PUBLIC
   ${XENOMAI_CODE_DIR}
+  ${DDS_CODE_DIR}
+  ${IDL_DIR}
+  ${SRC_DIR}
+)
+
+target_link_libraries(from_rt_pipe
+  PUBLIC
+  ${DATAMODEL}
 )
 
 # dds to rt pipe
