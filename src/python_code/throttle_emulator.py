@@ -10,8 +10,8 @@ import ddsutil
 dp = DomainParticipant()
 
 def WaitForThrottleInputRoutine(threadName):
-    print("Thread {}: starting", threadName)
-    print('Initializing DDS and idl files ...')
+    print('Thread {}: starting', threadName)
+    print('{} => Initializing DDS and idl files ...', threadName)
     idlFile = 'carla_client_server_user.idl'
 
     vehicleSignalTopicName = 'VehicleSignalTopic'
@@ -57,10 +57,45 @@ def WaitForThrottleInputRoutine(threadName):
         vehicleSignalMessage.throttle = throttle
         vehicleSignalMessage.vehicle_speed = vehicleSpeed
         vehicleSignalWriter.write(vehicleSignalMessage)
+
+def WaitForVehicleSignalStructRoutine(threadName):
+    print('Thread {}: starting ...', threadName)
+    print('{} => Initializing DDS and idl files ...', threadName)
+    idlFile = 'carla_client_server_user.idl'
+
+    vehicleSignalTopicName = 'VehicleSignalTopic'
+    tVehicleSignal = 'basic::module_vehicleSignal::vehicleSignalStruct'
+
+    vehicleSignalIdlClass = ddsutil.get_dds_classes_from_idl(idlFile, tVehicleSignal);
+
+    vehicleSignalTopic = vehicleSignalIdlClass.register_topic(dp, vehicleSignalTopicName)
+
+    # dds sub
+    sub = dp.create_subscriber()
+    qos = Qos([ReliabilityQosPolicy(DDSReliabilityKind.RELIABLE)])
+    reader = sub.create_datareader(vehicleSignalTopic, qos)
+
+    # read by waiting with infinite timeout
+#    waitset = WaitSet()
+#    dataAvailableCondition = QueryCondition(reader, DDSMaskUtil.new_samples())
+#    waitset.attach(dataAvailableCondition)
+
+    print('{} => Waiting for Motor Vehicle Signal messages', threadName)
+
+    while True:
+        samples = reader.take(1)
+        for sd, si in samples:
+            sd.print_vars()
+
+
 if __name__ == '__main__':
     waitForThrottleInputThread = threading.Thread(
-      target=WaitForThrottleInputRoutine, args=("WaitForThrottleInputThread",))
+        target=WaitForThrottleInputRoutine, args=("WaitForThrottleInputThread",))
     waitForThrottleInputThread.start()
+
+    waitForVehicleSignalStructThread = threading.Thread(
+        target=WaitForVehicleSignalStructRoutine, args=("WaitForVehicleSignalStructThread",))
+    waitForVehicleSignalStructThread.start()
 
     # wait for termination
     waitForThrottleInputThread.join()
