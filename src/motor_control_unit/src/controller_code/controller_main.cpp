@@ -146,7 +146,7 @@ int main(int argc, char *argv[])
   // receive motor input through message pipe
   CPU_ZERO(&cpuSet);
   CPU_SET(6, &cpuSet);
-  rt_pipe_create(&rtPipe, "rtPipeRtp1", 1, RtMessage::kMessageSize);
+  rt_pipe_create(&rtPipe, "rtPipeRtp0", 0, RtMessage::kMessageSize * 10);
   rt_task_create(&rtForwardMotorInputFromPipeTask, "rtForwardMotorInputFromPipeTask",
     RtTask::kStackSize, RtTask::kMediumPriority, RtTask::kMode);
   rt_task_set_affinity(&rtForwardMotorInputFromPipeTask, &cpuSet);
