@@ -21,45 +21,48 @@ RT_TASK rtReceiveMotorOutputTask;
 
 void ForwardMotorInputFromPipeRoutine(void*)
 {
-  void *pipeBufferRead = malloc(RtMessage::kMessageSize);
-
   for (;;)
   {
-    auto bytesRead = rt_pipe_read(
+    void *pipeBufferRead = malloc(RtMessage::kMessageSize);
+
+    auto retval = rt_pipe_read(
       &rtPipe, pipeBufferRead, RtMessage::kMessageSize, TM_INFINITE);
 
-    if (bytesRead <= 0)
+    if (retval <= 0)
     {
-      rt_printf("rt_pipe_read error: %s\n");
+      rt_printf("rt_pipe_read error: %s\n", strerror(-retval));
     }
     else
     {
       void *queueBufferSend = rt_queue_alloc(&rtMotorInputQueue, RtQueue::kMessageSize);
       memcpy(queueBufferSend, pipeBufferRead, RtQueue::kMessageSize);
-      auto retval = rt_queue_send(
+      retval = rt_queue_send(
         &rtMotorInputQueue, queueBufferSend, RtQueue::kMessageSize, Q_NORMAL);
 
       // TODO: check if it's motor input message and its validity
 
       if (retval < 0)
+      {
         rt_printf("rt_queue_send error: %s\n", strerror(retval));
+      }
       else
       {
-        rt_printf("Forwarded Motor Input Message (size = %ld bytes)\n", bytesRead);
+        rt_printf("Forwarded Motor Input Message (size = %ld bytes)\n", retval);
       }
     }
+
+    free(pipeBufferRead);
   }
 
-  free(pipeBufferRead);
 }
 
 void ReceiveMotorOutputRoutine(void*)
 {
-  void *blockPointer;
-  rt_heap_alloc(&rtHeap, RtQueue::kMessageSize, TM_INFINITE, &blockPointer);
-
   for (;;)
   {
+    void *blockPointer;
+    rt_heap_alloc(&rtHeap, RtQueue::kMessageSize, TM_INFINITE, &blockPointer);
+
     rt_queue_bind(&rtMotorOutputQueue, "rtMotorOutputQueue", TM_INFINITE);
     auto bytesRead = rt_queue_read(
       &rtMotorOutputQueue, blockPointer, RtQueue::kMessageSize, TM_INFINITE);
@@ -81,6 +84,7 @@ void ReceiveMotorOutputRoutine(void*)
           motorOutputMessage.ft_RotorDegreeRad, motorOutputMessage.ft_OutputTorque);
       }
     }
+
     rt_heap_free(&rtHeap, blockPointer);
   }
 }
@@ -88,16 +92,21 @@ void ReceiveMotorOutputRoutine(void*)
 void TerminationHandler(int s)
 {
   printf("Controller Exiting\n");
+
+  rt_task_suspend(&rtReceiveMotorOutputTask);
+  rt_task_delete(&rtReceiveMotorOutputTask);
+  rt_printf("rtReceiveMotorOutputTask finished\n");
+  rt_task_suspend(&rtForwardMotorInputFromPipeTask);
+  rt_task_delete(&rtForwardMotorInputFromPipeTask);
+  rt_printf("rtForwardMotorInputFromPipeTask finished\n");
+
   rt_heap_delete(&rtHeap);
   rt_pipe_delete(&rtPipe);
-  free(rtSendMessage.data);
-  free(rtReceiveMessage.data);
-  exit(1);
+  rt_queue_delete(&rtMotorInputQueue);
 }
 
 int main(int argc, char *argv[])
 {
-  // signal handler for ctrl + c
   struct sigaction signalHandler;
   signalHandler.sa_handler = TerminationHandler;
   sigemptyset(&signalHandler.sa_mask);
@@ -110,31 +119,32 @@ int main(int argc, char *argv[])
 
   cpu_set_t cpuSet;
 
-  // TODO receive motor output
+  // task for receiving motor output
+  rt_heap_create(&rtHeap, "rtControllerHeap", RtQueue::kMessageSize, H_SINGLE);
+  rt_task_create(&rtReceiveMotorOutputTask, "rtControlReceiveMotorOutputTask",
+    RtTask::kStackSize, RtTask::kHighPriority, T_JOINABLE);
+
   CPU_ZERO(&cpuSet);
   CPU_SET(7, &cpuSet);
-  rt_heap_create(&rtHeap, "rtControllerHeap", RtQueue::kMessageSize, H_SINGLE);
-
-  rt_task_create(&rtReceiveMotorOutputTask, "rtControlReceiveMotorOutputTask",
-    RtTask::kStackSize, RtTask::kHighPriority, RtTask::kMode);
   rt_task_set_affinity(&rtReceiveMotorOutputTask, &cpuSet);
+
   rt_task_start(&rtReceiveMotorOutputTask, ReceiveMotorOutputRoutine, NULL);
 
-  // send motor input task
+  // task for forwarding motor input from message pipe
   rt_queue_create(&rtMotorInputQueue, "rtMotorInputQueue",
     RtQueue::kMessageSize * RtQueue::kQueueLimit, RtQueue::kQueueLimit, Q_FIFO);
-
-  // receive motor input through message pipe
-  CPU_ZERO(&cpuSet);
-  CPU_SET(6, &cpuSet);
   rt_pipe_create(&rtPipe, "rtPipeRtp0", 0, RtMessage::kMessageSize * 10);
   rt_task_create(&rtForwardMotorInputFromPipeTask, "rtForwardMotorInputFromPipeTask",
-    RtTask::kStackSize, RtTask::kMediumPriority, RtTask::kMode);
+    RtTask::kStackSize, RtTask::kMediumPriority, T_JOINABLE);
+
+  CPU_ZERO(&cpuSet);
+  CPU_SET(6, &cpuSet);
   rt_task_set_affinity(&rtForwardMotorInputFromPipeTask, &cpuSet);
+
   rt_task_start(&rtForwardMotorInputFromPipeTask, ForwardMotorInputFromPipeRoutine, NULL);
 
-  for (;;)
-  {}
+  rt_task_join(&rtReceiveMotorOutputTask);
+  rt_task_join(&rtForwardMotorInputFromPipeTask);
 
   return 0;
 }
