@@ -64,8 +64,7 @@ void ForwardMotorInputFromPipeRoutine(void*)
         rt_printf("rt_queue_send error: %s\n", strerror(retval));
       else
       {
-        rt_printf("Forwarded %ld bytes\n", bytesRead);
-        rt_printf("Forwarded Motor Input Message\n");
+        rt_printf("Forwarded Motor Input Message (size = %ld bytes)\n", bytesRead);
       }
     }
   }
@@ -109,6 +108,7 @@ void TerminationHandler(int s)
 {
   printf("Controller Exiting\n");
   rt_heap_delete(&rtHeap);
+  rt_pipe_delete(&rtPipe);
   free(rtSendMessage.data);
   free(rtReceiveMessage.data);
   exit(1);
