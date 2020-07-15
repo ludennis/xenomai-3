@@ -13,21 +13,21 @@ constexpr auto kMessageSize = 8u;
 
 namespace RtTime
 {
-constexpr auto kOneMicrosecond = 1000;
-constexpr auto kTwoMicroseconds = 2000;
-constexpr auto kFiveMicroseconds = 5000;
-constexpr auto kTenMicroseconds = 10000;
-constexpr auto kFifteenMicroseconds = 15000;
-constexpr auto kTwentyMicroseconds = 20000;
-constexpr auto kFiftyMicroseconds = 50000;
-constexpr auto kOneHundredMicroseconds = 100000;
-constexpr auto kTwoHundredMicroseconds = 200000;
-constexpr auto kOneMillisecond = 1000000;
-constexpr auto kTenMilliseconds = 10000000;
-constexpr auto kHundredMilliseconds = 100000000;
-constexpr auto kOneSecond = 1000000000;
-constexpr auto kFiveSeconds = 5000000000;
-constexpr auto kTenSeconds = 10000000000;
+constexpr auto kOneMicrosecond = 1000ull;
+constexpr auto kTwoMicroseconds = 2000ull;
+constexpr auto kFiveMicroseconds = 5000ull;
+constexpr auto kTenMicroseconds = 10000ull;
+constexpr auto kFifteenMicroseconds = 15000ull;
+constexpr auto kTwentyMicroseconds = 20000ull;
+constexpr auto kFiftyMicroseconds = 50000ull;
+constexpr auto kOneHundredMicroseconds = 100000ull;
+constexpr auto kTwoHundredMicroseconds = 200000ull;
+constexpr auto kOneMillisecond = 1000000ull;
+constexpr auto kTenMilliseconds = 10000000ull;
+constexpr auto kHundredMilliseconds = 100000000ull;
+constexpr auto kOneSecond = 1000000000ull;
+constexpr auto kFiveSeconds = 5000000000ull;
+constexpr auto kTenSeconds = 10000000000ull;
 constexpr auto kNanosecondsToMicroseconds = 1000;
 constexpr auto kNanosecondsToMilliseconds = 1000000;
 constexpr auto kNanosecondsToSeconds = 1000000000;

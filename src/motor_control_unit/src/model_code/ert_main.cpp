@@ -35,7 +35,7 @@ RT_QUEUE rtMotorInputQueue;
 RT_QUEUE rtMotorOutputQueue;
 RT_QUEUE_INFO rtMotorOutputQueueInfo;
 
-unsigned int numberOfMessages{0u};
+auto numberOfMessages{0u};
 double totalStepTime{0.0};
 
 void MotorStepRoutine(void*)

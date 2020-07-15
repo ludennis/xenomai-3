@@ -44,6 +44,8 @@ def WaitForThrottleInputRoutine(threadName):
                 throttle += 1
             vehicleSpeed += (throttle * 0.6)
         elif keyboardInput == 'q':
+            # setting isFinished = true will signal WaitForVehicleSignalStructTask
+            # to return
             print('{} => Exiting'.format(threadName))
             isFinished = True
             return
@@ -63,6 +65,7 @@ def WaitForThrottleInputRoutine(threadName):
         vehicleSignalMessage.vehicle_speed = vehicleSpeed
         vehicleSignalMessage.simulation_time = str(int(time.monotonic() * 1e9))
         vehicleSignalWriter.write(vehicleSignalMessage)
+        messageId += 1
 
 
 def WaitForVehicleSignalStructRoutine(threadName):
@@ -77,7 +80,6 @@ def WaitForVehicleSignalStructRoutine(threadName):
 
     vehicleSignalTopic = vehicleSignalIdlClass.register_topic(dp, vehicleSignalTopicName)
 
-    # dds sub
     sub = dp.create_subscriber()
     qos = Qos([ReliabilityQosPolicy(DDSReliabilityKind.RELIABLE)])
     reader = sub.create_datareader(vehicleSignalTopic, qos)
@@ -88,9 +90,7 @@ def WaitForVehicleSignalStructRoutine(threadName):
             print('{} => Exiting'.format(threadName))
             return
 
-#        print("Reading/Taking")
         samples = reader.take(1)
-#        print("Finished reading/taking")
         for sd, si in samples:
             sd.print_vars()
 
@@ -104,7 +104,6 @@ if __name__ == '__main__':
         target=WaitForVehicleSignalStructRoutine, args=("WaitForVehicleSignalStructThread",))
     waitForVehicleSignalStructThread.start()
 
-    # wait for termination
     waitForThrottleInputThread.join()
     print("waitForThrottleInputThread stopped")
     waitForVehicleSignalStructThread.join()

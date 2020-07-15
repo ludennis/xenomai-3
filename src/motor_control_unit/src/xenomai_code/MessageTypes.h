@@ -26,7 +26,7 @@ struct MotorInputMessage
   float ft_VoltageD;
   float ft_CurrentUS;
   float ft_CurrentVS;
-  float ft_CurrentWs;
+  float ft_CurrentWS;
 };
 
 #endif // _MESSAGETYPES_H_
