@@ -6,15 +6,13 @@
 
 #include <alchemy/timer.h>
 
-#include <gen/carla_client_server_user_DCPS.hpp>
-
 #include <dds_bridge.hpp>
-
+#include <gen/carla_client_server_user_DCPS.hpp>
 #include <MessageTypes.h>
 #include <RtMacro.h>
 
-int fileDescriptor;
 void *buffer;
+int fileDescriptor;
 
 void TerminationHandler(int signal)
 {
@@ -56,17 +54,27 @@ int main(int argc, char *argv[])
       "VehicleSignalTopic", readerQos);
 
   ddsBridge.CreateWaitSet();
-  auto statusCondition = ddsBridge.CreateStatusCondition(reader);
-  ddsBridge.EnableStatus(statusCondition, dds::core::status::StatusMask::data_available());
-  ddsBridge.AddStatusCondition(statusCondition);
+  auto dataAvailableCondition = ddsBridge.CreateStatusCondition(reader);
+  ddsBridge.EnableStatus(
+    dataAvailableCondition, dds::core::status::StatusMask::data_available());
+  ddsBridge.AddStatusCondition(dataAvailableCondition);
 
   buffer = malloc(RtMessage::kMessageSize);
+  dds::core::cond::WaitSet::ConditionSeq conditions;
   for (;;)
   {
-    auto conditions = ddsBridge.mWaitSet.wait();
+    try
+    {
+      conditions = ddsBridge.mWaitSet.wait(dds::core::Duration(1));
+    }
+    catch (const dds::core::TimeoutError& timeoutException)
+    {
+      continue;
+    }
+
     for (auto i{0u}; i < conditions.size(); ++i)
     {
-      if (conditions[i] == statusCondition)
+      if (conditions[i] == dataAvailableCondition)
       {
         auto samples = reader.take();
 
@@ -75,7 +83,8 @@ int main(int argc, char *argv[])
           const auto &sample = *itr;
           const auto sampleData = sample.data();
 
-          // TODO: or check validity of message
+          // skip bad messages
+          // TODO: check more details for message validity
           if (sampleData.simulation_time().empty())
           {
             continue;
@@ -85,23 +94,18 @@ int main(int argc, char *argv[])
             "sample.simulation_time = %s\n", sampleData.id(), sampleData.throttle(),
             sampleData.vehicle_speed(), sampleData.simulation_time().c_str());
 
-
           auto timeNow = std::chrono::duration_cast<std::chrono::nanoseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count();
 
           printf("DDS Message travel time: %ld ns\n",
             timeNow - std::stoul(sampleData.simulation_time()));
 
-          // TODO: convert to xenomai MotorInputMessage
+          // rt_timer_read() for recording RTIME to be measured by motor
           MotorInputMessage motorInputMessage{1, rt_timer_read(), 1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
 
-          // and send it to pipe /dev/rtp0
           memcpy(buffer, &motorInputMessage, RtMessage::kMessageSize);
-          printf("memcpy ed\n");
           auto bytesWritten = write(fileDescriptor, buffer, RtMessage::kMessageSize);
-          printf("Written %ld bytes\n", bytesWritten);
-          // TODO: fix weird behavior of not going into the following if statements
-          // and also receiving an empty message when throttle_emulator quits
+          printf("Written %ld bytes to %s\n", bytesWritten, deviceName);
         }
       }
     }
