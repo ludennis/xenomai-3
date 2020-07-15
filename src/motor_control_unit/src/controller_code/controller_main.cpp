@@ -1,42 +1,23 @@
 #include <sys/mman.h>
 
+#include <iostream>
 #include <limits>
 #include <signal.h>
-#include <iostream>
 
-#include <alchemy/task.h>
 #include <alchemy/heap.h>
 #include <alchemy/pipe.h>
 #include <alchemy/queue.h>
+#include <alchemy/task.h>
 
-#include <RtMacro.h>
 #include <MessageTypes.h>
-
-RT_TASK rtMotorReceiveStepTask;
-RT_TASK rtSendMotorStepTask;
-RT_TASK rtReceiveMotorOutputTask;
-RT_TASK rtForwardMotorInputFromPipeTask;
-
-RT_TASK_MCB rtSendMessage;
-RT_TASK_MCB rtReceiveMessage;
-
-RTIME rtTimerBegin;
-RTIME rtTimerEnd;
-RTIME rtTimerOneSecond;
-RTIME rtTimerFiveSeconds;
+#include <RtMacro.h>
 
 RT_HEAP rtHeap;
-
 RT_PIPE rtPipe;
-
-RT_QUEUE rtMotorOutputQueue;
 RT_QUEUE rtMotorInputQueue;
-
-unsigned int numberOfMessages{0u};
-unsigned int numberOfMessagesRealTime{0u};
-double totalRoundTripTime;
-RTIME minRoundTripTime = std::numeric_limits<RTIME>::max();
-RTIME maxRoundTripTime = std::numeric_limits<RTIME>::min();
+RT_QUEUE rtMotorOutputQueue;
+RT_TASK rtForwardMotorInputFromPipeTask;
+RT_TASK rtReceiveMotorOutputTask;
 
 void ForwardMotorInputFromPipeRoutine(void*)
 {
