@@ -18,19 +18,14 @@ def getSize(path):
 
 def removeBadCharactersFromPath(path):
     path = path.lstrip(' ')
-    path = removeEndlineFromPath(path)
-    path = removeBackSlashFromPath(path)
+    path = path.replace('\n', '')
+    path = path.replace('\\', '')
     return path
 
-def removeBackSlashFromPath(path):
-    return path.replace('\\', '')
-    path = removeWhitespacesFromPath(path)
 
 def removeLetterFromPath(path):
     return '/'.join(re.split('/', path)[1:])
 
-def removeEndlineFromPath(path):
-    return path.replace('\n', '')
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
