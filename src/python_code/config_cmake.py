@@ -28,6 +28,31 @@ def removeBadCharactersFromPath(path):
 def removeLetterFromPath(path):
     return '/'.join(re.split('/', path)[1:])
 
+def FindCmakeParameters(cmake_file_path):
+    cmake_parameters = dict()
+    with open(cmake_file_path, 'r') as cmake_file:
+        for line in cmake_file:
+            if "cmake_minimum_required" in line:
+                cmake_parameters["cmake_minimum_required"] = \
+                    re.split('\(|\)', line)[1]
+            if "include_directories" in line:
+                include_directories = list()
+                line = next(cmake_file)
+                while ")" not in line:
+                    include_directories.append(removeBadCharactersFromPath(line))
+                    line = next(cmake_file)
+                cmake_parameters["include_directories"] = include_directories
+            if "set(SOURCES" in line:
+                print(line)
+                sources = list()
+                line = next(cmake_file)
+                while ")" not in line:
+                    sources.append(removeBadCharactersFromPath(line))
+                    line = next(cmake_file)
+                cmake_parameters["sources"] = sources
+
+    return cmake_parameters
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
@@ -42,6 +67,7 @@ if __name__ == '__main__':
         os.mkdir(cmake_include_files_path)
 
     included_directories = list()
+
     with open(sys.argv[1], 'r') as cmake_file:
         for line in cmake_file:
             file_path = removeBadCharactersFromPath(line)
@@ -62,6 +88,11 @@ if __name__ == '__main__':
                 # get the include directories
                 # stop with a )
                 found_include_directories = True
+
+    cmake_parameters = FindCmakeParameters(sys.argv[1])
+    print(cmake_parameters["cmake_minimum_required"])
+    print(cmake_parameters["include_directories"])
+    print(cmake_parameters["sources"])
 
     with open(cmake_include_files_path + 'CMakeLists.txt', 'w') as CMakeListFile:
         CMakeListFile.write("cmake_minimum_required(VERSION 3.0)\n")
