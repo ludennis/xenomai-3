@@ -5,6 +5,8 @@ import re
 import shutil
 import sys
 
+MAX_DIRECTORY_SIZE = 20e6 # 20 Mbytes
+
 def getSize(path):
     total_size = 0
     for dirpath, dirnames, filenames in os.walk(path):
@@ -35,7 +37,7 @@ if __name__ == '__main__':
 
     # open directory for copying includes from CMakeLists.txt
     current_path = os.getcwd()
-    cmake_include_files_path = current_path + '/cmake_include_files/'
+    cmake_include_files_path = current_path + '/cmake_project/'
     if not os.path.isdir(cmake_include_files_path):
         os.mkdir(cmake_include_files_path)
 
@@ -45,7 +47,10 @@ if __name__ == '__main__':
             if ")" in file_path:
                 found_include_directories = False
             elif found_include_directories:
-                print("copying {} Kbytes from {}".format(getSize(file_path) // 1000, file_path))
+                directory_size_in_bytes = getSize(file_path)
+                if directory_size_in_bytes > MAX_DIRECTORY_SIZE:
+                    print("Warning: copying large directory")
+                print("copying {} Kbytes from {}".format(directory_size_in_bytes // 1000, file_path))
                 src_file_dir = file_path
                 dst_file_dir = cmake_include_files_path + removeLetterFromPath(file_path)
                 if os.path.isdir(dst_file_dir):
