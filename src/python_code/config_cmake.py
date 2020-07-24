@@ -12,13 +12,16 @@ target_path = current_path + '/cmake_project/'
 if not os.path.isdir(target_path):
     os.mkdir(target_path)
 
-def getSize(path):
+def GetSize(path):
     total_size = 0
-    for dirpath, dirnames, filenames in os.walk(path):
-        for filename in filenames:
-            file_path = os.path.join(dirpath, filename)
-            if not os.path.islink(file_path):
-                total_size += os.path.getsize(file_path)
+    if os.path.isfile(path):
+        return os.path.getsize(path)
+    else:
+        for dirpath, dirnames, filenames in os.walk(path):
+            for filename in filenames:
+                file_path = os.path.join(dirpath, filename)
+                if not os.path.islink(file_path):
+                    total_size += os.path.getsize(file_path)
 
     return total_size
 
@@ -49,7 +52,6 @@ def FindCmakeParameters(cmake_file_path):
                     line = next(cmake_file)
                 cmake_parameters["include_directories"] = include_directories
             if "set(SOURCES" in line:
-                print(line)
                 sources = list()
                 line = next(cmake_file)
                 while ")" not in line:
@@ -62,10 +64,11 @@ def FindCmakeParameters(cmake_file_path):
 
 def CopyIncludeDirectories(directories):
     for directory in directories:
-        size = getSize(directory)
+        size = GetSize(directory)
         if size > MAX_DIRECTORY_SIZE:
             print("Warning: copying large directory")
-        print("Copying {} kbytes from {}".format(size // 1000, directory))
+        print("Copying directory with size {} kbytes from {}" \
+            .format(size // 1000, directory))
         src_dir = directory
         dst_dir = target_path + removeLetterFromPath(directory)
         if os.path.isdir(dst_dir):
@@ -73,22 +76,42 @@ def CopyIncludeDirectories(directories):
         shutil.copytree(src_dir, dst_dir)
 
 
+def CopySources(sources):
+    for source in sources:
+        size = GetSize(source)
+        if size > MAX_DIRECTORY_SIZE:
+            print("Warning: copying large file")
+        print("Copying file with size {} kbytes from {}" \
+            .format(size // 1000, source))
+        src_name = source
+        dst_name = target_path + removeLetterFromPath(source)
+        shutil.copy2(src_name, dst_name)
+
+def WriteCmakeFile(parameters):
+    with open(target_path + 'CMakeLists.txt', 'w') as cmake_file:
+        cmake_file.write("cmake_minimum_required({})\n" \
+            .format(parameters["cmake_minimum_required"]))
+
+        cmake_file.write("project(simulink_generated_code)\n")
+
+        cmake_file.write("add_executable(main\n")
+        for source in parameters["sources"]:
+            cmake_file.write('  ' + removeLetterFromPath(source) + '\n')
+        cmake_file.write(")\n")
+
+        cmake_file.write("target_include_directories(main\n")
+        cmake_file.write("  PUBLIC\n")
+        for directory in parameters["include_directories"]:
+            cmake_file.write('  ' + removeLetterFromPath(directory) + '\n')
+        cmake_file.write(")\n")
+
+
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print("Usage: {} [path to CMakeLists file]".format(__file__))
 
     cmake_parameters = FindCmakeParameters(sys.argv[1])
-    print(cmake_parameters["cmake_minimum_required"])
-    print(cmake_parameters["include_directories"])
-    print(cmake_parameters["sources"])
 
     CopyIncludeDirectories(cmake_parameters["include_directories"])
-
-    with open(target_path + 'CMakeLists.txt', 'w') as CMakeListFile:
-        CMakeListFile.write("cmake_minimum_required({})\n" \
-            .format(cmake_parameters["cmake_minimum_required"]))
-        CMakeListFile.write("project(simulink_generated_code)\n")
-        CMakeListFile.write("include_directories(\n")
-        for directory in cmake_parameters["include_directories"]:
-            CMakeListFile.write('  ' + removeLetterFromPath(directory) + '\n')
-        CMakeListFile.write(")\n")
+    CopySources(cmake_parameters["sources"])
+    WriteCmakeFile(cmake_parameters)
