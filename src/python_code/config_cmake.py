@@ -89,18 +89,18 @@ def WriteCmakeFile(parameters, target_path, target_source_path):
         cmake_file.write("cmake_minimum_required({})\n" \
             .format(parameters["cmake_minimum_required"]))
 
-        cmake_file.write("project(simulink_generated_code)\n")
+        cmake_file.write("project(simulink_generated_code)\n\n")
 
         cmake_file.write("add_executable(main\n")
         for source in parameters["sources"]:
-            cmake_file.write('  ' + target_source_path + source.split('/')[-1] + '\n')
-        cmake_file.write(")\n")
+            cmake_file.write('  src/' + source.split('/')[-1] + '\n')
+        cmake_file.write(")\n\n")
 
         cmake_file.write("target_include_directories(main\n")
         cmake_file.write("  PUBLIC\n")
         for directory in parameters["include_directories"]:
-            cmake_file.write('  ' + removeLetterFromPath(directory) + '\n')
-        cmake_file.write(")\n")
+            cmake_file.write('  include/' + removeLetterFromPath(directory) + '\n')
+        cmake_file.write(")\n\n")
 
 
 if __name__ == '__main__':
