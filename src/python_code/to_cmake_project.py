@@ -41,6 +41,7 @@ if __name__ == '__main__':
     if not os.path.isdir(cmake_include_files_path):
         os.mkdir(cmake_include_files_path)
 
+    included_directories = list()
     with open(sys.argv[1], 'r') as cmake_file:
         for line in cmake_file:
             file_path = removeBadCharactersFromPath(line)
@@ -56,7 +57,16 @@ if __name__ == '__main__':
                 if os.path.isdir(dst_file_dir):
                     shutil.rmtree(dst_file_dir)
                 shutil.copytree(src_file_dir, dst_file_dir)
+                included_directories.append(removeLetterFromPath(file_path))
             elif "include_directories" in file_path:
                 # get the include directories
                 # stop with a )
                 found_include_directories = True
+
+    with open(cmake_include_files_path + 'CMakeLists.txt', 'w') as CMakeListFile:
+        CMakeListFile.write("cmake_minimum_required(VERSION 3.0)\n")
+        CMakeListFile.write("project(simulink_generated_code)\n")
+        CMakeListFile.write("include_directories(\n")
+        for included_directory in included_directories:
+            CMakeListFile.write('  ' + included_directory + '\n')
+        CMakeListFile.write(")\n")
