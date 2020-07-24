@@ -7,10 +7,6 @@ import sys
 
 MAX_DIRECTORY_SIZE = 20e6 # 20 Mbytes
 
-current_path = os.getcwd()
-target_path = current_path + '/cmake_project/'
-if not os.path.isdir(target_path):
-    os.mkdir(target_path)
 
 def GetSize(path):
     total_size = 0
@@ -62,7 +58,7 @@ def FindCmakeParameters(cmake_file_path):
     return cmake_parameters
 
 
-def CopyIncludeDirectories(directories):
+def CopyIncludeDirectories(directories, target_include_path):
     for directory in directories:
         size = GetSize(directory)
         if size > MAX_DIRECTORY_SIZE:
@@ -70,13 +66,13 @@ def CopyIncludeDirectories(directories):
         print("Copying directory with size {} kbytes from {}" \
             .format(size // 1000, directory))
         src_dir = directory
-        dst_dir = target_path + removeLetterFromPath(directory)
+        dst_dir = target_include_path + removeLetterFromPath(directory)
         if os.path.isdir(dst_dir):
             shutil.rmtree(dst_dir)
         shutil.copytree(src_dir, dst_dir)
 
 
-def CopySources(sources):
+def CopySources(sources, target_source_path):
     for source in sources:
         size = GetSize(source)
         if size > MAX_DIRECTORY_SIZE:
@@ -84,10 +80,11 @@ def CopySources(sources):
         print("Copying file with size {} kbytes from {}" \
             .format(size // 1000, source))
         src_name = source
-        dst_name = target_path + removeLetterFromPath(source)
+        dst_name = target_source_path + source.split('/')[-1]
         shutil.copy2(src_name, dst_name)
 
-def WriteCmakeFile(parameters):
+
+def WriteCmakeFile(parameters, target_path, target_source_path):
     with open(target_path + 'CMakeLists.txt', 'w') as cmake_file:
         cmake_file.write("cmake_minimum_required({})\n" \
             .format(parameters["cmake_minimum_required"]))
@@ -96,7 +93,7 @@ def WriteCmakeFile(parameters):
 
         cmake_file.write("add_executable(main\n")
         for source in parameters["sources"]:
-            cmake_file.write('  ' + removeLetterFromPath(source) + '\n')
+            cmake_file.write('  ' + target_source_path + source.split('/')[-1] + '\n')
         cmake_file.write(")\n")
 
         cmake_file.write("target_include_directories(main\n")
@@ -110,8 +107,19 @@ if __name__ == '__main__':
     if len(sys.argv) < 2:
         print("Usage: {} [path to CMakeLists file]".format(__file__))
 
+    current_path = os.getcwd()
+    target_path = current_path + '/cmake_project/'
+    if not os.path.isdir(target_path):
+        os.mkdir(target_path)
+    target_include_path = target_path + '/include/'
+    if not os.path.isdir(target_include_path):
+        os.mkdir(target_include_path)
+    target_source_path = target_path + '/src/'
+    if not os.path.isdir(target_source_path):
+        os.mkdir(target_source_path)
+
     cmake_parameters = FindCmakeParameters(sys.argv[1])
 
-    CopyIncludeDirectories(cmake_parameters["include_directories"])
-    CopySources(cmake_parameters["sources"])
-    WriteCmakeFile(cmake_parameters)
+    CopyIncludeDirectories(cmake_parameters["include_directories"], target_include_path)
+    CopySources(cmake_parameters["sources"], target_source_path)
+    WriteCmakeFile(cmake_parameters, target_path, target_source_path)
