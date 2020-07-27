@@ -145,7 +145,8 @@ set(MOTOR_CONTROL_DIR "${PROJECT_SOURCE_DIR}/src/rt/motor_control")
 set(MATLAB_DIR "${MOTOR_CONTROL_DIR}/model/matlab")
 set(MODEL_DIR "${MOTOR_CONTROL_DIR}/model")
 set(CONTROLLER_DIR "${MOTOR_CONTROL_DIR}/controller")
-set(XENOMAI_DIR "${PROJECT_SOURCE_DIR}/src/rt/xenomai")
+set(RT_DIR "${PROJECT_SOURCE_DIR}/src/rt")
+set(RT_UTILS_DIR "${RT_DIR}/rt_utils")
 set(PICKERING_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/pickering")
 set(SIMULINK_GENERATED_DIR "${PROJECT_SOURCE_DIR}/src/rt/simulink_generated")
 set(PEAK_CAN_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/peak_can")
@@ -155,7 +156,6 @@ set(IDL_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/idl")
 set(UTILS_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/utils")
 set(SRC_DIR "${PROJECT_SOURCE_DIR}/src")
 set(NON_RT_DIR "${PROJECT_SOURCE_DIR}/src/non_rt")
-set(RT_DIR "${PROJECT_SOURCE_DIR}/src/rt")
 
 set(PICKERING_INCLUDE_DIR "/usr/local/lib")
 set(PEAK_CAN_INCLUDE_DIR "/usr/local/include")
@@ -242,7 +242,7 @@ target_include_directories(motor
   ${MODEL_DIR}
   ${PROJECT_SOURCE_DIR}/src
   ${XENOMAI_INCLUDE_DIRS}
-  ${XENOMAI_DIR}
+  ${RT_UTILS_DIR}
 )
 
 target_link_libraries(motor
@@ -272,7 +272,7 @@ target_include_directories(controller
   SYSTEM PUBLIC
   ${PROJECT_SOURCE_DIR}/src
   ${XENOMAI_INCLUDE_DIRS}
-  ${XENOMAI_DIR}
+  ${RT_UTILS_DIR}
 )
 
 target_compile_options(controller
@@ -312,7 +312,7 @@ add_executable(resistance_testing
   ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing.cpp
   ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing_data.cpp
   ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing_main.cpp
-  ${XENOMAI_DIR}/RtPeriodicTask.cpp
+  ${RT_UTILS_DIR}/RtPeriodicTask.cpp
 )
 
 target_include_directories(resistance_testing
@@ -325,7 +325,7 @@ target_include_directories(resistance_testing
   ${PICKERING_INCLUDE_DIRS}
   ${SIMULINK_GENERATED_DIR}
   ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw
-  ${XENOMAI_DIR}
+  ${RT_UTILS_DIR}
   ${XENOMAI_INCLUDE_DIRS}
 )
 
@@ -343,7 +343,7 @@ add_executable(switching_testing
   ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing.cpp
   ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing_data.cpp
   ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing_main.cpp
-  ${XENOMAI_DIR}/RtPeriodicTask.cpp
+  ${RT_UTILS_DIR}/RtPeriodicTask.cpp
 )
 
 target_include_directories(switching_testing
@@ -356,7 +356,7 @@ target_include_directories(switching_testing
   ${PICKERING_INCLUDE_DIRS}
   ${SIMULINK_GENERATED_DIR}
   ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw
-  ${XENOMAI_DIR}
+  ${RT_UTILS_DIR}
   ${XENOMAI_INCLUDE_DIRS}
 )
 
@@ -370,7 +370,7 @@ add_executable(peak_can_transmit
   ${PEAK_CAN_DIR}/peak_can_transmit.cpp
   ${PEAK_CAN_DIR}/PeakCanTask.cpp
   ${PEAK_CAN_DIR}/RtPeakCanTransmitTask.cpp
-  ${XENOMAI_DIR}/RtPeriodicTask.cpp
+  ${RT_UTILS_DIR}/RtPeriodicTask.cpp
 )
 
 target_include_directories(peak_can_transmit
@@ -378,7 +378,7 @@ target_include_directories(peak_can_transmit
   ${PEAK_CAN_DIR}
   ${PEAK_CAN_INCLUDE_DIR}
   ${PICKERING_DIR}
-  ${XENOMAI_DIR}
+  ${RT_UTILS_DIR}
   ${XENOMAI_INCLUDE_DIRS}
 )
 
@@ -392,7 +392,7 @@ add_executable(peak_can_receive
   ${PEAK_CAN_DIR}/peak_can_receive.cpp
   ${PEAK_CAN_DIR}/PeakCanTask.cpp
   ${PEAK_CAN_DIR}/RtPeakCanReceiveTask.cpp
-  ${XENOMAI_DIR}/RtPeriodicTask.cpp
+  ${RT_UTILS_DIR}/RtPeriodicTask.cpp
 )
 
 target_include_directories(peak_can_receive
@@ -401,7 +401,7 @@ target_include_directories(peak_can_receive
   ${PEAK_CAN_INCLUDE_DIR}
   ${PICKERING_DIR}
   ${XENOMAI_INCLUDE_DIRS}
-  ${XENOMAI_DIR}
+  ${RT_UTILS_DIR}
 )
 
 target_link_libraries(peak_can_receive
@@ -471,7 +471,7 @@ add_executable(motor_monitor
 target_include_directories(motor_monitor
   PUBLIC
   ${XENOMAI_INCLUDE_DIRS}
-  ${XENOMAI_DIR}
+  ${RT_UTILS_DIR}
 )
 
 target_link_libraries(motor_monitor
@@ -480,13 +480,13 @@ target_link_libraries(motor_monitor
 
 # dds pipe
 add_executable(to_non_rt_pipe
-  ${XENOMAI_DIR}/dds_pipe.cpp
+  ${RT_UTILS_DIR}/dds_pipe.cpp
 )
 
 target_include_directories(to_non_rt_pipe
   PUBLIC
   ${XENOMAI_INCLUDE_DIRS}
-  ${XENOMAI_DIR}
+  ${RT_UTILS_DIR}
 )
 
 target_link_libraries(to_non_rt_pipe
@@ -500,7 +500,7 @@ add_executable(from_rt_pipe
 
 target_include_directories(from_rt_pipe
   PUBLIC
-  ${XENOMAI_DIR}
+  ${RT_UTILS_DIR}
   ${DDS_DIR}
   ${IDL_DIR}
   ${NON_RT_DIR}
@@ -518,7 +518,7 @@ add_executable(to_rt_pipe
 
 target_include_directories(to_rt_pipe
   PUBLIC
-  ${XENOMAI_DIR}
+  ${RT_UTILS_DIR}
   ${IDL_DIR}
   ${DDS_DIR}
   ${NON_RT_DIR}
