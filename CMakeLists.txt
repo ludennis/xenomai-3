@@ -51,13 +51,17 @@ add_definitions(
 
 # idl settings
 set(idls
-  ${PROJECT_SOURCE_DIR}/src/idl/MotorControllerUnitModule.idl
-  ${PROJECT_SOURCE_DIR}/src/idl/carla_client_server_user.idl
+  ${PROJECT_SOURCE_DIR}/src/non_rt/idl/MotorControllerUnitModule.idl
+  ${PROJECT_SOURCE_DIR}/src/non_rt/idl/carla_client_server_user.idl
 )
+
+message("idls: ${idls}")
 
 set(idl_targets)
 set(OpenSplice_DATAMODEL)
 foreach(idl ${idls})
+
+  message("idl: ${idl}")
   # generate idl source files with idlpp.exe
   OpenSplice_IDLGEN(${idl})
   GET_FILENAME_COMPONENT(idl_filename ${idl} NAME_WE)
@@ -137,18 +141,20 @@ add_definitions(-DHAVESTDIO)
 add_definitions(-DMODEL_HAS_DYNAMICALLY_LOADED_SFCNS=0)
 
 # Set path
-set(MATLAB_CODE_DIR "${PROJECT_SOURCE_DIR}/src/matlab_code")
-set(MODEL_CODE_DIR "${PROJECT_SOURCE_DIR}/src/model_code")
-set(CONTROLLER_CODE_DIR "${PROJECT_SOURCE_DIR}/src/controller_code")
-set(XENOMAI_CODE_DIR "${PROJECT_SOURCE_DIR}/src/xenomai_code")
-set(PICKERING_CODE_DIR "${PROJECT_SOURCE_DIR}/src/pickering_code")
-set(SIMULINK_GENERATED_CODE_DIR "${PROJECT_SOURCE_DIR}/src/simulink_generated_code")
-set(PEAK_CAN_CODE_DIR "${PROJECT_SOURCE_DIR}/src/peak_can_code")
-set(NI_CODE_DIR "${PROJECT_SOURCE_DIR}/src/ni_code")
-set(DDS_CODE_DIR "${PROJECT_SOURCE_DIR}/src/dds_code")
-set(IDL_DIR "${PROJECT_SOURCE_DIR}/src/idl")
-set(UTILS_DIR "${PROJECT_SOURCE_DIR}/src/utils")
+set(MATLAB_CODE_DIR "${PROJECT_SOURCE_DIR}/src/rt/matlab_code")
+set(MODEL_CODE_DIR "${PROJECT_SOURCE_DIR}/src/rt/model_code")
+set(CONTROLLER_CODE_DIR "${PROJECT_SOURCE_DIR}/src/rt/controller_code")
+set(XENOMAI_CODE_DIR "${PROJECT_SOURCE_DIR}/src/rt/xenomai_code")
+set(PICKERING_CODE_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/pickering_code")
+set(SIMULINK_GENERATED_CODE_DIR "${PROJECT_SOURCE_DIR}/src/rt/simulink_generated_code")
+set(PEAK_CAN_CODE_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/peak_can_code")
+set(NI_CODE_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/ni_code")
+set(DDS_CODE_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/dds_code")
+set(IDL_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/idl")
+set(UTILS_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/utils")
 set(SRC_DIR "${PROJECT_SOURCE_DIR}/src")
+set(NON_RT_DIR "${PROJECT_SOURCE_DIR}/src/non_rt")
+set(RT_DIR "${PROJECT_SOURCE_DIR}/src/rt")
 
 set(PICKERING_INCLUDE_DIR "/usr/local/lib")
 set(PEAK_CAN_INCLUDE_DIR "/usr/local/include")
@@ -496,7 +502,7 @@ target_include_directories(from_rt_pipe
   ${XENOMAI_CODE_DIR}
   ${DDS_CODE_DIR}
   ${IDL_DIR}
-  ${SRC_DIR}
+  ${NON_RT_DIR}
 )
 
 target_link_libraries(from_rt_pipe
@@ -514,7 +520,7 @@ target_include_directories(to_rt_pipe
   ${XENOMAI_CODE_DIR}
   ${IDL_DIR}
   ${DDS_CODE_DIR}
-  ${SRC_DIR}
+  ${NON_RT_DIR}
   ${XENOMAI_INCLUDE_DIRS}
 )
 
