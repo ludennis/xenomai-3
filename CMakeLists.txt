@@ -464,7 +464,7 @@ set_target_properties(pwm_output
 
 # motor monitor
 add_executable(motor_monitor
-  ${XENOMAI_DIR}/motor_monitor.cpp
+  ${RT_DIR}/monitor/motor_monitor.cpp
 )
 
 target_include_directories(motor_monitor
