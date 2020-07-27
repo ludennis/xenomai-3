@@ -141,15 +141,15 @@ add_definitions(-DHAVESTDIO)
 add_definitions(-DMODEL_HAS_DYNAMICALLY_LOADED_SFCNS=0)
 
 # Set path
-set(MATLAB_CODE_DIR "${PROJECT_SOURCE_DIR}/src/rt/matlab_code")
-set(MODEL_CODE_DIR "${PROJECT_SOURCE_DIR}/src/rt/model_code")
-set(CONTROLLER_CODE_DIR "${PROJECT_SOURCE_DIR}/src/rt/controller_code")
-set(XENOMAI_CODE_DIR "${PROJECT_SOURCE_DIR}/src/rt/xenomai_code")
-set(PICKERING_CODE_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/pickering_code")
-set(SIMULINK_GENERATED_CODE_DIR "${PROJECT_SOURCE_DIR}/src/rt/simulink_generated_code")
-set(PEAK_CAN_CODE_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/peak_can_code")
-set(NI_CODE_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/ni_code")
-set(DDS_CODE_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/dds_code")
+set(MATLAB_DIR "${PROJECT_SOURCE_DIR}/src/rt/matlab")
+set(MODEL_DIR "${PROJECT_SOURCE_DIR}/src/rt/model")
+set(CONTROLLER_DIR "${PROJECT_SOURCE_DIR}/src/rt/controller")
+set(XENOMAI_DIR "${PROJECT_SOURCE_DIR}/src/rt/xenomai")
+set(PICKERING_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/pickering")
+set(SIMULINK_GENERATED_DIR "${PROJECT_SOURCE_DIR}/src/rt/simulink_generated")
+set(PEAK_CAN_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/peak_can")
+set(NI_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/ni")
+set(DDS_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/dds")
 set(IDL_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/idl")
 set(UTILS_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/utils")
 set(SRC_DIR "${PROJECT_SOURCE_DIR}/src")
@@ -162,52 +162,52 @@ set(PEAK_CAN_LIB_DIR "/usr/local/lib")
 
 # ni include directories and source files
 set(NI_INCLUDE_DIRS
-  ${NI_CODE_DIR}/nimhddk
-  ${NI_CODE_DIR}/nixseries
-  ${NI_CODE_DIR}/nixseries/CHInCh
-  ${NI_CODE_DIR}/nixseries/ChipObjects
-  ${NI_CODE_DIR}/nixseries/Examples
-  ${NI_CODE_DIR}/nixseries/Examples/inTimer
-  ${NI_CODE_DIR}/nixseries/Examples/outTimer
+  ${NI_DIR}/nimhddk
+  ${NI_DIR}/nixseries
+  ${NI_DIR}/nixseries/CHInCh
+  ${NI_DIR}/nixseries/ChipObjects
+  ${NI_DIR}/nixseries/Examples
+  ${NI_DIR}/nixseries/Examples/inTimer
+  ${NI_DIR}/nixseries/Examples/outTimer
 )
 
 set(NI_SOURCES
-  ${NI_CODE_DIR}/nimhddk/LinuxKernel/osiUserCode.cpp
-  ${NI_CODE_DIR}/nimhddk/osiBus.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tXSeries.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tCHInCh.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tAI.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tAO.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tDI.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tDO.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tCounter.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tBusInterface.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tBrdServices.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tInTimer.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tOutTimer.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tDMAController.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tTriggers.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tStreamCircuitRegMap.cpp
-  ${NI_CODE_DIR}/nixseries/ChipObjects/tSimultaneousControl.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/dataHelper.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/devices.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/dio/dioHelper.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/dio/pfiDioHelper.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/eepromHelper.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/simultaneousInit.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/streamHelper.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/inTimer/diHelper.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/inTimer/inTimerHelper.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/inTimer/inTimerParams.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/outTimer/doHelper.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/outTimer/outTimerHelper.cpp
-  ${NI_CODE_DIR}/nixseries/CHInCh/tCHInChDMAChannelController.cpp
-  ${NI_CODE_DIR}/nixseries/CHInCh/tCHInChDMAChannel.cpp
-  ${NI_CODE_DIR}/nixseries/CHInCh/tCHInChSGLChunkyLink.cpp
-  ${NI_CODE_DIR}/nixseries/CHInCh/tCHInChSGL.cpp
-  ${NI_CODE_DIR}/nixseries/CHInCh/tDMABuffer.cpp
-  ${NI_CODE_DIR}/nixseries/CHInCh/tLinearDMABuffer.cpp
-  ${NI_CODE_DIR}/nixseries/CHInCh/tScatterGatherDMABuffer.cpp
+  ${NI_DIR}/nimhddk/LinuxKernel/osiUserCode.cpp
+  ${NI_DIR}/nimhddk/osiBus.cpp
+  ${NI_DIR}/nixseries/ChipObjects/tXSeries.cpp
+  ${NI_DIR}/nixseries/ChipObjects/tCHInCh.cpp
+  ${NI_DIR}/nixseries/ChipObjects/tAI.cpp
+  ${NI_DIR}/nixseries/ChipObjects/tAO.cpp
+  ${NI_DIR}/nixseries/ChipObjects/tDI.cpp
+  ${NI_DIR}/nixseries/ChipObjects/tDO.cpp
+  ${NI_DIR}/nixseries/ChipObjects/tCounter.cpp
+  ${NI_DIR}/nixseries/ChipObjects/tBusInterface.cpp
+  ${NI_DIR}/nixseries/ChipObjects/tBrdServices.cpp
+  ${NI_DIR}/nixseries/ChipObjects/tInTimer.cpp
+  ${NI_DIR}/nixseries/ChipObjects/tOutTimer.cpp
+  ${NI_DIR}/nixseries/ChipObjects/tDMAController.cpp
+  ${NI_DIR}/nixseries/ChipObjects/tTriggers.cpp
+  ${NI_DIR}/nixseries/ChipObjects/tStreamCircuitRegMap.cpp
+  ${NI_DIR}/nixseries/ChipObjects/tSimultaneousControl.cpp
+  ${NI_DIR}/nixseries/Examples/dataHelper.cpp
+  ${NI_DIR}/nixseries/Examples/devices.cpp
+  ${NI_DIR}/nixseries/Examples/dio/dioHelper.cpp
+  ${NI_DIR}/nixseries/Examples/dio/pfiDioHelper.cpp
+  ${NI_DIR}/nixseries/Examples/eepromHelper.cpp
+  ${NI_DIR}/nixseries/Examples/simultaneousInit.cpp
+  ${NI_DIR}/nixseries/Examples/streamHelper.cpp
+  ${NI_DIR}/nixseries/Examples/inTimer/diHelper.cpp
+  ${NI_DIR}/nixseries/Examples/inTimer/inTimerHelper.cpp
+  ${NI_DIR}/nixseries/Examples/inTimer/inTimerParams.cpp
+  ${NI_DIR}/nixseries/Examples/outTimer/doHelper.cpp
+  ${NI_DIR}/nixseries/Examples/outTimer/outTimerHelper.cpp
+  ${NI_DIR}/nixseries/CHInCh/tCHInChDMAChannelController.cpp
+  ${NI_DIR}/nixseries/CHInCh/tCHInChDMAChannel.cpp
+  ${NI_DIR}/nixseries/CHInCh/tCHInChSGLChunkyLink.cpp
+  ${NI_DIR}/nixseries/CHInCh/tCHInChSGL.cpp
+  ${NI_DIR}/nixseries/CHInCh/tDMABuffer.cpp
+  ${NI_DIR}/nixseries/CHInCh/tLinearDMABuffer.cpp
+  ${NI_DIR}/nixseries/CHInCh/tScatterGatherDMABuffer.cpp
 )
 
 # ni compile options
@@ -222,26 +222,26 @@ set(NI_COMPILE_OPTIONS
 
 # motor_model_v2
 add_executable(motor
-  ${MODEL_CODE_DIR}/ert_main.cpp
-  ${MODEL_CODE_DIR}/generated_model.cpp
-  ${MODEL_CODE_DIR}/input_interface.cpp
-  ${MODEL_CODE_DIR}/output_interface.cpp
-  ${MODEL_CODE_DIR}/rtGetInf.cpp
-  ${MODEL_CODE_DIR}/rtGetNaN.cpp
-  ${MODEL_CODE_DIR}/rt_nonfinite.cpp
+  ${MODEL_DIR}/ert_main.cpp
+  ${MODEL_DIR}/generated_model.cpp
+  ${MODEL_DIR}/input_interface.cpp
+  ${MODEL_DIR}/output_interface.cpp
+  ${MODEL_DIR}/rtGetInf.cpp
+  ${MODEL_DIR}/rtGetNaN.cpp
+  ${MODEL_DIR}/rt_nonfinite.cpp
 )
 
 target_include_directories(motor
   PUBLIC
-  ${MATLAB_CODE_DIR}/extern/include
-  ${MATLAB_CODE_DIR}/rtw/c/ert
-  ${MATLAB_CODE_DIR}/rtw/c/src
-  ${MATLAB_CODE_DIR}/rtw/c/src/ext_mode/common
-  ${MATLAB_CODE_DIR}/simulink/include
-  ${MODEL_CODE_DIR}
+  ${MATLAB_DIR}/extern/include
+  ${MATLAB_DIR}/rtw/c/ert
+  ${MATLAB_DIR}/rtw/c/src
+  ${MATLAB_DIR}/rtw/c/src/ext_mode/common
+  ${MATLAB_DIR}/simulink/include
+  ${MODEL_DIR}
   ${PROJECT_SOURCE_DIR}/src
   ${XENOMAI_INCLUDE_DIRS}
-  ${XENOMAI_CODE_DIR}
+  ${XENOMAI_DIR}
 )
 
 target_link_libraries(motor
@@ -259,7 +259,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 add_executable(controller
-  ${CONTROLLER_CODE_DIR}/controller_main.cpp
+  ${CONTROLLER_DIR}/controller_main.cpp
 )
 
 target_link_libraries(controller
@@ -271,7 +271,7 @@ target_include_directories(controller
   SYSTEM PUBLIC
   ${PROJECT_SOURCE_DIR}/src
   ${XENOMAI_INCLUDE_DIRS}
-  ${XENOMAI_CODE_DIR}
+  ${XENOMAI_DIR}
 )
 
 target_compile_options(controller
@@ -283,16 +283,16 @@ target_compile_options(controller
 link_directories("/usr/local/lib")
 
 add_executable(non_precision_resistor_controller
-  ${PICKERING_CODE_DIR}/non_precision_resistor_controller_main.cpp
-  ${PICKERING_CODE_DIR}/RtResistanceTask.cpp
-  ${PICKERING_CODE_DIR}/RtResistanceTask.h
-  ${PICKERING_CODE_DIR}/RtSharedArray.cpp
-  ${PICKERING_CODE_DIR}/RtSharedArray.h
+  ${PICKERING_DIR}/non_precision_resistor_controller_main.cpp
+  ${PICKERING_DIR}/RtResistanceTask.cpp
+  ${PICKERING_DIR}/RtResistanceTask.h
+  ${PICKERING_DIR}/RtSharedArray.cpp
+  ${PICKERING_DIR}/RtSharedArray.h
 )
 
 target_include_directories(non_precision_resistor_controller
   SYSTEM PUBLIC
-  ${PICKERING_CODE_DIR}
+  ${PICKERING_DIR}
   ${PICKERING_INCLUDE_DIRS}
   ${XENOMAI_INCLUDE_DIRS}
 )
@@ -304,27 +304,27 @@ target_link_libraries(non_precision_resistor_controller
 
 # simulink generated code for resistance card
 add_executable(resistance_testing
-  ${PICKERING_CODE_DIR}/PxiCardTask.cpp
-  ${PICKERING_CODE_DIR}/RtGenerateResistanceArrayTask.cpp
-  ${PICKERING_CODE_DIR}/RtResistanceTask.cpp
-  ${PICKERING_CODE_DIR}/RtSharedArray.cpp
-  ${SIMULINK_GENERATED_CODE_DIR}/resistance_testing_grt_rtw/testing.cpp
-  ${SIMULINK_GENERATED_CODE_DIR}/resistance_testing_grt_rtw/testing_data.cpp
-  ${SIMULINK_GENERATED_CODE_DIR}/resistance_testing_grt_rtw/testing_main.cpp
-  ${XENOMAI_CODE_DIR}/RtPeriodicTask.cpp
+  ${PICKERING_DIR}/PxiCardTask.cpp
+  ${PICKERING_DIR}/RtGenerateResistanceArrayTask.cpp
+  ${PICKERING_DIR}/RtResistanceTask.cpp
+  ${PICKERING_DIR}/RtSharedArray.cpp
+  ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing.cpp
+  ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing_data.cpp
+  ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing_main.cpp
+  ${XENOMAI_DIR}/RtPeriodicTask.cpp
 )
 
 target_include_directories(resistance_testing
   PUBLIC
-  ${MATLAB_CODE_DIR}/extern/include
-  ${MATLAB_CODE_DIR}/rtw/c/src
-  ${MATLAB_CODE_DIR}/rtw/c/src/ext_mode/common
-  ${MATLAB_CODE_DIR}/simulink/include
-  ${PICKERING_CODE_DIR}
+  ${MATLAB_DIR}/extern/include
+  ${MATLAB_DIR}/rtw/c/src
+  ${MATLAB_DIR}/rtw/c/src/ext_mode/common
+  ${MATLAB_DIR}/simulink/include
+  ${PICKERING_DIR}
   ${PICKERING_INCLUDE_DIRS}
-  ${SIMULINK_GENERATED_CODE_DIR}
-  ${SIMULINK_GENERATED_CODE_DIR}/resistance_testing_grt_rtw
-  ${XENOMAI_CODE_DIR}
+  ${SIMULINK_GENERATED_DIR}
+  ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw
+  ${XENOMAI_DIR}
   ${XENOMAI_INCLUDE_DIRS}
 )
 
@@ -335,27 +335,27 @@ target_link_libraries(resistance_testing
 
 # simulink generated code for switching card
 add_executable(switching_testing
-  ${PICKERING_CODE_DIR}/PxiCardTask.cpp
-  ${PICKERING_CODE_DIR}/RtGenerateStateTask.cpp
-  ${PICKERING_CODE_DIR}/RtSharedState.cpp
-  ${PICKERING_CODE_DIR}/RtSwitchTask.cpp
-  ${SIMULINK_GENERATED_CODE_DIR}/switching_testing_grt_rtw/testing.cpp
-  ${SIMULINK_GENERATED_CODE_DIR}/switching_testing_grt_rtw/testing_data.cpp
-  ${SIMULINK_GENERATED_CODE_DIR}/switching_testing_grt_rtw/testing_main.cpp
-  ${XENOMAI_CODE_DIR}/RtPeriodicTask.cpp
+  ${PICKERING_DIR}/PxiCardTask.cpp
+  ${PICKERING_DIR}/RtGenerateStateTask.cpp
+  ${PICKERING_DIR}/RtSharedState.cpp
+  ${PICKERING_DIR}/RtSwitchTask.cpp
+  ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing.cpp
+  ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing_data.cpp
+  ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing_main.cpp
+  ${XENOMAI_DIR}/RtPeriodicTask.cpp
 )
 
 target_include_directories(switching_testing
   PUBLIC
-  ${MATLAB_CODE_DIR}/extern/include
-  ${MATLAB_CODE_DIR}/rtw/c/src
-  ${MATLAB_CODE_DIR}/rtw/c/src/ext_mode/common
-  ${MATLAB_CODE_DIR}/simulink/include
-  ${PICKERING_CODE_DIR}
+  ${MATLAB_DIR}/extern/include
+  ${MATLAB_DIR}/rtw/c/src
+  ${MATLAB_DIR}/rtw/c/src/ext_mode/common
+  ${MATLAB_DIR}/simulink/include
+  ${PICKERING_DIR}
   ${PICKERING_INCLUDE_DIRS}
-  ${SIMULINK_GENERATED_CODE_DIR}
-  ${SIMULINK_GENERATED_CODE_DIR}/switching_testing_grt_rtw
-  ${XENOMAI_CODE_DIR}
+  ${SIMULINK_GENERATED_DIR}
+  ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw
+  ${XENOMAI_DIR}
   ${XENOMAI_INCLUDE_DIRS}
 )
 
@@ -366,18 +366,18 @@ target_link_libraries(switching_testing
 
 # peak can
 add_executable(peak_can_transmit
-  ${PEAK_CAN_CODE_DIR}/peak_can_transmit.cpp
-  ${PEAK_CAN_CODE_DIR}/PeakCanTask.cpp
-  ${PEAK_CAN_CODE_DIR}/RtPeakCanTransmitTask.cpp
-  ${XENOMAI_CODE_DIR}/RtPeriodicTask.cpp
+  ${PEAK_CAN_DIR}/peak_can_transmit.cpp
+  ${PEAK_CAN_DIR}/PeakCanTask.cpp
+  ${PEAK_CAN_DIR}/RtPeakCanTransmitTask.cpp
+  ${XENOMAI_DIR}/RtPeriodicTask.cpp
 )
 
 target_include_directories(peak_can_transmit
   PUBLIC
-  ${PEAK_CAN_CODE_DIR}
+  ${PEAK_CAN_DIR}
   ${PEAK_CAN_INCLUDE_DIR}
-  ${PICKERING_CODE_DIR}
-  ${XENOMAI_CODE_DIR}
+  ${PICKERING_DIR}
+  ${XENOMAI_DIR}
   ${XENOMAI_INCLUDE_DIRS}
 )
 
@@ -388,19 +388,19 @@ target_link_libraries(peak_can_transmit
 )
 
 add_executable(peak_can_receive
-  ${PEAK_CAN_CODE_DIR}/peak_can_receive.cpp
-  ${PEAK_CAN_CODE_DIR}/PeakCanTask.cpp
-  ${PEAK_CAN_CODE_DIR}/RtPeakCanReceiveTask.cpp
-  ${XENOMAI_CODE_DIR}/RtPeriodicTask.cpp
+  ${PEAK_CAN_DIR}/peak_can_receive.cpp
+  ${PEAK_CAN_DIR}/PeakCanTask.cpp
+  ${PEAK_CAN_DIR}/RtPeakCanReceiveTask.cpp
+  ${XENOMAI_DIR}/RtPeriodicTask.cpp
 )
 
 target_include_directories(peak_can_receive
   PUBLIC
-  ${PEAK_CAN_CODE_DIR}
+  ${PEAK_CAN_DIR}
   ${PEAK_CAN_INCLUDE_DIR}
-  ${PICKERING_CODE_DIR}
+  ${PICKERING_DIR}
   ${XENOMAI_INCLUDE_DIRS}
-  ${XENOMAI_CODE_DIR}
+  ${XENOMAI_DIR}
 )
 
 target_link_libraries(peak_can_receive
@@ -411,11 +411,11 @@ target_link_libraries(peak_can_receive
 
 # pwm_input
 add_executable(pwm_input
-  ${NI_CODE_DIR}/pwm_input.cpp
-  ${NI_CODE_DIR}/pwm_input_main.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/inTimer/aiHelper.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/counterResetHelper.cpp
-  ${NI_CODE_DIR}/nimhddk/osiBus.cpp
+  ${NI_DIR}/pwm_input.cpp
+  ${NI_DIR}/pwm_input_main.cpp
+  ${NI_DIR}/nixseries/Examples/inTimer/aiHelper.cpp
+  ${NI_DIR}/nixseries/Examples/counterResetHelper.cpp
+  ${NI_DIR}/nimhddk/osiBus.cpp
   ${NI_SOURCES}
 )
 
@@ -437,12 +437,12 @@ set_target_properties(pwm_input
 
 # pwm_output
 add_executable(pwm_output
-  ${NI_CODE_DIR}/pwm_output.cpp
-  ${NI_CODE_DIR}/pwm_output_main.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/inTimer/aiHelper.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/counterResetHelper.cpp
-  ${NI_CODE_DIR}/nixseries/Examples/pfiRtsiResetHelper.cpp
-  ${NI_CODE_DIR}/nimhddk/osiBus.cpp
+  ${NI_DIR}/pwm_output.cpp
+  ${NI_DIR}/pwm_output_main.cpp
+  ${NI_DIR}/nixseries/Examples/inTimer/aiHelper.cpp
+  ${NI_DIR}/nixseries/Examples/counterResetHelper.cpp
+  ${NI_DIR}/nixseries/Examples/pfiRtsiResetHelper.cpp
+  ${NI_DIR}/nimhddk/osiBus.cpp
   ${NI_SOURCES}
 )
 
@@ -464,13 +464,13 @@ set_target_properties(pwm_output
 
 # motor monitor
 add_executable(motor_monitor
-  ${XENOMAI_CODE_DIR}/motor_monitor.cpp
+  ${XENOMAI_DIR}/motor_monitor.cpp
 )
 
 target_include_directories(motor_monitor
   PUBLIC
   ${XENOMAI_INCLUDE_DIRS}
-  ${XENOMAI_CODE_DIR}
+  ${XENOMAI_DIR}
 )
 
 target_link_libraries(motor_monitor
@@ -479,13 +479,13 @@ target_link_libraries(motor_monitor
 
 # dds pipe
 add_executable(to_non_rt_pipe
-  ${XENOMAI_CODE_DIR}/dds_pipe.cpp
+  ${XENOMAI_DIR}/dds_pipe.cpp
 )
 
 target_include_directories(to_non_rt_pipe
   PUBLIC
   ${XENOMAI_INCLUDE_DIRS}
-  ${XENOMAI_CODE_DIR}
+  ${XENOMAI_DIR}
 )
 
 target_link_libraries(to_non_rt_pipe
@@ -494,13 +494,13 @@ target_link_libraries(to_non_rt_pipe
 
 # dds from rt pipe
 add_executable(from_rt_pipe
-  ${DDS_CODE_DIR}/from_rt_pipe.cpp
+  ${DDS_DIR}/from_rt_pipe.cpp
 )
 
 target_include_directories(from_rt_pipe
   PUBLIC
-  ${XENOMAI_CODE_DIR}
-  ${DDS_CODE_DIR}
+  ${XENOMAI_DIR}
+  ${DDS_DIR}
   ${IDL_DIR}
   ${NON_RT_DIR}
 )
@@ -512,14 +512,14 @@ target_link_libraries(from_rt_pipe
 
 # dds to rt pipe
 add_executable(to_rt_pipe
-  ${DDS_CODE_DIR}/to_rt_pipe.cpp
+  ${DDS_DIR}/to_rt_pipe.cpp
 )
 
 target_include_directories(to_rt_pipe
   PUBLIC
-  ${XENOMAI_CODE_DIR}
+  ${XENOMAI_DIR}
   ${IDL_DIR}
-  ${DDS_CODE_DIR}
+  ${DDS_DIR}
   ${NON_RT_DIR}
   ${XENOMAI_INCLUDE_DIRS}
 )
