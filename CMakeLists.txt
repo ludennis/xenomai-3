@@ -141,7 +141,7 @@ add_definitions(-DHAVESTDIO)
 add_definitions(-DMODEL_HAS_DYNAMICALLY_LOADED_SFCNS=0)
 
 # Set path
-set(MATLAB_DIR "${PROJECT_SOURCE_DIR}/src/rt/matlab")
+set(MATLAB_DIR "${PROJECT_SOURCE_DIR}/src/rt/model/matlab")
 set(MODEL_DIR "${PROJECT_SOURCE_DIR}/src/rt/model")
 set(CONTROLLER_DIR "${PROJECT_SOURCE_DIR}/src/rt/controller")
 set(XENOMAI_DIR "${PROJECT_SOURCE_DIR}/src/rt/xenomai")
@@ -282,25 +282,25 @@ target_compile_options(controller
 # pickering rt task
 link_directories("/usr/local/lib")
 
-add_executable(non_precision_resistor_controller
-  ${PICKERING_DIR}/non_precision_resistor_controller_main.cpp
-  ${PICKERING_DIR}/RtResistanceTask.cpp
-  ${PICKERING_DIR}/RtResistanceTask.h
-  ${PICKERING_DIR}/RtSharedArray.cpp
-  ${PICKERING_DIR}/RtSharedArray.h
-)
-
-target_include_directories(non_precision_resistor_controller
-  SYSTEM PUBLIC
-  ${PICKERING_DIR}
-  ${PICKERING_INCLUDE_DIRS}
-  ${XENOMAI_INCLUDE_DIRS}
-)
-
-target_link_libraries(non_precision_resistor_controller
-  pilpxi64
-  ${XENOMAI_LIBRARIES}
-)
+#add_executable(non_precision_resistor_controller
+#  ${PICKERING_DIR}/non_precision_resistor_controller_main.cpp
+#  ${PICKERING_DIR}/RtResistanceTask.cpp
+#  ${PICKERING_DIR}/RtResistanceTask.h
+#  ${PICKERING_DIR}/RtSharedArray.cpp
+#  ${PICKERING_DIR}/RtSharedArray.h
+#)
+#
+#target_include_directories(non_precision_resistor_controller
+#  SYSTEM PUBLIC
+#  ${PICKERING_DIR}
+#  ${PICKERING_INCLUDE_DIRS}
+#  ${XENOMAI_INCLUDE_DIRS}
+#)
+#
+#target_link_libraries(non_precision_resistor_controller
+#  pilpxi64
+#  ${XENOMAI_LIBRARIES}
+#)
 
 # simulink generated code for resistance card
 add_executable(resistance_testing
