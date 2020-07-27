@@ -140,23 +140,28 @@ add_definitions(-DNCSTATES=5)
 add_definitions(-DHAVESTDIO)
 add_definitions(-DMODEL_HAS_DYNAMICALLY_LOADED_SFCNS=0)
 
-# Set path
-set(MOTOR_CONTROL_DIR "${PROJECT_SOURCE_DIR}/src/rt/motor_control")
-set(MATLAB_DIR "${MOTOR_CONTROL_DIR}/model/matlab")
-set(MODEL_DIR "${MOTOR_CONTROL_DIR}/model")
-set(CONTROLLER_DIR "${MOTOR_CONTROL_DIR}/controller")
-set(RT_DIR "${PROJECT_SOURCE_DIR}/src/rt")
-set(RT_UTILS_DIR "${RT_DIR}/rt_utils")
-set(PICKERING_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/pickering")
-set(SIMULINK_GENERATED_DIR "${PROJECT_SOURCE_DIR}/src/rt/simulink_generated")
-set(PEAK_CAN_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/peak_can")
-set(NI_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/ni")
-set(DDS_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/dds")
-set(IDL_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/idl")
-set(UTILS_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/utils")
 set(SRC_DIR "${PROJECT_SOURCE_DIR}/src")
-set(NON_RT_DIR "${PROJECT_SOURCE_DIR}/src/non_rt")
 
+# Set paths for rt related directories
+set(RT_DIR "${PROJECT_SOURCE_DIR}/src/rt")
+set(MOTOR_CONTROL_DIR "${RT_DIR}/motor_control")
+set(MODEL_DIR "${MOTOR_CONTROL_DIR}/model")
+set(MATLAB_DIR "${MODEL_DIR}/matlab")
+set(CONTROLLER_DIR "${MOTOR_CONTROL_DIR}/controller")
+set(RT_UTILS_DIR "${RT_DIR}/rt_utils")
+set(SIMULINK_GENERATED_DIR "${RT_DIR}/simulink_generated")
+
+# Set paths for non-rt related directories
+set(NON_RT_DIR "${PROJECT_SOURCE_DIR}/src/non_rt")
+set(DDS_DIR "${NON_RT_DIR}/dds")
+set(IDL_DIR "${NON_RT_DIR}/idl")
+set(UTILS_DIR "${NON_RT_DIR}/utils")
+set(IO_INTERFACES_DIR "${NON_RT_DIR}/io_interfaces")
+set(PICKERING_DIR "${IO_INTERFACES_DIR}/pickering")
+set(PEAK_CAN_DIR "${IO_INTERFACES_DIR}/peak_can")
+set(NI_DIR "${IO_INTERFACES_DIR}/ni")
+
+# set paths for libs and includes
 set(PICKERING_INCLUDE_DIR "/usr/local/lib")
 set(PEAK_CAN_INCLUDE_DIR "/usr/local/include")
 set(PEAK_CAN_LIB_DIR "/usr/local/lib")
