@@ -141,9 +141,10 @@ add_definitions(-DHAVESTDIO)
 add_definitions(-DMODEL_HAS_DYNAMICALLY_LOADED_SFCNS=0)
 
 # Set path
-set(MATLAB_DIR "${PROJECT_SOURCE_DIR}/src/rt/model/matlab")
-set(MODEL_DIR "${PROJECT_SOURCE_DIR}/src/rt/model")
-set(CONTROLLER_DIR "${PROJECT_SOURCE_DIR}/src/rt/controller")
+set(MOTOR_CONTROL_DIR "${PROJECT_SOURCE_DIR}/src/rt/motor_control")
+set(MATLAB_DIR "${MOTOR_CONTROL_DIR}/model/matlab")
+set(MODEL_DIR "${MOTOR_CONTROL_DIR}/model")
+set(CONTROLLER_DIR "${MOTOR_CONTROL_DIR}/controller")
 set(XENOMAI_DIR "${PROJECT_SOURCE_DIR}/src/rt/xenomai")
 set(PICKERING_DIR "${PROJECT_SOURCE_DIR}/src/non_rt/pickering")
 set(SIMULINK_GENERATED_DIR "${PROJECT_SOURCE_DIR}/src/rt/simulink_generated")
@@ -464,7 +465,7 @@ set_target_properties(pwm_output
 
 # motor monitor
 add_executable(motor_monitor
-  ${RT_DIR}/monitor/motor_monitor.cpp
+  ${MOTOR_CONTROL_DIR}/monitor/motor_monitor.cpp
 )
 
 target_include_directories(motor_monitor
