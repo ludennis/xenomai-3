@@ -222,9 +222,9 @@ set(NI_COMPILE_OPTIONS
   -g
 )
 
-# motor_model_v2
-add_executable(motor
-  ${MODEL_DIR}/ert_main.cpp
+# motor model shared library
+add_library(motor_model_lib
+  SHARED
   ${MODEL_DIR}/generated_model.cpp
   ${MODEL_DIR}/input_interface.cpp
   ${MODEL_DIR}/output_interface.cpp
@@ -233,13 +233,23 @@ add_executable(motor
   ${MODEL_DIR}/rt_nonfinite.cpp
 )
 
-target_include_directories(motor
+target_include_directories(motor_model_lib
   PUBLIC
+  ${MODEL_DIR}
   ${MATLAB_DIR}/extern/include
   ${MATLAB_DIR}/rtw/c/ert
   ${MATLAB_DIR}/rtw/c/src
   ${MATLAB_DIR}/rtw/c/src/ext_mode/common
   ${MATLAB_DIR}/simulink/include
+)
+
+# motor_model_v2
+add_executable(motor
+  ${MODEL_DIR}/ert_main.cpp
+)
+
+target_include_directories(motor
+  PUBLIC
   ${MODEL_DIR}
   ${PROJECT_SOURCE_DIR}/src
   ${XENOMAI_INCLUDE_DIRS}
@@ -248,6 +258,7 @@ target_include_directories(motor
 
 target_link_libraries(motor
   ${XENOMAI_LIBRARIES}
+  motor_model_lib
 )
 
 target_compile_options(motor
