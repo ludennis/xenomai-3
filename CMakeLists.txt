@@ -532,9 +532,20 @@ target_link_libraries(to_rt_pipe
   ${XENOMAI_LIBRARIES}
 )
 
-# install
-install(TARGETS
-  motor
-  controller
-  DESTINATION bin/${PROJECT_NAME}
+# copy all script files during build time
+set(SCRIPT_DIR ${PROJECT_SOURCE_DIR}/scripts)
+set(script_files
+  ${SCRIPT_DIR}/start_motor.sh
+  ${SCRIPT_DIR}/start_pipes.sh
+  ${SCRIPT_DIR}/init_rtp.sh
+  ${SCRIPT_DIR}/throttle_emulator.py
+  ${SCRIPT_DIR}/receive_vehicle_status.py
 )
+
+foreach(script_file ${script_files})
+  get_filename_component(script_filename ${script_file} NAME)
+  configure_file(${script_file}
+    ${PROJECT_BINARY_DIR}/${script_filename}
+    COPYONLY
+  )
+endforeach(script_file)
