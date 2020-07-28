@@ -2,5 +2,5 @@
 
 ospl start
 
-./from_rt_pipe &
+./from_rt_pipe & \
 ./to_rt_pipe
