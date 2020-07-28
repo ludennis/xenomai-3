@@ -55,13 +55,9 @@ set(idls
   ${PROJECT_SOURCE_DIR}/src/non_rt/idl/carla_client_server_user.idl
 )
 
-message("idls: ${idls}")
-
 set(idl_targets)
 set(OpenSplice_DATAMODEL)
 foreach(idl ${idls})
-
-  message("idl: ${idl}")
   # generate idl source files with idlpp.exe
   OpenSplice_IDLGEN(${idl})
   GET_FILENAME_COMPONENT(idl_filename ${idl} NAME_WE)
