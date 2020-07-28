@@ -50,7 +50,7 @@ void MotorBroadcastOutputRoutine(void*)
       // send/boradcast
       void *message = rt_queue_alloc(&rtMotorOutputQueue, sizeof(RtQueue::kMessageSize));
       if (message == NULL)
-        rt_printf("rt_queue_alloc error\n");
+        rt_printf("[motor|model] rt_queue_alloc error\n");
 
       // TODO prevent two tasks figting over model
       auto generatedModelMotorOutput = input_interface::GetMsgMotorOutput();
@@ -66,7 +66,7 @@ void MotorBroadcastOutputRoutine(void*)
         &rtMotorOutputQueue, message, sizeof(MotorOutputMessage), Q_BROADCAST);
       if (retval < -1)
       {
-        rt_printf("rt_queue_send error: %s\n", strerror(-retval));
+        rt_printf("[motor|model] rt_queue_send error: %s\n", strerror(-retval));
       }
     }
 
@@ -76,7 +76,7 @@ void MotorBroadcastOutputRoutine(void*)
 
 void MotorReceiveInputRoutine(void*)
 {
-  rt_printf("MotorReceiveInputRoutine started\n");
+  rt_printf("[motor|model] MotorReceiveInputRoutine started\n");
 
   void *blockPointer;
   rt_heap_alloc(&rtHeap, RtQueue::kMessageSize, TM_INFINITE, &blockPointer);
@@ -86,17 +86,17 @@ void MotorReceiveInputRoutine(void*)
       &rtMotorInputQueue, "rtMotorInputQueue", TM_INFINITE);
     if (sendingQueueBound != 0)
     {
-      rt_printf("Sending queue binding error\n");
+      rt_printf("[motor|model] Sending queue binding error\n");
       continue;
     }
 
-    rt_printf("Reading queue\n");
+    rt_printf("[motor|model] Reading queue\n");
     auto bytesRead =
       rt_queue_read(&rtMotorInputQueue, blockPointer, RtQueue::kMessageSize, TM_INFINITE);
 
     if (bytesRead > 0)
     {
-      rt_printf("Received %d\n", bytesRead);
+      rt_printf("[motor|model] Received %d\n", bytesRead);
       int messageType;
       memcpy(&messageType, blockPointer, sizeof(int));
 
@@ -104,12 +104,12 @@ void MotorReceiveInputRoutine(void*)
       {
         MotorInputMessage motorInputMessage;
         memcpy(&motorInputMessage, blockPointer, sizeof(MotorInputMessage));
-        rt_printf("Motor Input Message received: timestamp: %lld, ft_OutputTorqueS = %f, "
+        rt_printf("[motor|model] Motor Input Message received: timestamp: %lld, ft_OutputTorqueS = %f, "
           "ft_VoltageQ = %f, ft_VoltageD = %f\n", motorInputMessage.timestamp,
           motorInputMessage.ft_OutputTorqueS, motorInputMessage.ft_VoltageQ,
           motorInputMessage.ft_VoltageD);
 
-        rt_printf("Motor Input took %lld ns from rt pipe\n",
+        rt_printf("[motor|model] Motor Input took %lld ns from rt pipe\n",
           rt_timer_read() - motorInputMessage.timestamp);
       }
     }
@@ -130,7 +130,7 @@ void MotorStepRoutine(void*)
 
     if (rt_timer_read() - rtTimerOneSecond > RtTime::kOneSecond)
     {
-      rt_printf("Motor Stepped %d times. avg step time: %.2f nanoseconds\n",
+      rt_printf("[motor|model] Motor Stepped %d times. avg step time: %.2f nanoseconds\n",
         numberOfMessages, totalStepTime / numberOfMessages);
       rtTimerOneSecond = rt_timer_read();
     }
@@ -179,7 +179,7 @@ int main(int argc, char * argv[])
   rt_queue_create(&rtMotorOutputQueue, "rtMotorOutputQueue", RtQueue::kMessageSize,
     RtQueue::kQueueLimit, Q_FIFO);
   rt_queue_inquire(&rtMotorOutputQueue, &rtMotorOutputQueueInfo);
-  rt_printf("Queue %s created\n", rtMotorOutputQueueInfo.name);
+  rt_printf("[motor|model] Queue %s created\n", rtMotorOutputQueueInfo.name);
 
   rt_task_create(&rtMotorBroadcastOutputTask, "rtMotorBroadcastOutputTask",
     RtTask::kStackSize, RtTask::kMediumPriority, RtTask::kMode);
@@ -191,7 +191,7 @@ int main(int argc, char * argv[])
   rt_task_set_periodic(&rtMotorBroadcastOutputTask, TM_NOW,
     rt_timer_ns2ticks(RtTime::kTenMilliseconds));
   rt_task_start(&rtMotorBroadcastOutputTask, MotorBroadcastOutputRoutine, NULL);
-  rt_printf("rtMotorBroadcastOutputTask started\n");
+  rt_printf("[motor|model] rtMotorBroadcastOutputTask started\n");
 
   for (;;)
   {}

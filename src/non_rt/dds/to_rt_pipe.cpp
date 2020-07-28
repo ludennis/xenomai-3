@@ -16,7 +16,7 @@ int fileDescriptor;
 
 void TerminationHandler(int signal)
 {
-  printf("Termination signal received. Exiting ...\n");
+  printf("[to_rt_pipe] Termination signal received. Exiting ...\n");
   free(buffer);
   close(fileDescriptor);
   exit(1);
@@ -34,12 +34,12 @@ int main(int argc, char *argv[])
   fileDescriptor = open(deviceName , O_WRONLY | O_NONBLOCK);
   if (fileDescriptor < 0)
   {
-    printf("file descriptor error opening %s\n", deviceName);
+    printf("[to_rt_pipe] file descriptor error opening %s\n", deviceName);
     return -1;
   }
   else
   {
-    printf("File descriptor %s acquired\n", deviceName);
+    printf("[to_rt_pipe] File descriptor %s acquired\n", deviceName);
   }
 
   dds_bridge::DDSBridge ddsBridge;
@@ -90,14 +90,14 @@ int main(int argc, char *argv[])
             continue;
           }
 
-          printf("sample.id = %d, sample.throttle = %f, sample.vehicle_speed = %f, "
+          printf("[to_rt_pipe] sample.id = %d, sample.throttle = %f, sample.vehicle_speed = %f, "
             "sample.simulation_time = %s\n", sampleData.id(), sampleData.throttle(),
             sampleData.vehicle_speed(), sampleData.simulation_time().c_str());
 
           auto timeNow = std::chrono::duration_cast<std::chrono::nanoseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count();
 
-          printf("DDS Message travel time: %ld ns\n",
+          printf("[to_rt_pipe] DDS Message travel time: %ld ns\n",
             timeNow - std::stoul(sampleData.simulation_time()));
 
           // rt_timer_read() for recording RTIME to be measured by motor
@@ -105,7 +105,7 @@ int main(int argc, char *argv[])
 
           memcpy(buffer, &motorInputMessage, RtMessage::kMessageSize);
           auto bytesWritten = write(fileDescriptor, buffer, RtMessage::kMessageSize);
-          printf("Written %ld bytes to %s\n", bytesWritten, deviceName);
+          printf("[to_rt_pipe] Written %ld bytes to %s\n", bytesWritten, deviceName);
         }
       }
     }

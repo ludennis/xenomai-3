@@ -18,9 +18,9 @@ int main(int argc, char *argv[])
   auto fileDescriptor = open("/dev/rtp1", O_RDONLY);
 
   if (fileDescriptor < 0)
-    printf("file descriptor error: %s\n", strerror(errno));
+    printf("[from_rt_pipe] file descriptor error: %s\n", strerror(errno));
   else
-    printf("file descriptor acquired\n");
+    printf("[from_rt_pipe] file descriptor acquired\n");
 
   // DDS
   dds_bridge::DDSBridge ddsBridge;
@@ -38,10 +38,10 @@ int main(int argc, char *argv[])
   {
     MotorOutputMessage motorOutputMessage;
     auto bytesRead = read(fileDescriptor, &motorOutputMessage, sizeof(MotorOutputMessage));
-    printf("Read bytes %ld from fileDescriptor\n", bytesRead);
+    printf("[from_rt_pipe] Read bytes %ld from fileDescriptor\n", bytesRead);
     if (bytesRead > 0)
     {
-      printf("motorOutputMessage rpm: %f\n", motorOutputMessage.ft_RotorRPM);
+      printf("[from_rt_pipe] motorOutputMessage rpm: %f\n", motorOutputMessage.ft_RotorRPM);
 
       // write dds message
       basic::module_vehicleSignal::vehicleSignalStruct vehicleSignalMessage;
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
       writer.write(vehicleSignalMessage);
     }
     if (bytesRead < 0)
-      printf("read error: %s\n", strerror(errno));
+      printf("[from_rt_pipe] read error: %s\n", strerror(errno));
 
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }

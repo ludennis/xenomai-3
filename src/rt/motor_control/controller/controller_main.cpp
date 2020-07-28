@@ -30,7 +30,7 @@ void ForwardMotorInputFromPipeRoutine(void*)
 
     if (retval <= 0)
     {
-      rt_printf("rt_pipe_read error: %s\n", strerror(-retval));
+      rt_printf("[motor|controller] rt_pipe_read error: %s\n", strerror(-retval));
     }
     else
     {
@@ -43,11 +43,11 @@ void ForwardMotorInputFromPipeRoutine(void*)
 
       if (retval < 0)
       {
-        rt_printf("rt_queue_send error: %s\n", strerror(retval));
+        rt_printf("[motor|controller] rt_queue_send error: %s\n", strerror(retval));
       }
       else
       {
-        rt_printf("Forwarded Motor Input Message (size = %ld bytes)\n", retval);
+        rt_printf("[motor|controller] Forwarded Motor Input Message (size = %ld bytes)\n", retval);
       }
     }
 
@@ -77,7 +77,7 @@ void ReceiveMotorOutputRoutine(void*)
         auto motorOutputMessage = MotorOutputMessage{};
         memcpy(&motorOutputMessage, blockPointer, sizeof(MotorOutputMessage));
 
-        rt_printf("Received MotorOutputMessage, ft_CurrentU: %f, ft_CurrentV: %f, "
+        rt_printf("[motor|controller] Received MotorOutputMessage, ft_CurrentU: %f, ft_CurrentV: %f, "
           "ft_CurrentW: %f, ft_RotorRPM: %f, ft_RotorDegreeRad: %f, "
           "ft_OutputTorque: %f\n", motorOutputMessage.ft_CurrentU, motorOutputMessage.ft_CurrentV,
           motorOutputMessage.ft_CurrentW, motorOutputMessage.ft_RotorRPM,
@@ -95,10 +95,10 @@ void TerminationHandler(int s)
 
   rt_task_suspend(&rtReceiveMotorOutputTask);
   rt_task_delete(&rtReceiveMotorOutputTask);
-  rt_printf("rtReceiveMotorOutputTask finished\n");
+  rt_printf("[motor|controller] rtReceiveMotorOutputTask finished\n");
   rt_task_suspend(&rtForwardMotorInputFromPipeTask);
   rt_task_delete(&rtForwardMotorInputFromPipeTask);
-  rt_printf("rtForwardMotorInputFromPipeTask finished\n");
+  rt_printf("[motor|controller] rtForwardMotorInputFromPipeTask finished\n");
 
   rt_heap_delete(&rtHeap);
   rt_pipe_delete(&rtPipe);

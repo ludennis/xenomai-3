@@ -31,7 +31,7 @@ void ForwardMotorOutputToPipeRoutine(void*)
     auto sendingQueueBound = rt_queue_bind(
       &rtMotorOutputQueue, "rtMotorOutputQueue", TM_INFINITE);
     if (sendingQueueBound != 0)
-      rt_printf("Sending queue binding error\n");
+      rt_printf("[motor|monitor] Sending queue binding error\n");
 
     // to store the motor message from queue
     auto bytesRead =
@@ -50,11 +50,11 @@ void ForwardMotorOutputToPipeRoutine(void*)
         // forward to message pipe
         auto bytesWritten =
           rt_pipe_write(&rtPipe, blockPointer, RtMessage::kMessageSize, P_NORMAL);
-        rt_printf("forwarded %ld bytes to pipe\n", bytesWritten);
+        rt_printf("[motor|monitor] forwarded %ld bytes to pipe\n", bytesWritten);
 
         // output the message
         memcpy(&motorOutputMessage, blockPointer, sizeof(MotorOutputMessage));
-        rt_printf("Received MotorOutputMessage, ft_CurrentU: %f, ft_CurrentV: %f, "
+        rt_printf("[motor|monitor] Received MotorOutputMessage, ft_CurrentU: %f, ft_CurrentV: %f, "
           "ft_CurrentW: %f, ft_RotorRPM: %f, ft_RotorDegreeRad: %f, "
           "ft_OutputTorque: %f\n", motorOutputMessage.ft_CurrentU,
           motorOutputMessage.ft_CurrentV, motorOutputMessage.ft_CurrentW,
@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
 
   // allocate heap
   rt_heap_create(&rtHeap, "rtHeap", RtQueue::kMessageSize, H_SINGLE);
-  rt_printf("Heap Created\n");
+  rt_printf("[motor|monitor] Heap Created\n");
 
   cpu_set_t cpuSet;
   CPU_ZERO(&cpuSet);
