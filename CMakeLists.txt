@@ -540,6 +540,8 @@ set(script_files
   ${SCRIPT_DIR}/init_rtp.sh
   ${SCRIPT_DIR}/throttle_emulator.py
   ${SCRIPT_DIR}/receive_vehicle_status.py
+  ${SCRIPT_DIR}/stop_motor.sh
+  ${SCRIPT_DIR}/stop_pipes.sh
 )
 
 foreach(script_file ${script_files})
