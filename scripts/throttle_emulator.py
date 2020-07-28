@@ -71,7 +71,6 @@ def WaitForThrottleInputRoutine(threadName):
 def WaitForVehicleSignalStructRoutine(threadName):
     print('Thread {}: starting ...'.format(threadName))
     print('{} => Initializing DDS and idl files ...'.format(threadName))
-    idlFile = 'carla_client_server_user.idl'
 
     vehicleSignalTopicName = 'VehicleSignalTopic'
     tVehicleSignal = 'basic::module_vehicleSignal::vehicleSignalStruct'
@@ -96,6 +95,13 @@ def WaitForVehicleSignalStructRoutine(threadName):
 
 
 if __name__ == '__main__':
+
+    if len(sys.argv) < 2:
+        print("Usage: throttle_emulator.py [idl file]")
+        sys.exit()
+
+    idlFile = sys.argv[1]
+
     waitForThrottleInputThread = threading.Thread(
         target=WaitForThrottleInputRoutine, args=("WaitForThrottleInputThread",))
     waitForThrottleInputThread.start()
