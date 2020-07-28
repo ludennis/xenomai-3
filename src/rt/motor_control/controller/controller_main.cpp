@@ -77,11 +77,13 @@ void ReceiveMotorOutputRoutine(void*)
         auto motorOutputMessage = MotorOutputMessage{};
         memcpy(&motorOutputMessage, blockPointer, sizeof(MotorOutputMessage));
 
+        #ifdef MOTOR_CONTROL_DEBUG
         rt_printf("[motor|controller] Received MotorOutputMessage, ft_CurrentU: %f, ft_CurrentV: %f, "
           "ft_CurrentW: %f, ft_RotorRPM: %f, ft_RotorDegreeRad: %f, "
           "ft_OutputTorque: %f\n", motorOutputMessage.ft_CurrentU, motorOutputMessage.ft_CurrentV,
           motorOutputMessage.ft_CurrentW, motorOutputMessage.ft_RotorRPM,
           motorOutputMessage.ft_RotorDegreeRad, motorOutputMessage.ft_OutputTorque);
+        #endif
       }
     }
 

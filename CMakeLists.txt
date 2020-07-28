@@ -136,6 +136,12 @@ add_definitions(-DNCSTATES=5)
 add_definitions(-DHAVESTDIO)
 add_definitions(-DMODEL_HAS_DYNAMICALLY_LOADED_SFCNS=0)
 
+# motor control debug option
+option(motor_control_debug "Motor Control Debug Mode" OFF)
+if(motor_control_debug)
+  add_definitions(-DMOTOR_CONTROL_DEBUG)
+endif(motor_control_debug)
+
 set(SRC_DIR "${PROJECT_SOURCE_DIR}/src")
 
 # Set paths for rt related directories

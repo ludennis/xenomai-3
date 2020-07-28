@@ -50,16 +50,19 @@ void ForwardMotorOutputToPipeRoutine(void*)
         // forward to message pipe
         auto bytesWritten =
           rt_pipe_write(&rtPipe, blockPointer, RtMessage::kMessageSize, P_NORMAL);
-        rt_printf("[motor|monitor] forwarded %ld bytes to pipe\n", bytesWritten);
 
         // output the message
         memcpy(&motorOutputMessage, blockPointer, sizeof(MotorOutputMessage));
+
+        #ifdef MOTOR_CONTROL_DEBUG
+        rt_printf("[motor|monitor] forwarded %ld bytes to pipe\n", bytesWritten);
         rt_printf("[motor|monitor] Received MotorOutputMessage, ft_CurrentU: %f, ft_CurrentV: %f, "
           "ft_CurrentW: %f, ft_RotorRPM: %f, ft_RotorDegreeRad: %f, "
           "ft_OutputTorque: %f\n", motorOutputMessage.ft_CurrentU,
           motorOutputMessage.ft_CurrentV, motorOutputMessage.ft_CurrentW,
           motorOutputMessage.ft_RotorRPM, motorOutputMessage.ft_RotorDegreeRad,
           motorOutputMessage.ft_OutputTorque);
+        #endif
       }
     }
 
