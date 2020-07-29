@@ -106,6 +106,7 @@ def WriteCmakeFile(parameters, target_path, target_source_path):
 if __name__ == '__main__':
     if len(sys.argv) < 2:
         print("Usage: {} [path to CMakeLists file]".format(__file__))
+        sys.exit()
 
     current_path = os.getcwd()
     target_path = current_path + '/cmake_project/'
