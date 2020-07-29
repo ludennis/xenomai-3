@@ -8,11 +8,15 @@ include(MacroOpenSplice)
 find_package(Xenomai 3 REQUIRED)
 find_package(OpenSplice REQUIRED)
 
-message("cmake current binary dir: ${PROJECT_BINARY_DIR}")
+# set cmake rpath for both build and install
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 set(CMAKE_INSTALL_RPATH /usr/local/${CMAKE_PROJECT_NAME}/lib)
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_RPATH} ${PROJECT_BINARY_DIR})
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_RPATH} ${XENOMAI_ROOT_DIR}/lib)
+
+# set output directory for build
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # OS environment to find OpenSplice package
 if(WIN32)
@@ -564,7 +568,7 @@ set(script_files
 foreach(script_file ${script_files})
   get_filename_component(script_filename ${script_file} NAME)
   configure_file(${script_file}
-    ${PROJECT_BINARY_DIR}/${script_filename}
+    ${PROJECT_BINARY_DIR}/scripts/${script_filename}
     COPYONLY
   )
 endforeach(script_file)
@@ -595,6 +599,6 @@ install(TARGETS ${BIN_TARGETS}
     DESTINATION ${install_dir}/bin
 )
 
-#install(SCRIPT ${script_files}
-#  DESTINATION ${install_dir}/scripts
-#)
+install(PROGRAMS ${script_files}
+  DESTINATION ${install_dir}/scripts
+)
