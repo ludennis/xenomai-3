@@ -11,11 +11,10 @@ dp = DomainParticipant()
 isFinished = False
 
 
-def WaitForThrottleInputRoutine(threadName):
+def WaitForThrottleInputRoutine(threadName, idlFile):
     global isFinished;
     print('Thread {}: starting'.format(threadName))
     print('{} => Initializing DDS and idl files ...'.format(threadName))
-    idlFile = 'carla_client_server_user.idl'
 
     vehicleSignalTopicName = 'VehicleSignalTopic'
     tVehicleSignal = 'basic::module_vehicleSignal::vehicleSignalStruct'
@@ -103,7 +102,7 @@ if __name__ == '__main__':
     idlFile = sys.argv[1]
 
     waitForThrottleInputThread = threading.Thread(
-        target=WaitForThrottleInputRoutine, args=("WaitForThrottleInputThread",))
+        target=WaitForThrottleInputRoutine, args=("WaitForThrottleInputThread", idlFile))
     waitForThrottleInputThread.start()
 
     waitForVehicleSignalStructThread = threading.Thread(
