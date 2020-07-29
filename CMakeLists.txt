@@ -496,21 +496,6 @@ target_link_libraries(motor_monitor
   ${XENOMAI_LIBRARIES}
 )
 
-# dds pipe
-add_executable(to_non_rt_pipe
-  ${RT_UTILS_DIR}/dds_pipe.cpp
-)
-
-target_include_directories(to_non_rt_pipe
-  PUBLIC
-  ${XENOMAI_INCLUDE_DIRS}
-  ${RT_UTILS_DIR}
-)
-
-target_link_libraries(to_non_rt_pipe
-  ${XENOMAI_LIBRARIES}
-)
-
 # dds from rt pipe
 add_executable(from_rt_pipe
   ${DDS_DIR}/from_rt_pipe.cpp
