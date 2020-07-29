@@ -5,11 +5,13 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(osmacros)
 include(MacroOpenSplice)
 
-
 find_package(Xenomai 3 REQUIRED)
 find_package(OpenSplice REQUIRED)
 
+message("cmake current binary dir: ${PROJECT_BINARY_DIR}")
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 set(CMAKE_INSTALL_RPATH /usr/local/${CMAKE_PROJECT_NAME}/lib)
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_RPATH} ${PROJECT_BINARY_DIR})
 set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_RPATH} ${XENOMAI_ROOT_DIR}/lib)
 
 # OS environment to find OpenSplice package
