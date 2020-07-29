@@ -15,11 +15,10 @@ MACRO(OpenSplice_IDLGEN idlfilename)
   DEFINE_OpenSplice_SOURCES(${ARGV})
 
   ADD_CUSTOM_COMMAND (
-    PRE_BUILD
+    PRE_LINK
     OUTPUT ${outsources}
     COMMAND ${OpenSplice_IDLGEN_BINARY}
     ARGS -l isocpp2 -d ${idl_dir}/gen ${idlfilename}
-    DEPENDS ${it}
     COMMENT "${outsources} have been produced in directory ${idl_dir}/gen"
   )
 ENDMACRO(OpenSplice_IDLGEN)

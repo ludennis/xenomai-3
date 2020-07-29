@@ -1,11 +1,16 @@
 cmake_minimum_required(VERSION 3.5)
-project(dds-motor-controller)
+project(rt-hil-simulation)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 include(osmacros)
 include(MacroOpenSplice)
 
+
 find_package(Xenomai 3 REQUIRED)
+find_package(OpenSplice REQUIRED)
+
+set(CMAKE_INSTALL_RPATH /usr/local/${CMAKE_PROJECT_NAME}/lib)
+set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_RPATH} ${XENOMAI_ROOT_DIR}/lib)
 
 # OS environment to find OpenSplice package
 if(WIN32)
@@ -42,7 +47,6 @@ else(WIN32)
 endif(WIN32)
 
 set(CMAKE_VERBOSE_MAKEFILE = 1)
-find_package(OpenSplice REQUIRED)
 
 add_definitions(
   ${OpenSplice_DEFINITIONS}
@@ -58,28 +62,25 @@ set(idls
 set(idl_targets)
 set(OpenSplice_DATAMODEL)
 foreach(idl ${idls})
-  # generate idl source files with idlpp.exe
-  OpenSplice_IDLGEN(${idl})
   GET_FILENAME_COMPONENT(idl_filename ${idl} NAME_WE)
-
+  if(EXISTS "${PROJECT_SOURCE_DIR}/src/non_rt/idl/gen/${idl_filename}_DCPS.hpp")
+    # only define source files without generation if already generated
+    DEFINE_OpenSplice_SOURCES(${idl})
+  else()
+    # generate idl source files with idlpp.exe
+    OpenSplice_IDLGEN(${idl})
+  endif()
+  message ("outsources: ${outsources}")
   # OpenSplice_DATAMODEL should only contain .cpp .h and _DCPS.h files
   foreach(outsource ${outsources})
     GET_FILENAME_COMPONENT(outsource_filename ${outsource} NAME)
-    if("${outsource_filename}" STREQUAL "${idl_filename}.cpp" OR
-       "${outsource_filename}" STREQUAL "${idl_filename}.h" OR
+    if("${outsource_filename}" STREQUAL "${idl_filename}.h" OR
        "${outsource_filename}" STREQUAL "${idl_filename}_DCPS.hpp" OR
        "${outsource_filename}" STREQUAL "${idl_filename}SplDcps.cpp" OR
        "${outsource_filename}" STREQUAL "${idl_filename}SplDcps.h")
       set(OpenSplice_DATAMODEL ${OpenSplice_DATAMODEL} ${outsource})
     endif()
   endforeach(outsource)
-
-  add_custom_target("${idl_filename}_generated_sources"
-    PRE_BUILD
-    ALL
-    DEPENDS ${outsources}
-    COMMENT "custom_target has been built"
-  )
 endforeach(idl)
 
 set(DATAMODEL datamodel)
@@ -238,6 +239,7 @@ add_library(motor_model_lib
   ${MODEL_DIR}/rtGetNaN.cpp
   ${MODEL_DIR}/rt_nonfinite.cpp
 )
+set(SHARED_LIBS ${SHARED_LIBS} motor_model_lib)
 
 target_include_directories(motor_model_lib
   PUBLIC
@@ -253,6 +255,7 @@ target_include_directories(motor_model_lib
 add_executable(motor
   ${MODEL_DIR}/ert_main.cpp
 )
+set(BIN_TARGETS ${BIN_TARGETS} motor)
 
 target_include_directories(motor
   PUBLIC
@@ -280,6 +283,7 @@ find_package(Threads REQUIRED)
 add_executable(controller
   ${CONTROLLER_DIR}/controller_main.cpp
 )
+set(BIN_TARGETS ${BIN_TARGETS} controller)
 
 target_link_libraries(controller
   ${XENOMAI_LIBRARIES}
@@ -332,6 +336,7 @@ add_executable(resistance_testing
   ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing_main.cpp
   ${RT_UTILS_DIR}/RtPeriodicTask.cpp
 )
+set(BIN_TARGETS ${BIN_TARGETS} resistance_testing)
 
 target_include_directories(resistance_testing
   PUBLIC
@@ -363,6 +368,7 @@ add_executable(switching_testing
   ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing_main.cpp
   ${RT_UTILS_DIR}/RtPeriodicTask.cpp
 )
+set(BIN_TARGETS ${BIN_TARGETS} switching_testing)
 
 target_include_directories(switching_testing
   PUBLIC
@@ -390,6 +396,7 @@ add_executable(peak_can_transmit
   ${PEAK_CAN_DIR}/RtPeakCanTransmitTask.cpp
   ${RT_UTILS_DIR}/RtPeriodicTask.cpp
 )
+set(BIN_TARGETS ${BIN_TARGETS} peak_can_transmit)
 
 target_include_directories(peak_can_transmit
   PUBLIC
@@ -412,6 +419,7 @@ add_executable(peak_can_receive
   ${PEAK_CAN_DIR}/RtPeakCanReceiveTask.cpp
   ${RT_UTILS_DIR}/RtPeriodicTask.cpp
 )
+set(BIN_TARGETS ${BIN_TARGETS} peak_can_receive)
 
 target_include_directories(peak_can_receive
   PUBLIC
@@ -437,6 +445,7 @@ add_executable(pwm_input
   ${NI_DIR}/nimhddk/osiBus.cpp
   ${NI_SOURCES}
 )
+set(BIN_TARGETS ${BIN_TARGETS} pwm_input)
 
 target_include_directories(pwm_input
   PUBLIC
@@ -464,6 +473,7 @@ add_executable(pwm_output
   ${NI_DIR}/nimhddk/osiBus.cpp
   ${NI_SOURCES}
 )
+set(BIN_TARGETS ${BIN_TARGETS} pwm_output)
 
 target_include_directories(pwm_output
   PUBLIC
@@ -485,6 +495,7 @@ set_target_properties(pwm_output
 add_executable(motor_monitor
   ${MOTOR_CONTROL_DIR}/monitor/motor_monitor.cpp
 )
+set(BIN_TARGETS ${BIN_TARGETS} motor_monitor)
 
 target_include_directories(motor_monitor
   PUBLIC
@@ -500,6 +511,7 @@ target_link_libraries(motor_monitor
 add_executable(from_rt_pipe
   ${DDS_DIR}/from_rt_pipe.cpp
 )
+set(BIN_TARGETS ${BIN_TARGETS} from_rt_pipe)
 
 target_include_directories(from_rt_pipe
   PUBLIC
@@ -518,6 +530,7 @@ target_link_libraries(from_rt_pipe
 add_executable(to_rt_pipe
   ${DDS_DIR}/to_rt_pipe.cpp
 )
+set(BIN_TARGETS ${BIN_TARGETS} to_rt_pipe)
 
 target_include_directories(to_rt_pipe
   PUBLIC
@@ -553,3 +566,33 @@ foreach(script_file ${script_files})
     COPYONLY
   )
 endforeach(script_file)
+
+foreach(lib_target ${LIB_TARGETS})
+  message("lib target: ${lib_target}")
+endforeach(lib_target)
+
+foreach(bin_target ${BIN_TARGETS})
+  message("bin target: ${bin_target}")
+endforeach(bin_target)
+
+set(install_dir /usr/local/${CMAKE_PROJECT_NAME})
+install(DIRECTORY DESTINATION ${install_dir})
+install(DIRECTORY DESTINATION ${install_dir}/lib)
+install(DIRECTORY DESTINATION ${install_dir}/bin)
+install(DIRECTORY DESTINATION ${install_dir}/scripts)
+
+install(TARGETS ${SHARED_LIBS}
+  LIBRARY
+    DESTINATION ${install_dir}/lib
+  PUBLIC_HEADER
+    DESTINATION ${install_dir}/include
+)
+
+install(TARGETS ${BIN_TARGETS}
+  RUNTIME
+    DESTINATION ${install_dir}/bin
+)
+
+#install(SCRIPT ${script_files}
+#  DESTINATION ${install_dir}/scripts
+#)
