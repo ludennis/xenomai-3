@@ -565,22 +565,33 @@ set(script_files
   ${SCRIPT_DIR}/stop_pipes.sh
 )
 
-foreach(script_file ${script_files})
-  get_filename_component(script_filename ${script_file} NAME)
-  configure_file(${script_file}
-    ${PROJECT_BINARY_DIR}/scripts/${script_filename}
+file(GLOB shell_scripts
+  "scripts/*.sh"
+)
+file(GLOB python_scripts
+  "scripts/*.py"
+)
+
+message("python_scripts: ${python_scripts}")
+message("shell_scripts: ${shell_scripts}")
+
+foreach(shell_script ${shell_scripts})
+  get_filename_component(filename ${shell_script} NAME)
+  configure_file(${shell_script}
+    ${PROJECT_BINARY_DIR}/bin/${filename}
     COPYONLY
   )
-endforeach(script_file)
+endforeach(shell_script)
 
-foreach(lib_target ${LIB_TARGETS})
-  message("lib target: ${lib_target}")
-endforeach(lib_target)
+foreach(python_script ${python_scripts})
+  get_filename_component(filename ${python_script} NAME)
+  configure_file(${python_script}
+    ${PROJECT_BINARY_DIR}/scripts/${filename}
+    COPYONLY
+  )
+endforeach(python_script)
 
-foreach(bin_target ${BIN_TARGETS})
-  message("bin target: ${bin_target}")
-endforeach(bin_target)
-
+# install configuration
 set(install_dir /usr/local/${CMAKE_PROJECT_NAME})
 install(DIRECTORY DESTINATION ${install_dir})
 install(DIRECTORY DESTINATION ${install_dir}/lib)
@@ -599,6 +610,10 @@ install(TARGETS ${BIN_TARGETS}
     DESTINATION ${install_dir}/bin
 )
 
-install(PROGRAMS ${script_files}
+install(PROGRAMS ${python_scripts}
   DESTINATION ${install_dir}/scripts
+)
+
+install(PROGRAMS ${shell_scripts}
+  DESTINATION ${install_dir}/bin
 )

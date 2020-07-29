@@ -2,5 +2,7 @@
 
 ospl start
 
-../bin/from_rt_pipe & \
-../bin/to_rt_pipe
+DIR=$(dirname "$0")
+
+$DIR/from_rt_pipe & \
+$DIR/to_rt_pipe
