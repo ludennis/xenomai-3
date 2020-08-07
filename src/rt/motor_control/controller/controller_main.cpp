@@ -47,7 +47,9 @@ void ForwardMotorInputFromPipeRoutine(void*)
       }
       else
       {
+        #ifdef MOTOR_CONTROL_DEBUG
         rt_printf("[motor|controller] Forwarded Motor Input Message (size = %ld bytes)\n", retval);
+        #endif // MOTOR_CONTROL_DEBUG
       }
     }
 
@@ -83,7 +85,7 @@ void ReceiveMotorOutputRoutine(void*)
           "ft_OutputTorque: %f\n", motorOutputMessage.ft_CurrentU, motorOutputMessage.ft_CurrentV,
           motorOutputMessage.ft_CurrentW, motorOutputMessage.ft_RotorRPM,
           motorOutputMessage.ft_RotorDegreeRad, motorOutputMessage.ft_OutputTorque);
-        #endif
+        #endif // MOTOR_CONTROL_DEBUG
       }
     }
 

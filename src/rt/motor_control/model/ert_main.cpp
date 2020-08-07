@@ -49,8 +49,11 @@ void MotorBroadcastOutputRoutine(void*)
     {
       // send/boradcast
       void *message = rt_queue_alloc(&rtMotorOutputQueue, sizeof(RtQueue::kMessageSize));
+
+      #ifdef MOTOR_CONTROL_DEBUG
       if (message == NULL)
         rt_printf("[motor|model] rt_queue_alloc error\n");
+      #endif // MOTOR_CONTROL_DEBUG
 
       // TODO prevent two tasks figting over model
       auto generatedModelMotorOutput = input_interface::GetMsgMotorOutput();
@@ -90,13 +93,17 @@ void MotorReceiveInputRoutine(void*)
       continue;
     }
 
+    #ifdef MOTOR_CONTROL_DEBUG
     rt_printf("[motor|model] Reading queue\n");
+    #endif // MOTOR_CONTROL_DEBUG
     auto bytesRead =
       rt_queue_read(&rtMotorInputQueue, blockPointer, RtQueue::kMessageSize, TM_INFINITE);
 
     if (bytesRead > 0)
     {
+      #ifdef MOTOR_CONTROL_DEBUG
       rt_printf("[motor|model] Received %d\n", bytesRead);
+      #endif // MOTOR_CONTROL_DEBUG
       int messageType;
       memcpy(&messageType, blockPointer, sizeof(int));
 
@@ -104,6 +111,7 @@ void MotorReceiveInputRoutine(void*)
       {
         MotorInputMessage motorInputMessage;
         memcpy(&motorInputMessage, blockPointer, sizeof(MotorInputMessage));
+        #ifdef MOTOR_CONTROL_DEBUG
         rt_printf("[motor|model] Motor Input Message received: timestamp: %lld, ft_OutputTorqueS = %f, "
           "ft_VoltageQ = %f, ft_VoltageD = %f\n", motorInputMessage.timestamp,
           motorInputMessage.ft_OutputTorqueS, motorInputMessage.ft_VoltageQ,
@@ -111,6 +119,7 @@ void MotorReceiveInputRoutine(void*)
 
         rt_printf("[motor|model] Motor Input took %lld ns from rt pipe\n",
           rt_timer_read() - motorInputMessage.timestamp);
+        #endif // MOTOR_CONTROL_DEBUG
       }
     }
 
@@ -130,8 +139,10 @@ void MotorStepRoutine(void*)
 
     if (rt_timer_read() - rtTimerOneSecond > RtTime::kOneSecond)
     {
+      #ifdef MOTOR_CONTROL_DEBUG
       rt_printf("[motor|model] Motor Stepped %d times. avg step time: %.2f nanoseconds\n",
         numberOfMessages, totalStepTime / numberOfMessages);
+      #endif // MOTOR_CONTROL_DEBUG
       rtTimerOneSecond = rt_timer_read();
     }
 
