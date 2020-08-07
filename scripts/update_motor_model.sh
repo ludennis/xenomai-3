@@ -46,16 +46,16 @@ do
     if [ $(basename $library) == $motor_model_lib_name ]; then
         echo "Found motor model library: $library"
         if [ -f $library.old ]; then
-            rm $library.old
+            sudo rm -f $library.old
         fi
 
-        mv --verbose $library $library.old
+        sudo mv -f --verbose $library $library.old
 
         if [ -f $path_to_cmake_proj/build/$motor_model_lib_name ]; then
             echo "Ensured that $path_to_cmake_proj/build/$motor_model_lib_name exists"
         fi
 
-        cp --verbose $path_to_cmake_proj/build/$motor_model_lib_name \
+        sudo cp -f --verbose $path_to_cmake_proj/build/$motor_model_lib_name \
                 $rt_hil_simulation_installed_path/lib/$motor_model_lib_name
     fi
 done
