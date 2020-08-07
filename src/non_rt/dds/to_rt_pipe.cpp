@@ -90,22 +90,29 @@ int main(int argc, char *argv[])
             continue;
           }
 
+          #ifdef PIPE_DEBUG
           printf("[to_rt_pipe] sample.id = %d, sample.throttle = %f, sample.vehicle_speed = %f, "
             "sample.simulation_time = %s\n", sampleData.id(), sampleData.throttle(),
             sampleData.vehicle_speed(), sampleData.simulation_time().c_str());
+          #endif // PIPE_DEBUG
 
           auto timeNow = std::chrono::duration_cast<std::chrono::nanoseconds>(
             std::chrono::steady_clock::now().time_since_epoch()).count();
 
+          #ifdef PIPE_DEBUG
           printf("[to_rt_pipe] DDS Message travel time: %ld ns\n",
             timeNow - std::stoul(sampleData.simulation_time()));
+          #endif // PIPE_DEBUG
 
           // rt_timer_read() for recording RTIME to be measured by motor
           MotorInputMessage motorInputMessage{1, rt_timer_read(), 1.0, 2.0, 3.0, 4.0, 5.0, 6.0};
 
           memcpy(buffer, &motorInputMessage, RtMessage::kMessageSize);
           auto bytesWritten = write(fileDescriptor, buffer, RtMessage::kMessageSize);
+
+          #ifdef PIPE_DEBUG
           printf("[to_rt_pipe] Written %ld bytes to %s\n", bytesWritten, deviceName);
+          #endif // PIPE_DEBUG
         }
       }
     }

@@ -38,10 +38,14 @@ int main(int argc, char *argv[])
   {
     MotorOutputMessage motorOutputMessage;
     auto bytesRead = read(fileDescriptor, &motorOutputMessage, sizeof(MotorOutputMessage));
+    #ifdef PIPE_DEBUG
     printf("[from_rt_pipe] Read bytes %ld from fileDescriptor\n", bytesRead);
+    #endif // PIPE_DEBUG
     if (bytesRead > 0)
     {
+      #ifdef PIPE_DEBUG
       printf("[from_rt_pipe] motorOutputMessage rpm: %f\n", motorOutputMessage.ft_RotorRPM);
+      #endif // PIPE_DEBUG
 
       // write dds message
       basic::module_vehicleSignal::vehicleSignalStruct vehicleSignalMessage;
