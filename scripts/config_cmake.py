@@ -84,7 +84,7 @@ def CopySources(sources, target_source_path):
         shutil.copy2(src_name, dst_name)
 
 
-def WriteCmakeFile(parameters, target_path, target_source_path):
+def WriteCmakeFile(parameters, target_path):
     with open(target_path + 'CMakeLists.txt', 'w') as cmake_file:
         cmake_file.write("cmake_minimum_required({})\n" \
             .format(parameters["cmake_minimum_required"]))
@@ -123,4 +123,4 @@ if __name__ == '__main__':
 
     CopyIncludeDirectories(cmake_parameters["include_directories"], target_include_path)
     CopySources(cmake_parameters["sources"], target_source_path)
-    WriteCmakeFile(cmake_parameters, target_path, target_source_path)
+    WriteCmakeFile(cmake_parameters, target_path)
