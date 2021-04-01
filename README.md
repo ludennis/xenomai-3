@@ -1,5 +1,5 @@
 # Overview
-A customized linux RTOS (Real-Time Operating System), namely Xenomai, to be deployed on any linux machine for RT HiL (Real-Time Hardware in the Loop). The kernel would run a given generated C code of a motor model designed and ported from Simulink while being able to bridge external communication to PXI I/O cards, NI interface cards, and PEAK CAN. Also to handle non RT internal communication through OpenSplice DDS (Data Distribution Service).
+A Xenomai linux RTOS (Real-Time Operating System) to be deployed on any linux machine for RT HiL (Real-Time Hardware in the Loop). The kernel would run a given generated C code of a motor model designed and ported from Simulink while being able to bridge external communication to PXI I/O cards, NI interface cards, and PEAK CAN. Also to handle non RT internal communication through OpenSplice DDS (Data Distribution Service).
 
 # Installation
 1. Make a build directory where the CMakeLists.txt is at
