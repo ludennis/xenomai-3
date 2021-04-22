@@ -6,7 +6,13 @@ include(osmacros)
 include(MacroOpenSplice)
 
 find_package(Xenomai 3 REQUIRED)
-find_package(OpenSplice REQUIRED)
+
+if(DEFINED DDS)
+  message("searching for dds")
+  find_package(OpenSplice REQUIRED)
+else()
+  message("omitting dds")
+endif()
 
 # set cmake rpath for both build and install
 set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
@@ -19,89 +25,91 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
 # OS environment to find OpenSplice package
-if(WIN32)
-  # adds WholeProgramOptimization
-#  add_compile_options(/GL)
-  # adds ClCompile Optimization MaxSpeed
-  add_compile_options(/O2)
-  # adds IntrinsicFunctions
-  add_compile_options(/Oi)
-  # adds MultiThreadedDLL for RuntimeLibrary
-  add_compile_options(/MD)
-  # adds RuntimeTypeInfo
-  add_compile_options(/GR)
-  # adds warning level3
-  add_compile_options(/W3)
-  # suppress C4251 and C4355 warnings
-  add_compile_options(/wd4251 /wd4355)
-  # settings for dll
-  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS on)
-  if(DEBUG)
-    set(DEFINITIONS "-DNDEBUG")
-  endif(DEBUG)
-else(WIN32)
-  if(DEBUG)
-    set(DEFINITIONS "-ansi -g -pg -pipe -std=c++98")
-  else(DEBUG)
-    if(PEDANTIC)
-      set(DEFINITIONS "-ansi -g -pg -pipe -Wall -Wstrict-null-sentinel -Weffc++ -Wold-style-cast -pedantic")
-      set(DEBUG 1)
-    else(PEDANTIC)
-      set(DEFINITIONS "-DNDEBUG -O0 -pipe")
-    endif(PEDANTIC)
-  endif(DEBUG)
-endif(WIN32)
+if (DEFINED DDS)
+  if(WIN32)
+    # adds WholeProgramOptimization
+  #  add_compile_options(/GL)
+    # adds ClCompile Optimization MaxSpeed
+    add_compile_options(/O2)
+    # adds IntrinsicFunctions
+    add_compile_options(/Oi)
+    # adds MultiThreadedDLL for RuntimeLibrary
+    add_compile_options(/MD)
+    # adds RuntimeTypeInfo
+    add_compile_options(/GR)
+    # adds warning level3
+    add_compile_options(/W3)
+    # suppress C4251 and C4355 warnings
+    add_compile_options(/wd4251 /wd4355)
+    # settings for dll
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS on)
+    if(DEBUG)
+      set(DEFINITIONS "-DNDEBUG")
+    endif(DEBUG)
+  else(WIN32)
+    if(DEBUG)
+      set(DEFINITIONS "-ansi -g -pg -pipe -std=c++98")
+    else(DEBUG)
+      if(PEDANTIC)
+        set(DEFINITIONS "-ansi -g -pg -pipe -Wall -Wstrict-null-sentinel -Weffc++ -Wold-style-cast -pedantic")
+        set(DEBUG 1)
+      else(PEDANTIC)
+        set(DEFINITIONS "-DNDEBUG -O0 -pipe")
+      endif(PEDANTIC)
+    endif(DEBUG)
+  endif(WIN32)
 
-set(CMAKE_VERBOSE_MAKEFILE = 1)
+  set(CMAKE_VERBOSE_MAKEFILE = 1)
 
-add_definitions(
-  ${OpenSplice_DEFINITIONS}
-  ${DEFINITIONS}
-)
+  add_definitions(
+    ${OpenSplice_DEFINITIONS}
+    ${DEFINITIONS}
+  )
 
-# idl settings
-set(idls
-  ${PROJECT_SOURCE_DIR}/src/non_rt/idl/MotorControllerUnitModule.idl
-  ${PROJECT_SOURCE_DIR}/src/non_rt/idl/carla_client_server_user.idl
-)
+  # idl settings
+  set(idls
+    ${PROJECT_SOURCE_DIR}/src/non_rt/idl/MotorControllerUnitModule.idl
+    ${PROJECT_SOURCE_DIR}/src/non_rt/idl/carla_client_server_user.idl
+  )
 
-set(idl_targets)
-set(OpenSplice_DATAMODEL)
-foreach(idl ${idls})
-  GET_FILENAME_COMPONENT(idl_filename ${idl} NAME_WE)
-  if(EXISTS "${PROJECT_SOURCE_DIR}/src/non_rt/idl/gen/${idl_filename}_DCPS.hpp")
-    # only define source files without generation if already generated
-    DEFINE_OpenSplice_SOURCES(${idl})
-  else()
-    # generate idl source files with idlpp.exe
-    OpenSplice_IDLGEN(${idl})
-  endif()
-  message ("outsources: ${outsources}")
-  # OpenSplice_DATAMODEL should only contain .cpp .h and _DCPS.h files
-  foreach(outsource ${outsources})
-    GET_FILENAME_COMPONENT(outsource_filename ${outsource} NAME)
-    if("${outsource_filename}" STREQUAL "${idl_filename}.h" OR
-       "${outsource_filename}" STREQUAL "${idl_filename}_DCPS.hpp" OR
-       "${outsource_filename}" STREQUAL "${idl_filename}SplDcps.cpp" OR
-       "${outsource_filename}" STREQUAL "${idl_filename}SplDcps.h")
-      set(OpenSplice_DATAMODEL ${OpenSplice_DATAMODEL} ${outsource})
+  set(idl_targets)
+  set(OpenSplice_DATAMODEL)
+  foreach(idl ${idls})
+    GET_FILENAME_COMPONENT(idl_filename ${idl} NAME_WE)
+    if(EXISTS "${PROJECT_SOURCE_DIR}/src/non_rt/idl/gen/${idl_filename}_DCPS.hpp")
+      # only define source files without generation if already generated
+      DEFINE_OpenSplice_SOURCES(${idl})
+    else()
+      # generate idl source files with idlpp.exe
+      OpenSplice_IDLGEN(${idl})
     endif()
-  endforeach(outsource)
-endforeach(idl)
+    message ("outsources: ${outsources}")
+    # OpenSplice_DATAMODEL should only contain .cpp .h and _DCPS.h files
+    foreach(outsource ${outsources})
+      GET_FILENAME_COMPONENT(outsource_filename ${outsource} NAME)
+      if("${outsource_filename}" STREQUAL "${idl_filename}.h" OR
+         "${outsource_filename}" STREQUAL "${idl_filename}_DCPS.hpp" OR
+         "${outsource_filename}" STREQUAL "${idl_filename}SplDcps.cpp" OR
+         "${outsource_filename}" STREQUAL "${idl_filename}SplDcps.h")
+        set(OpenSplice_DATAMODEL ${OpenSplice_DATAMODEL} ${outsource})
+      endif()
+    endforeach(outsource)
+  endforeach(idl)
 
-set(DATAMODEL datamodel)
+  set(DATAMODEL datamodel)
 
-add_library(${DATAMODEL} STATIC ${OpenSplice_DATAMODEL})
+  add_library(${DATAMODEL} STATIC ${OpenSplice_DATAMODEL})
 
-target_link_libraries(${DATAMODEL}
-  ${OpenSplice_LIBRARIES}
-)
+  target_link_libraries(${DATAMODEL}
+    ${OpenSplice_LIBRARIES}
+  )
 
-target_include_directories(${DATAMODEL}
-  SYSTEM PUBLIC
-  ${PROJECT_SOURCE_DIR}
-  ${OpenSplice_INCLUDE_DIRS}
-)
+  target_include_directories(${DATAMODEL}
+    SYSTEM PUBLIC
+    ${PROJECT_SOURCE_DIR}
+    ${OpenSplice_INCLUDE_DIRS}
+  )
+endif()
 
 # adds linker options GenerateDebugInformation, OptimizeReferences, and EnableCOMDATFolding
 if(MSVC)
@@ -162,7 +170,11 @@ set(SIMULINK_GENERATED_DIR "${RT_DIR}/simulink_generated")
 
 # Set paths for non-rt related directories
 set(NON_RT_DIR "${PROJECT_SOURCE_DIR}/src/non_rt")
-set(DDS_DIR "${NON_RT_DIR}/dds")
+
+if(DEFINED DDS)
+  set(DDS_DIR "${NON_RT_DIR}/dds")
+endif()
+
 set(IDL_DIR "${NON_RT_DIR}/idl")
 set(UTILS_DIR "${NON_RT_DIR}/utils")
 set(IO_INTERFACES_DIR "${NON_RT_DIR}/io_interfaces")
@@ -514,44 +526,48 @@ target_link_libraries(motor_monitor
 )
 
 # dds from rt pipe
-add_executable(from_rt_pipe
-  ${DDS_DIR}/from_rt_pipe.cpp
-)
-set(BIN_TARGETS ${BIN_TARGETS} from_rt_pipe)
+if(DEFINED DDS)
+  add_executable(from_rt_pipe
+    ${DDS_DIR}/from_rt_pipe.cpp
+  )
+  set(BIN_TARGETS ${BIN_TARGETS} from_rt_pipe)
 
-target_include_directories(from_rt_pipe
-  PUBLIC
-  ${RT_UTILS_DIR}
-  ${DDS_DIR}
-  ${IDL_DIR}
-  ${NON_RT_DIR}
-)
+  target_include_directories(from_rt_pipe
+    PUBLIC
+    ${RT_UTILS_DIR}
+    ${DDS_DIR}
+    ${IDL_DIR}
+    ${NON_RT_DIR}
+  )
 
-target_link_libraries(from_rt_pipe
-  PUBLIC
-  ${DATAMODEL}
-)
+  target_link_libraries(from_rt_pipe
+    PUBLIC
+    ${DATAMODEL}
+  )
+endif()
 
 # dds to rt pipe
-add_executable(to_rt_pipe
-  ${DDS_DIR}/to_rt_pipe.cpp
-)
-set(BIN_TARGETS ${BIN_TARGETS} to_rt_pipe)
+if(DEFINED DDS)
+  add_executable(to_rt_pipe
+    ${DDS_DIR}/to_rt_pipe.cpp
+  )
+  set(BIN_TARGETS ${BIN_TARGETS} to_rt_pipe)
 
-target_include_directories(to_rt_pipe
-  PUBLIC
-  ${RT_UTILS_DIR}
-  ${IDL_DIR}
-  ${DDS_DIR}
-  ${NON_RT_DIR}
-  ${XENOMAI_INCLUDE_DIRS}
-)
+  target_include_directories(to_rt_pipe
+    PUBLIC
+    ${RT_UTILS_DIR}
+    ${IDL_DIR}
+    ${DDS_DIR}
+    ${NON_RT_DIR}
+    ${XENOMAI_INCLUDE_DIRS}
+  )
 
-target_link_libraries(to_rt_pipe
-  PUBLIC
-  ${DATAMODEL}
-  ${XENOMAI_LIBRARIES}
-)
+  target_link_libraries(to_rt_pipe
+    PUBLIC
+    ${DATAMODEL}
+    ${XENOMAI_LIBRARIES}
+  )
+endif()
 
 # copy all script files during build time
 set(SCRIPT_DIR ${PROJECT_SOURCE_DIR}/scripts)
