@@ -21,13 +21,18 @@ public:
   static DWORD mResistance;
   static DWORD mResistances[100];
   static DWORD mSubunit;
+  static DWORD mTypeNum;
+  static DWORD mRows;
+  static DWORD mCols;
 
   static CHAR mCardId[100];
 
   static BOOL mState;
+  static BOOL mOut;
 
 public:
   PxiCardTask();
+  void ListAllCards();
   void OpenCard(DWORD cardNum);
   void ViewAllSubunits(DWORD cardNum);
 };

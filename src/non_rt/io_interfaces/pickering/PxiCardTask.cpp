@@ -13,13 +13,45 @@ DWORD PxiCardTask::mNumOutputSubunits;
 DWORD PxiCardTask::mResistance;
 DWORD PxiCardTask::mResistances[100];
 DWORD PxiCardTask::mSubunit;
+DWORD PxiCardTask::mTypeNum;
+DWORD PxiCardTask::mRows;
+DWORD PxiCardTask::mCols;
 
 CHAR PxiCardTask::mCardId[100];
 
+BOOL PxiCardTask::mOut;
 BOOL PxiCardTask::mState;
 
 PxiCardTask::PxiCardTask()
 {}
+
+void PxiCardTask::ListAllCards()
+{
+  PIL_CountFreeCards(&mNumOfFreeCards);
+  PIL_FindFreeCards(mNumOfFreeCards, mBuses, mDevices);
+
+  for (auto cardNum{0}; cardNum < mNumOfFreeCards; ++cardNum)
+  {
+    PIL_OpenSpecifiedCard(mBuses[cardNum], mDevices[cardNum], &mCardNum);
+    PIL_EnumerateSubs(mCardNum, &mNumInputSubunits, &mNumOutputSubunits);
+
+    printf("Card #: %d, bus: %d, device: %d\n\n", cardNum, mBuses[cardNum], mDevices[cardNum]);
+
+    for (auto inputSubNum{0}; inputSubNum < mNumInputSubunits; ++inputSubNum)
+    {
+      PIL_SubInfo(cardNum, inputSubNum, mOut, &mTypeNum, &mRows, &mCols);
+      printf("Input subunit #: %d, subunit type: %d", inputSubNum, mTypeNum);
+    }
+
+    for (auto outputSubNum{0}; outputSubNum < mNumOutputSubunits; ++outputSubNum)
+    {
+      PIL_SubInfo(cardNum, outputSubNum, mOut, &mTypeNum, &mRows, &mCols);
+      printf("Output subunit #: %d, subunit type: %d", outputSubNum, mTypeNum);
+    }
+  }
+
+  PIL_CloseCards();
+}
 
 void PxiCardTask::OpenCard(DWORD cardNum)
 {
