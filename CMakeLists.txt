@@ -343,6 +343,24 @@ link_directories("/usr/local/lib")
 #  ${XENOMAI_LIBRARIES}
 #)
 
+# utility for probing pxi cards
+add_executable(probe_pxi_cards
+  ${PICKERING_DIR}/ProbePxiCards.cpp
+  ${PICKERING_DIR}/PxiCardTask.cpp
+)
+
+set(BIN_TARGETS ${BIN_TARGETS} probe_pxi_cards)
+
+target_include_directories(probe_pxi_cards
+  PUBLIC
+  ${PICKERING_DIR}
+  ${PICKERING_INCLUDE_DIRS}
+)
+
+target_link_libraries(probe_pxi_cards
+  pilpxi64
+)
+
 # simulink generated code for resistance card
 add_executable(resistance_testing
   ${PICKERING_DIR}/PxiCardTask.cpp
