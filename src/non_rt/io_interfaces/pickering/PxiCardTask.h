@@ -32,6 +32,7 @@ public:
 
 public:
   PxiCardTask();
+  void DisplayCardType(DWORD cardNum);
   void ListAllCards();
   void OpenCard(DWORD cardNum);
   void ViewAllSubunits(DWORD cardNum);

@@ -25,6 +25,10 @@ BOOL PxiCardTask::mState;
 PxiCardTask::PxiCardTask()
 {}
 
+void PxiCardTask::DisplayCardType(DWORD cardNum)
+{
+}
+
 void PxiCardTask::ListAllCards()
 {
   PIL_CountFreeCards(&mNumOfFreeCards);
