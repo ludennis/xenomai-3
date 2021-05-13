@@ -475,8 +475,8 @@ target_link_libraries(peak_can_receive
 
 # pwm_input
 add_executable(pwm_input
+  ${MAIN_DIR}/pwm_input_main.cpp
   ${NI_DIR}/pwm_input.cpp
-  ${NI_DIR}/pwm_input_main.cpp
   ${NI_DIR}/nixseries/Examples/inTimer/aiHelper.cpp
   ${NI_DIR}/nixseries/Examples/counterResetHelper.cpp
   ${NI_DIR}/nimhddk/osiBus.cpp
@@ -502,8 +502,8 @@ set_target_properties(pwm_input
 
 # pwm_output
 add_executable(pwm_output
+  ${MAIN_DIR}/pwm_output_main.cpp
   ${NI_DIR}/pwm_output.cpp
-  ${NI_DIR}/pwm_output_main.cpp
   ${NI_DIR}/nixseries/Examples/inTimer/aiHelper.cpp
   ${NI_DIR}/nixseries/Examples/counterResetHelper.cpp
   ${NI_DIR}/nixseries/Examples/pfiRtsiResetHelper.cpp
