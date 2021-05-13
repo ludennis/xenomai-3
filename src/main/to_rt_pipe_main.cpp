@@ -22,6 +22,9 @@ void TerminationHandler(int signal)
   exit(1);
 }
 
+/*
+ *  Non-rt task that receive dds messages and send to rt tasks
+ */
 int main(int argc, char *argv[])
 {
   struct sigaction action;

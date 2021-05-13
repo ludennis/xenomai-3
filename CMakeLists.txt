@@ -364,13 +364,13 @@ target_link_libraries(probe_pxi_cards
 
 # simulink generated code for resistance card
 add_executable(resistance_testing
+  ${MAIN_DIR}/rt_pickering_resistance_main.cpp
   ${PICKERING_DIR}/PxiCardTask.cpp
   ${PICKERING_DIR}/RtGenerateResistanceArrayTask.cpp
   ${PICKERING_DIR}/RtResistanceTask.cpp
   ${PICKERING_DIR}/RtSharedArray.cpp
   ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing.cpp
   ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing_data.cpp
-  ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing_main.cpp
   ${RT_UTILS_DIR}/RtPeriodicTask.cpp
 )
 set(BIN_TARGETS ${BIN_TARGETS} resistance_testing)
@@ -396,13 +396,13 @@ target_link_libraries(resistance_testing
 
 # simulink generated code for switching card
 add_executable(switching_testing
+  ${MAIN_DIR}/rt_pickering_switching_main.cpp
   ${PICKERING_DIR}/PxiCardTask.cpp
   ${PICKERING_DIR}/RtGenerateStateTask.cpp
   ${PICKERING_DIR}/RtSharedState.cpp
   ${PICKERING_DIR}/RtSwitchTask.cpp
   ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing.cpp
   ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing_data.cpp
-  ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing_main.cpp
   ${RT_UTILS_DIR}/RtPeriodicTask.cpp
 )
 set(BIN_TARGETS ${BIN_TARGETS} switching_testing)
@@ -547,7 +547,7 @@ target_link_libraries(motor_monitor
 # dds from rt pipe
 if(DEFINED DDS)
   add_executable(from_rt_pipe
-    ${DDS_DIR}/from_rt_pipe.cpp
+    ${MAIN_DIR}/from_rt_pipe_main.cpp
   )
   set(BIN_TARGETS ${BIN_TARGETS} from_rt_pipe)
 
@@ -568,7 +568,7 @@ endif()
 # dds to rt pipe
 if(DEFINED DDS)
   add_executable(to_rt_pipe
-    ${DDS_DIR}/to_rt_pipe.cpp
+    ${MAIN_DIR}/to_rt_pipe_main.cpp
   )
   set(BIN_TARGETS ${BIN_TARGETS} to_rt_pipe)
 

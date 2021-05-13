@@ -13,6 +13,9 @@
 #include <dds_bridge.hpp>
 #include <gen/carla_client_server_user_DCPS.hpp>
 
+/*
+ *  Non-rt task that receives messages from rt task and send to dds connected non-rt tasks
+ */
 int main(int argc, char *argv[])
 {
   auto fileDescriptor = open("/dev/rtp1", O_RDONLY);
