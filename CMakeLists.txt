@@ -164,6 +164,7 @@ set(RT_DIR "${PROJECT_SOURCE_DIR}/src/rt")
 set(MOTOR_CONTROL_DIR "${RT_DIR}/motor_control")
 set(MODEL_DIR "${MOTOR_CONTROL_DIR}/model")
 set(MATLAB_DIR "${MODEL_DIR}/matlab")
+set(MAIN_DIR "${PROJECT_SOURCE_DIR}/src/main")
 set(CONTROLLER_DIR "${MOTOR_CONTROL_DIR}/controller")
 set(RT_UTILS_DIR "${RT_DIR}/rt_utils")
 set(SIMULINK_GENERATED_DIR "${RT_DIR}/simulink_generated")
@@ -271,7 +272,7 @@ target_include_directories(motor_model_lib
 
 # motor_model_v2
 add_executable(motor
-  ${MODEL_DIR}/ert_main.cpp
+  ${MAIN_DIR}/motor_model_main.cpp
 )
 set(BIN_TARGETS ${BIN_TARGETS} motor)
 
@@ -299,7 +300,7 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 add_executable(controller
-  ${CONTROLLER_DIR}/controller_main.cpp
+  ${MAIN_DIR}/motor_control_main.cpp
 )
 set(BIN_TARGETS ${BIN_TARGETS} controller)
 
@@ -529,7 +530,7 @@ set_target_properties(pwm_output
 
 # motor monitor
 add_executable(motor_monitor
-  ${MOTOR_CONTROL_DIR}/monitor/motor_monitor.cpp
+  ${MAIN_DIR}/motor_monitor_main.cpp
 )
 set(BIN_TARGETS ${BIN_TARGETS} motor_monitor)
 
