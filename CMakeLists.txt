@@ -325,7 +325,7 @@ target_compile_options(controller
 link_directories("/usr/local/lib")
 
 #add_executable(non_precision_resistor_controller
-#  ${PICKERING_DIR}/non_precision_resistor_controller_main.cpp
+#  ${MAIN_DIR}/non_precision_resistor_controller_main.cpp
 #  ${PICKERING_DIR}/RtResistanceTask.cpp
 #  ${PICKERING_DIR}/RtResistanceTask.h
 #  ${PICKERING_DIR}/RtSharedArray.cpp
@@ -346,7 +346,7 @@ link_directories("/usr/local/lib")
 
 # utility for probing pxi cards
 add_executable(probe_pxi_cards
-  ${PICKERING_DIR}/ProbePxiCards.cpp
+  ${MAIN_DIR}/probe_pxi_cards_main.cpp
   ${PICKERING_DIR}/PxiCardTask.cpp
 )
 
@@ -428,7 +428,7 @@ target_link_libraries(switching_testing
 
 # peak can
 add_executable(peak_can_transmit
-  ${PEAK_CAN_DIR}/peak_can_transmit.cpp
+  ${MAIN_DIR}/peak_can_transmit_main.cpp
   ${PEAK_CAN_DIR}/PeakCanTask.cpp
   ${PEAK_CAN_DIR}/RtPeakCanTransmitTask.cpp
   ${RT_UTILS_DIR}/RtPeriodicTask.cpp
@@ -451,7 +451,7 @@ target_link_libraries(peak_can_transmit
 )
 
 add_executable(peak_can_receive
-  ${PEAK_CAN_DIR}/peak_can_receive.cpp
+  ${MAIN_DIR}/peak_can_receive_main.cpp
   ${PEAK_CAN_DIR}/PeakCanTask.cpp
   ${PEAK_CAN_DIR}/RtPeakCanReceiveTask.cpp
   ${RT_UTILS_DIR}/RtPeriodicTask.cpp
