@@ -178,11 +178,11 @@ endif()
 
 set(IDL_DIR "${NON_RT_DIR}/idl")
 set(UTILS_DIR "${NON_RT_DIR}/utils")
-set(IO_INTERFACES_DIR "${NON_RT_DIR}/io_interfaces")
-set(PICKERING_DIR "${IO_INTERFACES_DIR}/pickering")
-set(PEAK_CAN_DIR "${IO_INTERFACES_DIR}/peak_can")
+set(PICKERING_DIR "${NON_RT_DIR}/io_interfaces/pickering")
+set(RT_PICKERING_DIR "${RT_DIR}/io_interfaces/pickering")
+set(PEAK_CAN_DIR "${NON_RT_DIR}/io_interfaces/peak_can")
 set(RT_PEAK_CAN_DIR "${RT_DIR}/io_interfaces/peak_can")
-set(NI_DIR "${IO_INTERFACES_DIR}/ni")
+set(NI_DIR "${NON_RT_DIR}/io_interfaces/ni")
 
 # set paths for libs and includes
 set(PICKERING_INCLUDE_DIR "/usr/local/lib")
@@ -327,15 +327,15 @@ link_directories("/usr/local/lib")
 
 #add_executable(non_precision_resistor_controller
 #  ${MAIN_DIR}/non_precision_resistor_controller_main.cpp
-#  ${PICKERING_DIR}/RtResistanceTask.cpp
-#  ${PICKERING_DIR}/RtResistanceTask.h
-#  ${PICKERING_DIR}/RtSharedArray.cpp
-#  ${PICKERING_DIR}/RtSharedArray.h
+#  ${RT_PICKERING_DIR}/RtResistanceTask.cpp
+#  ${RT_PICKERING_DIR}/RtResistanceTask.h
+#  ${RT_PICKERING_DIR}/RtSharedArray.cpp
+#  ${RT_PICKERING_DIR}/RtSharedArray.h
 #)
 #
 #target_include_directories(non_precision_resistor_controller
 #  SYSTEM PUBLIC
-#  ${PICKERING_DIR}
+#  ${RT_PICKERING_DIR}
 #  ${PICKERING_INCLUDE_DIRS}
 #  ${XENOMAI_INCLUDE_DIRS}
 #)
@@ -367,9 +367,9 @@ target_link_libraries(probe_pxi_cards
 add_executable(resistance_testing
   ${MAIN_DIR}/rt_pickering_resistance_main.cpp
   ${PICKERING_DIR}/PxiCardTask.cpp
-  ${PICKERING_DIR}/RtGenerateResistanceArrayTask.cpp
-  ${PICKERING_DIR}/RtResistanceTask.cpp
-  ${PICKERING_DIR}/RtSharedArray.cpp
+  ${RT_PICKERING_DIR}/RtGenerateResistanceArrayTask.cpp
+  ${RT_PICKERING_DIR}/RtResistanceTask.cpp
+  ${RT_PICKERING_DIR}/RtSharedArray.cpp
   ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing.cpp
   ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw/testing_data.cpp
   ${RT_UTILS_DIR}/RtPeriodicTask.cpp
@@ -383,6 +383,7 @@ target_include_directories(resistance_testing
   ${MATLAB_DIR}/rtw/c/src/ext_mode/common
   ${MATLAB_DIR}/simulink/include
   ${PICKERING_DIR}
+  ${RT_PICKERING_DIR}
   ${PICKERING_INCLUDE_DIRS}
   ${SIMULINK_GENERATED_DIR}
   ${SIMULINK_GENERATED_DIR}/resistance_testing_grt_rtw
@@ -399,9 +400,9 @@ target_link_libraries(resistance_testing
 add_executable(switching_testing
   ${MAIN_DIR}/rt_pickering_switching_main.cpp
   ${PICKERING_DIR}/PxiCardTask.cpp
-  ${PICKERING_DIR}/RtGenerateStateTask.cpp
-  ${PICKERING_DIR}/RtSharedState.cpp
-  ${PICKERING_DIR}/RtSwitchTask.cpp
+  ${RT_PICKERING_DIR}/RtGenerateStateTask.cpp
+  ${RT_PICKERING_DIR}/RtSharedState.cpp
+  ${RT_PICKERING_DIR}/RtSwitchTask.cpp
   ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing.cpp
   ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw/testing_data.cpp
   ${RT_UTILS_DIR}/RtPeriodicTask.cpp
@@ -415,6 +416,7 @@ target_include_directories(switching_testing
   ${MATLAB_DIR}/rtw/c/src/ext_mode/common
   ${MATLAB_DIR}/simulink/include
   ${PICKERING_DIR}
+  ${RT_PICKERING_DIR}
   ${PICKERING_INCLUDE_DIRS}
   ${SIMULINK_GENERATED_DIR}
   ${SIMULINK_GENERATED_DIR}/switching_testing_grt_rtw
@@ -440,7 +442,6 @@ target_include_directories(peak_can_transmit
   PUBLIC
   ${PEAK_CAN_DIR}
   ${PEAK_CAN_INCLUDE_DIR}
-  ${PICKERING_DIR}
   ${RT_PEAK_CAN_DIR}
   ${RT_UTILS_DIR}
   ${XENOMAI_INCLUDE_DIRS}
@@ -464,7 +465,6 @@ target_include_directories(peak_can_receive
   PUBLIC
   ${PEAK_CAN_DIR}
   ${PEAK_CAN_INCLUDE_DIR}
-  ${PICKERING_DIR}
   ${XENOMAI_INCLUDE_DIRS}
   ${RT_PEAK_CAN_DIR}
   ${RT_UTILS_DIR}
