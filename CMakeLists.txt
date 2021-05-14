@@ -181,6 +181,7 @@ set(UTILS_DIR "${NON_RT_DIR}/utils")
 set(IO_INTERFACES_DIR "${NON_RT_DIR}/io_interfaces")
 set(PICKERING_DIR "${IO_INTERFACES_DIR}/pickering")
 set(PEAK_CAN_DIR "${IO_INTERFACES_DIR}/peak_can")
+set(RT_PEAK_CAN_DIR "${RT_DIR}/io_interfaces/peak_can")
 set(NI_DIR "${IO_INTERFACES_DIR}/ni")
 
 # set paths for libs and includes
@@ -428,9 +429,9 @@ target_link_libraries(switching_testing
 
 # peak can
 add_executable(peak_can_transmit
-  ${MAIN_DIR}/peak_can_transmit_main.cpp
+  ${MAIN_DIR}/rt_peak_can_transmit_main.cpp
   ${PEAK_CAN_DIR}/PeakCanTask.cpp
-  ${PEAK_CAN_DIR}/RtPeakCanTransmitTask.cpp
+  ${RT_PEAK_CAN_DIR}/RtPeakCanTransmitTask.cpp
   ${RT_UTILS_DIR}/RtPeriodicTask.cpp
 )
 set(BIN_TARGETS ${BIN_TARGETS} peak_can_transmit)
@@ -440,6 +441,7 @@ target_include_directories(peak_can_transmit
   ${PEAK_CAN_DIR}
   ${PEAK_CAN_INCLUDE_DIR}
   ${PICKERING_DIR}
+  ${RT_PEAK_CAN_DIR}
   ${RT_UTILS_DIR}
   ${XENOMAI_INCLUDE_DIRS}
 )
@@ -451,9 +453,9 @@ target_link_libraries(peak_can_transmit
 )
 
 add_executable(peak_can_receive
-  ${MAIN_DIR}/peak_can_receive_main.cpp
+  ${MAIN_DIR}/rt_peak_can_receive_main.cpp
   ${PEAK_CAN_DIR}/PeakCanTask.cpp
-  ${PEAK_CAN_DIR}/RtPeakCanReceiveTask.cpp
+  ${RT_PEAK_CAN_DIR}/RtPeakCanReceiveTask.cpp
   ${RT_UTILS_DIR}/RtPeriodicTask.cpp
 )
 set(BIN_TARGETS ${BIN_TARGETS} peak_can_receive)
@@ -464,6 +466,7 @@ target_include_directories(peak_can_receive
   ${PEAK_CAN_INCLUDE_DIR}
   ${PICKERING_DIR}
   ${XENOMAI_INCLUDE_DIRS}
+  ${RT_PEAK_CAN_DIR}
   ${RT_UTILS_DIR}
 )
 
